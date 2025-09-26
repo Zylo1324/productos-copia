@@ -234,7 +234,7 @@ main {
 }
 
 .hero-image img {
-  width: min(420px, 100%);
+  width: clamp(260px, 42vw, 620px);
 }
 
 .eyebrow {
@@ -273,7 +273,7 @@ main {
 }
 
 .product-card img {
-  width: min(360px, 100%);
+  width: clamp(220px, 36vw, 520px);
   justify-self: end;
 }
 
@@ -311,7 +311,7 @@ main {
 
 .callout img {
   justify-self: end;
-  width: min(320px, 100%);
+  width: clamp(220px, 35vw, 520px);
 }
 
 .callout-content {
