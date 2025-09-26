@@ -456,11 +456,18 @@ main {
     background: rgba(0, 0, 0, 0.85);
     padding: var(--space-lg) var(--space-md);
     transform: translateY(-100%);
-    transition: transform 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
   }
 
   .primary-nav.open {
     transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0s;
   }
 
   .primary-nav ul {
