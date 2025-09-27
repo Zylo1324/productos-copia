@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Acceso a Productos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="card" aria-live="polite">
+        <header class="card__header">
+          <h1>Tu cuenta de Productos</h1>
+          <p>
+            Inicia sesión o crea una cuenta con tu correo electrónico para continuar.
+          </p>
+        </header>
+        <div class="steps" data-stepper>
+          <section class="step is-active" data-step="email" aria-hidden="false">
+            <form id="email-form" novalidate>
+              <div class="field">
+                <label for="email" class="field__label">Correo electrónico</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  inputmode="email"
+                  autocomplete="email"
+                  placeholder="tu-correo@ejemplo.com"
+                  required
+                />
+              </div>
+              <p class="feedback" data-feedback="email" role="alert"></p>
+              <button type="submit" class="btn btn--primary">Continuar</button>
+            </form>
+            <div class="divider" role="presentation">
+              <span>o</span>
+            </div>
+            <div class="google" aria-live="polite">
+              <div id="googleButton" class="google__button" data-text="signup"></div>
+              <p class="feedback feedback--subtle" data-google-feedback>
+                Configura tu Client ID de Google para habilitar este botón.
+              </p>
+            </div>
+          </section>
+
+          <section class="step" data-step="password" aria-hidden="true">
+            <form id="password-form" novalidate>
+              <header class="step__header">
+                <h2 id="password-title">Introduce tu contraseña</h2>
+                <p id="password-description">
+                  Estamos verificando la cuenta <span class="current-email"></span>.
+                </p>
+              </header>
+              <div class="field">
+                <label for="password" class="field__label">Contraseña</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  minlength="8"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <p class="feedback" data-feedback="password" role="alert"></p>
+              <div class="actions">
+                <button type="button" class="btn btn--ghost" data-action="back" data-target="email">
+                  Cambiar correo
+                </button>
+                <button type="submit" class="btn btn--primary">Continuar</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="step" data-step="verification" aria-hidden="true">
+            <form id="verification-form" novalidate>
+              <header class="step__header">
+                <h2>Verifica tu correo</h2>
+                <p>
+                  Enviamos un código de 6 dígitos a <span class="current-email"></span>.
+                </p>
+              </header>
+              <div class="field">
+                <label for="verification-code" class="field__label">Código de verificación</label>
+                <input
+                  id="verification-code"
+                  name="verificationCode"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  pattern="\\d{6}"
+                  maxlength="6"
+                  placeholder="000000"
+                  required
+                />
+              </div>
+              <p class="feedback" data-feedback="verification" role="alert"></p>
+              <div class="actions">
+                <button type="button" class="btn btn--ghost" data-action="back" data-target="password">
+                  Volver
+                </button>
+                <button type="submit" class="btn btn--primary">Confirmar</button>
+              </div>
+              <button type="button" class="btn btn--secondary" data-action="resend" disabled>
+                Reenviar código (60s)
+              </button>
+              <p class="feedback feedback--success" data-feedback="verification-success" role="status"></p>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      window.APP_CONFIG = {
+        googleClientId: "",
+        googleCallbackEndpoint: "",
+        checkEmailEndpoint: "",
+        mailEndpoint: ""
+      };
+
+      window.handleGoogleLoad = function handleGoogleLoad() {
+        if (typeof window.initializeGoogleSignIn === "function") {
+          window.initializeGoogleSignIn();
+        }
+      };
+    </script>
+    <script src="./script.js" defer></script>
+    <script
+      src="https://accounts.google.com/gsi/client"
+      async
+      defer
+      onload="window.handleGoogleLoad()"
+    ></script>
+  </body>
+</html>
