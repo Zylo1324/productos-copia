@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
   <style>
     :root{
       --bg:#000000; --ink:#f8fafc; --ink-soft:#d2d9e6; --muted:#9aa7bb;
@@ -427,85 +426,6 @@
   </style>
 </head>
 <body>
-  <main class="shell">
-    <article class="card">
-      <header class="card__header">
-        <h1>ZYLO</h1>
-        <p>Centraliza clientes y servicios con un acceso seguro en minutos.</p>
-      </header>
-
-      <div class="steps" data-stepper>
-        <section class="step is-active" data-step="email" aria-hidden="false">
-          <div class="step__header">
-            <h2>Empecemos con tu correo</h2>
-            <p>Confirma la cuenta que quieres administrar con ZYLO.</p>
-          </div>
-
-          <form id="email-form" novalidate>
-            <div class="field">
-              <label class="field__label" for="email">Correo electrónico</label>
-              <input id="email" type="email" autocomplete="email" placeholder="tucorreo@empresa.com" required />
-            </div>
-            <p class="feedback" data-feedback="email" role="alert"></p>
-            <div class="actions">
-              <button type="submit" class="btn btn--primary">Continuar</button>
-            </div>
-          </form>
-
-          <div class="divider">o continúa con</div>
-          <div class="google__button">
-            <div id="googleButton"></div>
-          </div>
-          <p class="feedback feedback--subtle" data-google-feedback role="status"></p>
-        </section>
-
-        <section class="step" data-step="password" aria-hidden="true">
-          <div class="step__header">
-            <h2 id="password-title">Introduce tu contraseña</h2>
-            <p id="password-description">
-              Escribe la contraseña asociada a <span class="current-email">tu correo</span>.
-            </p>
-          </div>
-
-          <form id="password-form" novalidate>
-            <div class="field">
-              <label class="field__label" for="password">Contraseña</label>
-              <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" minlength="8" required />
-            </div>
-            <p class="feedback" data-feedback="password" role="alert"></p>
-            <div class="actions">
-              <button type="button" class="btn btn--ghost" data-action="back" data-target="email">Volver</button>
-              <button type="submit" class="btn btn--primary">Continuar</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="step" data-step="verification" aria-hidden="true">
-          <div class="step__header">
-            <h2>Verifica tu identidad</h2>
-            <p>
-              Enviamos un código a <span class="current-email">tu correo</span>. Escríbelo para acceder.
-            </p>
-          </div>
-
-          <form id="verification-form" novalidate>
-            <div class="field">
-              <label class="field__label" for="verification-code">Código de verificación</label>
-              <input id="verification-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required />
-            </div>
-            <p class="feedback" data-feedback="verification" role="alert"></p>
-            <p class="feedback feedback--success" data-feedback="verification-success" role="status"></p>
-            <div class="actions">
-              <button type="button" class="btn btn--ghost" data-action="back" data-target="password">Volver</button>
-              <button type="submit" class="btn btn--primary">Confirmar código</button>
-            </div>
-          </form>
-          <button type="button" class="btn btn--secondary" data-action="resend">Reenviar código</button>
-        </section>
-      </div>
-    </article>
-  </main>
-
   <section class="landing" data-landing>
     <div class="landing-hero">
       <div class="landing-logo" aria-hidden="true">🪄</div>
@@ -574,8 +494,8 @@
           </div>
           <button id="btnForgot" class="linklike" type="button">¿Olvidaste tu contraseña?</button>
           <div class="landing-google">
-            <div id="legacyGoogleButton"></div>
-            <p class="small" data-google-feedback-legacy></p>
+            <div id="googleButton"></div>
+            <p class="small" data-google-feedback></p>
           </div>
         </form>
       </article>
@@ -583,10 +503,7 @@
   </section>
 
   <div data-dashboard hidden>
-    <div class="dashboard" role="region" aria-label="Panel de clientes">
-      <iframe data-dashboard-frame title="Panel ZYLO"></iframe>
-    </div>
-    <button type="button" id="sidebarLauncher" class="sidebar-launcher" aria-controls="sidebar" aria-label="Abrir navegación" aria-expanded="false">☰</button>
+  <button type="button" id="sidebarLauncher" class="sidebar-launcher" aria-controls="sidebar" aria-label="Abrir navegación" aria-expanded="false">☰</button>
 
   <aside class="sidebar" id="sidebar" data-pinned="false" aria-hidden="true">
     <div class="sidebar-content">
@@ -669,8 +586,8 @@
 
             <!-- EMAIL con dropdown contextual por servicio -->
             <div class="row suggestion-source">
-              <label for="clientEmail">Email</label>
-              <input id="clientEmail" type="email" placeholder="ej: cliente@mail.com" aria-expanded="false" aria-controls="emailSuggestionDropdown" />
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="ej: cliente@mail.com" aria-expanded="false" aria-controls="emailSuggestionDropdown" />
               <button class="email-toggle" id="emailDropdownToggle" type="button" aria-label="Mostrar correos guardados">▾</button>
               <div id="emailSuggestionDropdown" class="suggestion-dropdown" role="listbox" aria-hidden="true"></div>
             </div>
@@ -817,7 +734,6 @@
 
 </div>
 
-<script type="module" src="./script.js"></script>
 <script>
 /* ====== CONFIG API ====== */
 const API_BASE_URL = ((window.APP_CONFIG?.apiBaseUrl) || '/api').replace(/\/$/, '');
@@ -882,7 +798,7 @@ async function apiFetch(path,{ method='GET', body, headers={}, silent401=false }
 /* ===== helpers y refs ===== */
 const $=s=>document.querySelector(s);
 const tbody=$('#tabla tbody');
-const f={nombre:$('#nombre'),email:$('#clientEmail'),telefono:$('#telefono'),
+const f={nombre:$('#nombre'),email:$('#email'),telefono:$('#telefono'),
 servicio:$('#servicio'),inicio:$('#inicio'),vence:$('#vence'),notas:$('#notas'),
 categoria:$('#categoria'), pin:$('#pin')};
 const q=$('#q'), filterEstado=$('#filterEstado'), msg=$('#msg');
@@ -906,7 +822,7 @@ const signupPassEl=document.getElementById('signupPass');
 const signupConfirmEl=document.getElementById('signupConfirm');
 const signupErrorEl=document.getElementById('signupError');
 const loginForm=document.getElementById('loginForm');
-const googleFeedbackEl=document.querySelector('[data-google-feedback-legacy]');
+const googleFeedbackEl=document.querySelector('[data-google-feedback]');
 
 function setLandingView(view){
   landingPanels.forEach(panel=>{
@@ -915,7 +831,7 @@ function setLandingView(view){
     panel.setAttribute('aria-hidden',String(!isActive));
   });
   if(view==='login'){
-    if(typeof initializeLegacyGoogleSignIn==='function'){ initializeLegacyGoogleSignIn(); }
+    if(typeof initializeGoogleSignIn==='function'){ initializeGoogleSignIn(); }
     setTimeout(()=>authEmailEl?.focus(),0);
   }else if(view==='signup'){
     setTimeout(()=>signupEmailEl?.focus(),0);
@@ -1631,8 +1547,8 @@ function handleGoogleCredentialResponse(response){
 }
 
 let googleButtonInitialized=false;
-function initializeLegacyGoogleSignIn(){
-  const googleContainer=document.getElementById('legacyGoogleButton');
+function initializeGoogleSignIn(){
+  const googleContainer=document.getElementById('googleButton');
   if(!googleContainer){ return; }
   if(typeof window.google==='undefined'){ return; }
   const config=window.APP_CONFIG||{};
@@ -1654,12 +1570,7 @@ function initializeLegacyGoogleSignIn(){
     width:'100%'
   });
 }
-window.addEventListener('load',()=>initializeLegacyGoogleSignIn());
-window.addEventListener('load',()=>{
-  if(typeof window.initializeGoogleSignIn==='function'){
-    window.initializeGoogleSignIn();
-  }
-});
+window.addEventListener('load',()=>initializeGoogleSignIn());
 document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
   try{
     await apiFetch('/auth/sign-out', { method:'POST' });
