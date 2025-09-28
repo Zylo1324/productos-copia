@@ -192,12 +192,14 @@
 
   <script type="module">
     import { auth } from './firebaseConfig.js';
-    import {
-      signInWithEmailAndPassword,
-      GoogleAuthProvider,
-      signInWithPopup,
-      sendPasswordResetEmail
-    } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  sendEmailVerification,   // <-- agrega esta
+  signOut                  // <-- y esta
+} from 'firebase/auth';
 
     const loginForm=document.getElementById('loginForm');
     const authEmailEl=document.getElementById('authEmail');
@@ -241,17 +243,26 @@
       const originalText=btnAuthSubmit.textContent;
       btnAuthSubmit.disabled=true;
       btnAuthSubmit.textContent='Procesando…';
-      try{
-        await signInWithEmailAndPassword(auth,email,pass);
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        
+        await cred.user.reload();
+        if (!cred.user.emailVerified) {
+          try { 
+            await sendEmailVerification(cred.user); 
+          } catch (_) {}
+          
+          setError('✉️ Debes verificar tu correo. Te enviamos un email de verificación. Revisa tu bandeja.', 'info');
+          await signOut(auth);   // Cierra sesión hasta que confirme
+          return;
+        }
         setError('Sesión iniciada. Puedes cerrar esta ventana.', 'success');
-        setTimeout(()=>window.close(), 1200);
-      }catch(error){
+        setTimeout(() => window.close(), 1200);
+      } catch (error) {
         console.error(error);
-        setError(error?.message||'No se pudo acceder.');
-      }finally{
-        btnAuthSubmit.disabled=false;
-        btnAuthSubmit.textContent=originalText;
+        setError(error?.message || 'No se pudo acceder.');
       }
+
     });
 
     btnForgot?.addEventListener('click',async ()=>{
