@@ -1886,8 +1886,6 @@ $('#btnEliminarServicio').onclick = async ()=>{
 document.getElementById('togglePin')?.addEventListener('click',()=>{ const el=f.pin; const isPass=el.type==='password'; el.type=isPass?'text':'password'; document.getElementById('togglePin').textContent=isPass?'🙈':'👁'; });
 
 /* ===== Chat (Gemini) ===== */
-const GEMINI_API_KEY = 'AIzaSyC9hpKbGmUx3_YcgVGI3AEOdKvWRSoU81k';
-const GEMINI_MODEL  = 'gemini-1.5-flash';
 const chatModal = document.getElementById('chatModal');
 const btnChatOpen = document.getElementById('btnChatOpen');
 const btnChatClose = document.getElementById('btnChatClose');
@@ -1936,18 +1934,25 @@ function buildPrompt(userMsg){
   return prompt;
 }
 async function requestGemini(prompt){
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-  const payload = { contents: [{ role:'user', parts:[{ text: prompt }]}] };
-  const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  if(!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  return json?.candidates?.[0]?.content?.parts?.[0]?.text || '(sin respuesta)';
+  return apiFetch('/ai/gemini', {
+    method:'POST',
+    body:{ prompt }
+  });
 }
 async function sendChat(){
   const text = (chatInputEl?.value||'').trim(); if(!text) return;
   chatHistory.push({ role:'user', text }); renderChat(); chatInputEl.value='';
-  try{ const reply = await requestGemini(buildPrompt(text)); chatHistory.push({ role:'ai', text: reply }); tryApplyToolFrom(reply, text); }
-  catch(err){ chatHistory.push({ role:'ai', text: `[Error al llamar a Gemini: ${err.message}]` }); }
+  try{
+    const response = await requestGemini(buildPrompt(text));
+    const replyText = response?.reply?.text ?? response?.reply ?? response?.text ?? '(sin respuesta)';
+    const safeReply = typeof replyText === 'string' ? replyText : JSON.stringify(replyText);
+    chatHistory.push({ role:'ai', text: safeReply });
+    tryApplyToolFrom(safeReply, text);
+  }
+  catch(err){
+    const message = err?.message || 'No se pudo obtener respuesta del asistente. Inténtalo nuevamente más tarde.';
+    chatHistory.push({ role:'ai', text: `Error del asistente: ${message}` });
+  }
   localStorage.setItem('chat_v1', JSON.stringify(chatHistory));
   renderChat();
 }
