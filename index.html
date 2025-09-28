@@ -633,14 +633,66 @@
     </div>
   </div>
 
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
 <script>
-/* ====== CONFIG Supabase ====== */
-const SUPABASE_URL = 'https://dlumywskboedejmeejvp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdW15d3NrYm9lZGVqbWVlanZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0Nzk0ODMsImV4cCI6MjA3NDA1NTQ4M30.Ty7b0T6qVneREsH8vKObhpXm5d6wbfXRkA2cFeMzphA';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/* ====== CONFIG API ====== */
+const API_BASE_URL = ((window.APP_CONFIG?.apiBaseUrl) || '/api').replace(/\/$/, '');
+const SESSION_STORAGE_KEY = 'cloud_session_v1';
+
+function readStoredSession(){
+  try{
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch{
+    return null;
+  }
+}
+
+function persistSession(session){
+  if(!session || !session.access_token){
+    return clearStoredSession();
+  }
+  try{
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+  }catch(err){
+    console.warn('No se pudo almacenar la sesión en localStorage', err);
+  }
+  return session;
+}
+
+function clearStoredSession(){
+  try{ localStorage.removeItem(SESSION_STORAGE_KEY); }catch{}
+  return null;
+}
+
+function getStoredAccessToken(){
+  return readStoredSession()?.access_token || null;
+}
+
+async function apiFetch(path,{ method='GET', body, headers={}, silent401=false }={}){
+  const finalHeaders = { ...headers };
+  const token = getStoredAccessToken();
+  if(token){ finalHeaders.Authorization = `Bearer ${token}`; }
+  let payload;
+  if(body !== undefined){
+    finalHeaders['Content-Type'] = 'application/json';
+    payload = JSON.stringify(body);
+  }
+  const response = await fetch(`${API_BASE_URL}${path}`, { method, headers: finalHeaders, body: payload });
+  if(response.status === 401){
+    if(!silent401) handleUnauthorized();
+    const error = new Error('No autorizado');
+    error.code = 'unauthorized';
+    throw error;
+  }
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+  if(!response.ok){
+    const error = new Error(data?.error || 'Error en la solicitud');
+    error.code = data?.code || 'request_failed';
+    throw error;
+  }
+  return data;
+}
 
 /* ===== helpers y refs ===== */
 const $=s=>document.querySelector(s);
@@ -1111,15 +1163,60 @@ function saveLocalClients(){
   }catch{}
 }
 
-/* ====== AUTH (Supabase) ====== */
+/* ====== AUTH (API backend) ====== */
 let currentUser = null;
-sb.auth.onAuthStateChange((_e, session)=>{
-  currentUser = session?.user || null;
+let authInitPromise = null;
+
+function updateUserState(user){
+  currentUser = user;
   authUpdateUI();
-  syncLocalServicesToCloudIfEmpty().finally(()=>{
-    renderServicios().then(renderTabla);
-  });
-});
+  (async()=>{
+    try{
+      if(user){ await syncLocalServicesToCloudIfEmpty(); }
+    }catch(err){
+      console.error(err);
+    }finally{
+      await renderServicios();
+      await renderTabla();
+    }
+  })();
+}
+
+function handleUnauthorized(){
+  const hadUser = !!currentUser;
+  clearStoredSession();
+  updateUserState(null);
+  authInitPromise = Promise.resolve(null);
+  if(hadUser){ toast('Tu sesión expiró. Vuelve a iniciar sesión.'); }
+}
+
+async function fetchSessionUser(){
+  const token = getStoredAccessToken();
+  if(!token){
+    updateUserState(null);
+    return null;
+  }
+  try{
+    const data = await apiFetch('/auth/session', { method:'GET', silent401:true });
+    const user = data?.user || null;
+    updateUserState(user);
+    return user;
+  }catch(error){
+    if(error.code === 'unauthorized'){
+      clearStoredSession();
+      updateUserState(null);
+    }else{
+      console.error(error);
+    }
+    return null;
+  }
+}
+
+function ensureAuthInitialized(){
+  if(!authInitPromise){ authInitPromise = fetchSessionUser(); }
+  return authInitPromise;
+}
+
 function authUpdateUI(){
   const badge = document.getElementById('userInfo');
   const btnAuthOpen = document.getElementById('btnAuthOpen');
@@ -1160,15 +1257,17 @@ toggleAuthPass?.addEventListener('click', ()=>{
 
 // sign-in/up unificado
 async function autoSignInOrUp(email, password) {
-  let { error } = await sb.auth.signInWithPassword({ email, password });
-  if (!error) return { ok: true };
-  const { data, error: eUp } = await sb.auth.signUp({ email, password });
-  if (eUp) return { ok: false, message: eUp.message };
-  if (!data.session) {
-    const { error: eIn2 } = await sb.auth.signInWithPassword({ email, password });
-    if (eIn2) return { ok: false, message: eIn2.message };
+  try{
+    const payload = await apiFetch('/auth/sign-in', { method:'POST', body:{ email, password } });
+    if(payload?.session){ persistSession(payload.session); }
+    if(payload?.user){
+      updateUserState(payload.user);
+      authInitPromise = Promise.resolve(payload.user);
+    }
+    return { ok: true };
+  }catch(error){
+    return { ok: false, message: error.message };
   }
-  return { ok: true };
 }
 btnAuthSubmit?.addEventListener('click', async () => {
   const email = (authEmailEl.value || '').trim();
@@ -1183,19 +1282,33 @@ btnAuthSubmit?.addEventListener('click', async () => {
   }catch(err){ authErrorEl.textContent = err.message || 'Error inesperado.'; }
   finally{ btnAuthSubmit.disabled = false; btnAuthSubmit.textContent = 'Continuar'; }
 });
-document.getElementById('btnLogout')?.addEventListener('click', async ()=>{ await sb.auth.signOut(); });
+document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
+  try{
+    await apiFetch('/auth/sign-out', { method:'POST' });
+  }catch(err){
+    console.warn('No se pudo cerrar sesión remotamente', err);
+  }finally{
+    clearStoredSession();
+    updateUserState(null);
+    authInitPromise = Promise.resolve(null);
+  }
+});
 
 // reset pass
 btnForgot?.addEventListener('click', async ()=>{
   const email = (authEmailEl.value||'').trim();
   authErrorEl.style.color = 'var(--danger)'; authErrorEl.textContent = '';
   if(!email){ authErrorEl.textContent = 'Escribe tu correo arriba para enviarte el enlace.'; return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
-  if(error){ authErrorEl.textContent = error.message || 'No se pudo enviar el correo de recuperación.'; return; }
-  authErrorEl.style.color = 'var(--success)'; authErrorEl.textContent = 'Te enviamos un correo para restablecer tu contraseña.';
+  try{
+    await apiFetch('/auth/reset-password', { method:'POST', body:{ email, redirectTo: location.origin + location.pathname } });
+    authErrorEl.style.color = 'var(--success)';
+    authErrorEl.textContent = 'Te enviamos un correo para restablecer tu contraseña.';
+  }catch(error){
+    authErrorEl.textContent = error.message || 'No se pudo enviar el correo de recuperación.';
+  }
 });
 
-/* ====== DB en la nube (Supabase) ====== */
+/* ====== DB en la nube (API) ====== */
 let cacheClientes = localClients.slice();
 let cacheServicios = [];
 const db = {
@@ -1206,9 +1319,14 @@ const db = {
       cacheClientes = localClients.slice();
       return cacheClientes.slice();
     }
-    const { data, error } = await sb.from('clients').select('*').eq('user_id', currentUser.id).order('nombre', { ascending:true });
-    if(error){ console.error(error); cacheClientes=[]; return cacheClientes; }
-    cacheClientes = data||[]; return cacheClientes.slice();
+    try{
+      const payload = await apiFetch('/clients');
+      cacheClientes = payload?.items || [];
+    }catch(error){
+      console.error(error);
+      cacheClientes = [];
+    }
+    return cacheClientes.slice();
   },
   async saveOne(rec){
     if(!currentUser){
@@ -1220,50 +1338,53 @@ const db = {
       localClients.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); saveLocalClients();
       cacheClientes = localClients.slice(); return payload;
     }
-    const rowNoId = {
-      user_id: currentUser.id,
+    const payload = {
       nombre:rec.nombre, email:rec.email, telefono:rec.telefono, servicio:rec.servicio,
       inicio:rec.inicio, vence:rec.vence, categoria:rec.categoria, notas:rec.notas, pin:rec.pin, ts:rec.ts
     };
-    let data, error; const hasId = rec.id!==undefined && rec.id!==null && `${rec.id}`.trim()!=='';
-    if (!hasId) ({ data, error } = await sb.from('clients').insert(rowNoId).select().single());
-    else {
-      ({ data, error } = await sb.from('clients').update(rowNoId).eq('id', rec.id).select().single());
-      if (error) ({ data, error } = await sb.from('clients').upsert({ ...rowNoId, id: rec.id }, { onConflict: 'id' }).select().single());
+    let saved;
+    const hasId = rec.id!==undefined && rec.id!==null && `${rec.id}`.trim()!=='';
+    if(hasId){
+      const response = await apiFetch(`/clients/${rec.id}`, { method:'PUT', body: payload });
+      saved = response?.item;
+    }else{
+      const response = await apiFetch('/clients', { method:'POST', body: payload });
+      saved = response?.item;
     }
-    if (error) throw error;
-    const i = cacheClientes.findIndex(x=>x.id===data.id);
-    if(i>=0) cacheClientes[i]=data; else cacheClientes.push(data);
-    cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); return data;
+    if(!saved) throw new Error('No se pudo guardar el cliente.');
+    const i = cacheClientes.findIndex(x=>x.id===saved.id);
+    if(i>=0) cacheClientes[i]=saved; else cacheClientes.push(saved);
+    cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); return saved;
   },
   async deleteOne(id){
     if(!currentUser){
       localClients = loadLocalClients().filter(x=>x && x.id!==id); saveLocalClients(); cacheClientes = localClients.slice(); return;
     }
-    const { error } = await sb.from('clients').delete().eq('id', id);
-    if(error) throw error; cacheClientes = cacheClientes.filter(x=>x.id!==id);
+    await apiFetch(`/clients/${id}`, { method:'DELETE' });
+    cacheClientes = cacheClientes.filter(x=>x.id!==id);
   },
   async saveAll(arr){
     if(!currentUser){
       localClients = arr.map(x=>({ ...x })); localClients.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); saveLocalClients(); cacheClientes = localClients.slice(); return;
     }
-    const rows = arr.map(x=>({ ...x, user_id: currentUser.id }));
-    const { error } = await sb.from('clients').upsert(rows, { onConflict:'id' });
-    if(error) throw error; cacheClientes = arr.slice();
+    await apiFetch('/clients/bulk', { method:'PUT', body:{ items: arr } });
+    cacheClientes = arr.slice();
   },
   getServicios(){ return currentUser ? cacheServicios.slice() : localServices.slice(); },
   async fetchServicios(){
     if (!currentUser) return localServices.slice();
-    const { data, error } = await sb.from('services').select('name').eq('user_id', currentUser.id).order('name');
-    if(error){ console.error(error); cacheServicios = []; return []; }
-    cacheServicios = (data||[]).map(x=>x.name); return cacheServicios.slice();
+    try{
+      const payload = await apiFetch('/services');
+      cacheServicios = payload?.items || [];
+    }catch(error){
+      console.error(error);
+      cacheServicios = [];
+    }
+    return cacheServicios.slice();
   },
   async replaceServicios(list){
     if (!currentUser) { localServices = list.slice(); saveLocalServices(); return; }
-    const { data: curr } = await sb.from('services').select('name').eq('user_id', currentUser.id);
-    const has = new Set((curr||[]).map(x=>x.name)); const want = new Set(list);
-    const toDel = [...has].filter(n=>!want.has(n)); if (toDel.length) await sb.from('services').delete().in('name', toDel).eq('user_id', currentUser.id);
-    const toIns = [...want].filter(n=>!has.has(n)).map(n=>({ user_id: currentUser.id, name:n })); if (toIns.length) await sb.from('services').insert(toIns);
+    await apiFetch('/services', { method:'PUT', body:{ items: list } });
     cacheServicios = list.slice();
   }
 };
@@ -1878,7 +1999,7 @@ filterEstado?.addEventListener('change', () => renderTabla());
 })();
 
 /* inicio */
-renderServicios().then(()=>renderTabla());
+ensureAuthInitialized();
 </script>
 </body>
 </html>
