@@ -1,13 +1,16 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { createClient } from '@supabase/supabase-js';
 
 const {
   SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
   PORT = 3000,
-  ALLOWED_ORIGINS
+  ALLOWED_ORIGINS,
+  GEMINI_API_KEY,
+  GEMINI_MODEL
 } = process.env;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -58,6 +61,13 @@ function authMiddleware() {
 }
 
 const app = express();
+
+const geminiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 const corsOrigins = (ALLOWED_ORIGINS || '')
   .split(',')
@@ -144,6 +154,59 @@ app.post('/api/auth/reset-password', async (req, res) => {
   } catch (error) {
     console.error('[auth] reset password error', error);
     res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+app.post('/api/ai/gemini', authMiddleware(), geminiLimiter, async (req, res) => {
+  const { prompt } = req.body || {};
+  if (!prompt) {
+    return res.status(400).json({ error: 'El prompt es obligatorio.' });
+  }
+  if (!GEMINI_API_KEY) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY no está configurada.' });
+  }
+
+  const model = GEMINI_MODEL || 'gemini-1.5-flash-latest';
+  const url = new URL(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`);
+  url.searchParams.set('key', GEMINI_API_KEY);
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }]
+          }
+        ]
+      })
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message = payload?.error?.message || 'Error al comunicarse con Gemini.';
+      const status = response.status >= 400 && response.status < 600 ? response.status : 502;
+      return res.status(status).json({ error: message });
+    }
+
+    const parts = payload?.candidates?.[0]?.content?.parts ?? [];
+    const candidateText = parts
+      .map((part) => part?.text)
+      .filter(Boolean)
+      .join('\n')
+      .trim();
+
+    if (!candidateText) {
+      return res.status(502).json({ error: 'La respuesta de Gemini no contiene texto.' });
+    }
+
+    res.json({ text: candidateText });
+  } catch (error) {
+    console.error('[gemini] request error', error);
+    res.status(502).json({ error: 'No se pudo completar la solicitud a Gemini.' });
   }
 });
 
