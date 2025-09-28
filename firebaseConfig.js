@@ -2,20 +2,15 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-const firebaseConfig = window?.APP_CONFIG?.firebaseConfig
-  || window?.APP_CONFIG?.firebase
-  || {
-    apiKey: 'YOUR_FIREBASE_API_KEY',
-    authDomain: 'YOUR_FIREBASE_AUTH_DOMAIN',
-    projectId: 'YOUR_FIREBASE_PROJECT_ID',
-    storageBucket: 'YOUR_FIREBASE_STORAGE_BUCKET',
-    messagingSenderId: 'YOUR_FIREBASE_MESSAGING_SENDER_ID',
-    appId: 'YOUR_FIREBASE_APP_ID'
-  };
-
-if (!firebaseConfig || !firebaseConfig.apiKey) {
-  console.warn('[firebase] Missing configuration. Update window.APP_CONFIG.firebaseConfig with your project values.');
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyD0W2CDEqs3mruge9oso5wlg6yinrGrU6M",
+  authDomain: "registro-de-clientes-c2003.firebaseapp.com",
+  projectId: "registro-de-clientes-c2003",
+  storageBucket: "registro-de-clientes-c2003.appspot.com",
+  messagingSenderId: "844114742521",
+  appId: "1:844114742521:web:6a9422e0f4964948236628",
+  measurementId: "G-43RFDLVGF2"
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
