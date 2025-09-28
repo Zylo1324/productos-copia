@@ -1494,7 +1494,8 @@ signupForm?.addEventListener('submit', async (event)=>{
     const cred=await createUserWithEmailAndPassword(auth, email, pass);
     await sendEmailVerification(cred.user);
     signupErrorEl.textContent='';
-    toast('Revisa tu correo para confirmar tu cuenta');
+    window.location.href='verify.html';
+    return;
   }catch(error){
     signupErrorEl.textContent=error.message||'Error inesperado.';
   }finally{
