@@ -151,12 +151,18 @@
     #Header,#BarraServicio,#AppGrid{width:min(1200px,92vw);margin:0 auto}
     #Header{padding:36px clamp(16px,4vw,28px) 0;position:relative;z-index:0}
     #BarraServicio{padding:0 clamp(16px,4vw,28px)}
-    #AppGrid{padding:0 clamp(16px,4vw,28px) 80px;margin-top:32px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"form" "acciones" "tabla";gap:24px}
+    #AppMain{padding-bottom:80px}
+    .app-view[hidden]{display:none}
+    .view-container{width:min(1200px,92vw);margin:0 auto}
+    .view-note{margin:32px auto 12px;color:var(--muted);font-size:14px;line-height:1.5}
+    .view-nav{display:flex;justify-content:flex-end;gap:12px;margin:0 auto 24px}
+    .view-nav .btn{flex:0 0 auto}
+    #AppGrid{padding:0 clamp(16px,4vw,28px) 80px;margin-top:32px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"form" "acciones";gap:24px}
     #Formulario{grid-area:form}
     #AccionesRapidas{grid-area:acciones}
-    #TablaClientes{grid-area:tabla;margin-top:0}
+    #TablaClientes{margin-top:0}
     @media(min-width:960px){
-      #AppGrid{grid-template-columns:minmax(0,2fr)minmax(0,1fr);grid-template-areas:"form acciones" "tabla tabla";}
+      #AppGrid{grid-template-columns:minmax(0,2fr)minmax(0,1fr);grid-template-areas:"form acciones";}
     }
     .pill{display:block;width:max-content;margin:0 auto 14px;padding:6px 14px;border-radius:999px;background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--border);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
     .hero-brand{margin:12px auto 32px;font-weight:700;letter-spacing:-0.04em;font-size:clamp(38px,14vw,112px);line-height:1;text-align:center;color:var(--ink);text-shadow:none}
@@ -380,6 +386,9 @@
       .center button{flex:1 1 48%}
       .center select{min-width:0}
       #AppGrid{padding-bottom:48px}
+      .view-nav{flex-direction:column;align-items:stretch}
+      .view-nav .btn{width:100%}
+      .view-note{margin:24px auto 10px}
     }
     @media(max-width:520px){
       .sidebar-launcher{width:48px;height:48px}
@@ -454,93 +463,110 @@
     <button id="btnEliminarServicio" class="addserv remove" aria-label="Eliminar servicio" title="Eliminar servicio">−</button>
   </section>
 
-  <main id="AppGrid">
-    <section id="Formulario" class="form scroll-fade">
-      <div class="form-grid">
-        <div class="row">
-          <label for="nombre">Nombre</label>
-          <input id="nombre" placeholder="Escribe"/>
+  <main id="AppMain">
+    <section id="vistaFormulario" class="app-view is-active" aria-hidden="false">
+      <div class="view-container">
+        <p class="view-note">Esta pantalla corresponde a la primera vista: captura los datos del cliente y, al pulsar “Agregar”, se abrirá automáticamente la lista de clientes registrados.</p>
+        <div class="view-nav">
+          <button type="button" class="btn ghost" id="btnVerClientes">Ver clientes registrados</button>
         </div>
+      </div>
+      <div id="AppGrid">
+        <section id="Formulario" class="form scroll-fade">
+          <div class="form-grid">
+            <div class="row">
+              <label for="nombre">Nombre</label>
+              <input id="nombre" placeholder="Escribe"/>
+            </div>
 
-        <!-- EMAIL con dropdown contextual por servicio -->
-        <div class="row suggestion-source">
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="ej: cliente@mail.com" aria-expanded="false" aria-controls="emailSuggestionDropdown" />
-          <button class="email-toggle" id="emailDropdownToggle" type="button" aria-label="Mostrar correos guardados">▾</button>
-          <div id="emailSuggestionDropdown" class="suggestion-dropdown" role="listbox" aria-hidden="true"></div>
-        </div>
+            <!-- EMAIL con dropdown contextual por servicio -->
+            <div class="row suggestion-source">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="ej: cliente@mail.com" aria-expanded="false" aria-controls="emailSuggestionDropdown" />
+              <button class="email-toggle" id="emailDropdownToggle" type="button" aria-label="Mostrar correos guardados">▾</button>
+              <div id="emailSuggestionDropdown" class="suggestion-dropdown" role="listbox" aria-hidden="true"></div>
+            </div>
 
-        <div class="row phone-row">
-          <label for="telefono">Teléfono</label>
-          <div class="phone-control" id="phoneControl">
-            <button type="button" class="phone-country" id="phoneCountry" aria-haspopup="listbox" aria-expanded="false" aria-label="Selecciona el país">
-              <span class="phone-flag" id="phoneFlag" aria-hidden="true">🇵🇪</span>
-              <span class="phone-code" id="phoneDialLabel">+51</span>
-              <span class="phone-caret" aria-hidden="true">▾</span>
-            </button>
-            <input id="telefono" type="tel" placeholder="Introduce el número" autocomplete="tel" inputmode="tel" aria-describedby="phoneDialLabel" />
-            <div class="phone-dropdown" id="phoneDropdown" role="listbox" aria-label="Selecciona el país" aria-hidden="true"></div>
+            <div class="row phone-row">
+              <label for="telefono">Teléfono</label>
+              <div class="phone-control" id="phoneControl">
+                <button type="button" class="phone-country" id="phoneCountry" aria-haspopup="listbox" aria-expanded="false" aria-label="Selecciona el país">
+                  <span class="phone-flag" id="phoneFlag" aria-hidden="true">🇵🇪</span>
+                  <span class="phone-code" id="phoneDialLabel">+51</span>
+                  <span class="phone-caret" aria-hidden="true">▾</span>
+                </button>
+                <input id="telefono" type="tel" placeholder="Introduce el número" autocomplete="tel" inputmode="tel" aria-describedby="phoneDialLabel" />
+                <div class="phone-dropdown" id="phoneDropdown" role="listbox" aria-label="Selecciona el país" aria-hidden="true"></div>
+              </div>
+            </div>
+            <div class="row">
+              <label for="inicio">Fecha</label>
+              <input id="inicio" type="date" />
+            </div>
+            <div class="row">
+              <label for="vence">Vence</label>
+              <input id="vence" type="date" />
+            </div>
+            <div class="row">
+              <label for="pin">PIN</label>
+              <div class="pin-wrap">
+                <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="••••" />
+                <button type="button" class="eye" id="togglePin" aria-label="Mostrar/ocultar PIN">👁</button>
+              </div>
+            </div>
+            <div class="row">
+              <label for="categoria">Categoría</label>
+              <select id="categoria">
+                <option value="">Selecciona una opción</option>
+                <option>Premium</option>
+                <option>Estándar</option>
+                <option>Básico</option>
+              </select>
+            </div>
+            <div class="row span-2">
+              <label for="notas">Notas</label>
+              <textarea id="notas" placeholder="Plan, precio, usuario, etc."></textarea>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <label for="inicio">Fecha</label>
-          <input id="inicio" type="date" />
-        </div>
-        <div class="row">
-          <label for="vence">Vence</label>
-          <input id="vence" type="date" />
-        </div>
-        <div class="row">
-          <label for="pin">PIN</label>
-          <div class="pin-wrap">
-            <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="••••" />
-            <button type="button" class="eye" id="togglePin" aria-label="Mostrar/ocultar PIN">👁</button>
+        </section>
+
+        <aside id="AccionesRapidas" class="side-card scroll-fade">
+          <h2>Acciones rápidas</h2>
+          <p>Guarda el nuevo cliente o limpia el formulario antes de continuar.</p>
+          <div class="actions">
+            <button class="btn primary" id="btnGuardar">Agregar</button>
+            <button class="btn ghost" id="btnLimpiar">Limpiar</button>
           </div>
-        </div>
-        <div class="row">
-          <label for="categoria">Categoría</label>
-          <select id="categoria">
-            <option value="">Selecciona una opción</option>
-            <option>Premium</option>
-            <option>Estándar</option>
-            <option>Básico</option>
-          </select>
-        </div>
-        <div class="row span-2">
-          <label for="notas">Notas</label>
-          <textarea id="notas" placeholder="Plan, precio, usuario, etc."></textarea>
-        </div>
+          <div class="small" id="msg"></div>
+        </aside>
       </div>
     </section>
 
-    <aside id="AccionesRapidas" class="side-card scroll-fade">
-      <h2>Acciones rápidas</h2>
-      <p>Guarda el nuevo cliente o limpia el formulario antes de continuar.</p>
-      <div class="actions">
-        <button class="btn primary" id="btnGuardar">Agregar</button>
-        <button class="btn ghost" id="btnLimpiar">Limpiar</button>
-      </div>
-      <div class="small" id="msg"></div>
-    </aside>
-
-    <!-- tabla -->
-    <section id="TablaClientes" class="table-section scroll-fade">
-      <div class="table-header">
-        <h2 id="clientesTitulo">Clientes registrados</h2>
-        <p>Consulta el listado completo y gestiona cada registro.</p>
-      </div>
-      <div class="table-card">
-        <div class="table-scroll" role="region" aria-labelledby="clientesTitulo" tabindex="0">
-          <table id="tabla">
-            <thead>
-              <tr>
-                <th>Nombre</th><th>Email</th><th>Servicio</th>
-                <th>Inicio</th><th>Vence</th><th>Estado</th><th>Días</th><th><span class="sr-only">Acciones</span></th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+    <section id="vistaClientes" class="app-view" aria-hidden="true" hidden>
+      <div class="view-container">
+        <p class="view-note">Segunda vista: aquí puedes consultar y gestionar a los clientes registrados. Usa el siguiente botón para volver al formulario y agregar un nuevo registro.</p>
+        <div class="view-nav">
+          <button type="button" class="btn ghost" id="btnVolverFormulario">← Volver al formulario</button>
         </div>
+        <section id="TablaClientes" class="table-section scroll-fade" tabindex="-1">
+          <div class="table-header">
+            <h2 id="clientesTitulo">Clientes registrados</h2>
+            <p>Consulta el listado completo y gestiona cada registro.</p>
+          </div>
+          <div class="table-card">
+            <div class="table-scroll" role="region" aria-labelledby="clientesTitulo" tabindex="0">
+              <table id="tabla">
+                <thead>
+                  <tr>
+                    <th>Nombre</th><th>Email</th><th>Servicio</th>
+                    <th>Inicio</th><th>Vence</th><th>Estado</th><th>Días</th><th><span class="sr-only">Acciones</span></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </div>
     </section>
   </main>
@@ -651,6 +677,12 @@ categoria:$('#categoria'), pin:$('#pin')};
 const q=$('#q'), filterEstado=$('#filterEstado'), msg=$('#msg');
 const sidebar=document.getElementById('sidebar');
 const sidebarLauncher=document.getElementById('sidebarLauncher');
+const vistaFormulario=document.getElementById('vistaFormulario');
+const vistaClientes=document.getElementById('vistaClientes');
+const btnVerClientes=document.getElementById('btnVerClientes');
+const btnVolverFormulario=document.getElementById('btnVolverFormulario');
+const tablaSection=document.getElementById('TablaClientes');
+const formSection=document.getElementById('Formulario');
 
 const themeButton=document.getElementById('btnTheme');
 const themeLabel=document.getElementById('themeLabel');
@@ -659,6 +691,34 @@ const themeOptions=Array.from(themeMenu?.querySelectorAll('[data-theme-option]')
 const THEME_STORAGE_KEY='ui_theme_mode_v1';
 
 let editId=null;
+const views={form:vistaFormulario,clientes:vistaClientes};
+
+function showView(target,{skipFocus=false}={}){
+  if(!views[target]) return;
+  Object.entries(views).forEach(([name,el])=>{
+    if(!el) return;
+    const isActive=name===target;
+    el.classList.toggle('is-active',isActive);
+    if(isActive){ el.removeAttribute('hidden'); }
+    else{ el.setAttribute('hidden',''); }
+    el.setAttribute('aria-hidden',isActive?'false':'true');
+  });
+  if(skipFocus) return;
+  window.requestAnimationFrame(()=>{
+    if(target==='clientes'){
+      tablaSection?.scrollIntoView({ behavior:'smooth', block:'start' });
+      const region=tablaSection?.querySelector('.table-scroll');
+      region?.focus({ preventScroll:true });
+    }else{
+      formSection?.scrollIntoView({ behavior:'smooth', block:'start' });
+      f.nombre?.focus();
+    }
+  });
+}
+
+btnVerClientes?.addEventListener('click',()=>showView('clientes'));
+btnVolverFormulario?.addEventListener('click',()=>showView('form'));
+showView('form',{skipFocus:true});
 
 /* ===== Teléfono con selector de país ===== */
 const phoneControl=$('#phoneControl');
@@ -1590,17 +1650,21 @@ $('#btnGuardar').onclick = async ()=>{
   const wasGuest = !currentUser;
   try{
     await db.saveOne(data); await renderTabla(); limpiar();
+    showView('clientes');
     toast(wasGuest && !currentUser ? 'Guardado local ✓  Accede para sincronizar' : 'Guardado ✓');
   }catch(err){ toast(err?.message || 'No se pudo guardar.'); }
 };
 function editar(id){
   const x=db.getAll().find(c=>c.id===id); if(!x) return; editId=x.id;
+  showView('form',{skipFocus:true});
   for(const k in f){
     if(k==='telefono') continue;
     if(k in x) f[k].value=x[k]||'';
   }
   applyPhoneValue(x.telefono);
   msg.textContent='Editando… guarda para aplicar cambios';
+  formSection?.scrollIntoView({ behavior:'smooth', block:'start' });
+  f.nombre?.focus();
 }
 async function borrar(id){
   if(!confirm('¿Eliminar este cliente?')) return;
