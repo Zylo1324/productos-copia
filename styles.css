@@ -97,14 +97,17 @@ main.shell {
 }
 
 .step__header h2 {
-  margin: 0 0 4px;
-  font-size: 1.4rem;
+  margin: 0 0 8px;
+  font-size: 1.1rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .step__header p {
   margin: 0;
   color: var(--color-text-secondary);
+  text-align: center;
+  line-height: 1.5;
 }
 
 .field {
