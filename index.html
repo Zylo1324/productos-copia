@@ -7,6 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"
+      }
+    }
+  </script>
   <style>
     :root{
       --bg:#000000; --ink:#f8fafc; --ink-soft:#d2d9e6; --muted:#9aa7bb;
@@ -735,66 +744,27 @@
 </div>
 
 <script type="module">
-import { registerAuthHost } from './auth-shared.js';
-/* ====== CONFIG API ====== */
-const API_BASE_URL = ((window.APP_CONFIG?.apiBaseUrl) || '/api').replace(/\/$/, '');
-const SESSION_STORAGE_KEY = 'cloud_session_v1';
-
-function readStoredSession(){
-  try{
-    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  }catch{
-    return null;
-  }
-}
-
-function persistSession(session){
-  if(!session || !session.access_token){
-    return clearStoredSession();
-  }
-  try{
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-  }catch(err){
-    console.warn('No se pudo almacenar la sesión en localStorage', err);
-  }
-  return session;
-}
-
-function clearStoredSession(){
-  try{ localStorage.removeItem(SESSION_STORAGE_KEY); }catch{}
-  return null;
-}
-
-function getStoredAccessToken(){
-  return readStoredSession()?.access_token || null;
-}
-
-async function apiFetch(path,{ method='GET', body, headers={}, silent401=false }={}){
-  const finalHeaders = { ...headers };
-  const token = getStoredAccessToken();
-  if(token){ finalHeaders.Authorization = `Bearer ${token}`; }
-  let payload;
-  if(body !== undefined){
-    finalHeaders['Content-Type'] = 'application/json';
-    payload = JSON.stringify(body);
-  }
-  const response = await fetch(`${API_BASE_URL}${path}`, { method, headers: finalHeaders, body: payload });
-  if(response.status === 401){
-    if(!silent401) handleUnauthorized();
-    const error = new Error('No autorizado');
-    error.code = 'unauthorized';
-    throw error;
-  }
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
-  if(!response.ok){
-    const error = new Error(data?.error || 'Error en la solicitud');
-    error.code = data?.code || 'request_failed';
-    throw error;
-  }
-  return data;
-}
+import { auth, db as firestore } from './firebaseConfig.js';
+import {
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  signOut
+} from 'firebase/auth';
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  getDoc
+} from 'firebase/firestore';
 
 /* ===== helpers y refs ===== */
 const $=s=>document.querySelector(s);
@@ -832,7 +802,6 @@ function setLandingView(view){
     panel.setAttribute('aria-hidden',String(!isActive));
   });
   if(view==='login'){
-    if(typeof initializeGoogleSignIn==='function'){ initializeGoogleSignIn(); }
     setTimeout(()=>authEmailEl?.focus(),0);
   }else if(view==='signup'){
     setTimeout(()=>signupEmailEl?.focus(),0);
@@ -854,30 +823,9 @@ landingStartBtn?.addEventListener('click',()=>{
   showLanding('signup');
 });
 
-let loginPopupWindow=null;
-function openLoginWindow(){
-  const loginUrl=new URL('login.html',window.location.href).toString();
-  if(loginPopupWindow&&!loginPopupWindow.closed){
-    try{
-      loginPopupWindow.location.href=loginUrl;
-    }catch(err){
-      console.warn('No se pudo reutilizar la ventana de login existente',err);
-    }
-    loginPopupWindow.focus();
-    return loginPopupWindow;
-  }
-  const features='popup=yes,width=480,height=720,resizable=yes,scrollbars=yes';
-  loginPopupWindow=window.open(loginUrl,'zyloAuthWindow',features);
-  if(loginPopupWindow){ loginPopupWindow.focus(); }
-  return loginPopupWindow;
-}
-
 landingLoginBtn?.addEventListener('click',event=>{
   event.preventDefault();
-  const popup=openLoginWindow();
-  if(!popup){
-    showLanding('login');
-  }
+  showLanding('login');
 });
 
 landingBackButtons.forEach(btn=>{
@@ -1371,64 +1319,10 @@ function saveLocalClients(){
   }catch{}
 }
 
-/* ====== AUTH (API backend) ====== */
+/* ====== AUTH (Firebase) ====== */
 let currentUser = null;
-let authInitPromise = null;
-
-function updateUserState(user){
-  currentUser = user;
-  if(user){
-    hideLanding();
-  }else{
-    showLanding('home');
-  }
-  authUpdateUI();
-  (async()=>{
-    try{
-      if(user){ await syncLocalServicesToCloudIfEmpty(); }
-    }catch(err){
-      console.error(err);
-    }finally{
-      await renderServicios();
-      await renderTabla();
-    }
-  })();
-}
-
-function handleUnauthorized(){
-  const hadUser = !!currentUser;
-  clearStoredSession();
-  updateUserState(null);
-  authInitPromise = Promise.resolve(null);
-  if(hadUser){ toast('Tu sesión expiró. Vuelve a iniciar sesión.'); }
-}
-
-async function fetchSessionUser(){
-  const token = getStoredAccessToken();
-  if(!token){
-    updateUserState(null);
-    return null;
-  }
-  try{
-    const data = await apiFetch('/auth/session', { method:'GET', silent401:true });
-    const user = data?.user || null;
-    updateUserState(user);
-    return user;
-  }catch(error){
-    if(error.code === 'unauthorized'){
-      clearStoredSession();
-      updateUserState(null);
-    }else{
-      console.error(error);
-    }
-    return null;
-  }
-}
-
-function ensureAuthInitialized(){
-  if(!authInitPromise){ authInitPromise = fetchSessionUser(); }
-  return authInitPromise;
-}
+let unsubscribeClientes = null;
+let unsubscribeServicios = null;
 
 function authUpdateUI(){
   const badge = document.getElementById('userInfo');
@@ -1445,6 +1339,88 @@ function authUpdateUI(){
     btnLogout.style.display='none';
   }
 }
+function normalizeRemoteRecord(data){
+  if(!data || typeof data !== 'object') return {};
+  const ts = data.ts && typeof data.ts.toDate === 'function' ? data.ts.toDate().toISOString() : data.ts || null;
+  const updatedAt = data.updatedAt && typeof data.updatedAt.toDate === 'function'
+    ? data.updatedAt.toDate().toISOString()
+    : data.updatedAt || null;
+  return { ...data, ts, updatedAt };
+}
+function clientesCollection(){
+  return currentUser ? collection(firestore, 'users', currentUser.uid, 'clientes') : null;
+}
+function serviciosDoc(){
+  return currentUser ? doc(firestore, 'users', currentUser.uid, 'config', 'services') : null;
+}
+function subscribeToRemoteClientes(user){
+  if(unsubscribeClientes){ unsubscribeClientes(); unsubscribeClientes = null; }
+  if(!user){
+    cacheClientes = localClients.slice();
+    renderTabla();
+    return;
+  }
+  const colRef = clientesCollection();
+  unsubscribeClientes = onSnapshot(colRef, (snapshot)=>{
+    cacheClientes = snapshot.docs.map(docSnap=>{
+      const data = normalizeRemoteRecord(docSnap.data());
+      return { id: docSnap.id, ...data };
+    });
+    cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+    renderTabla();
+  }, (error)=>{
+    console.error('Error al escuchar clientes', error);
+    toast('No se pudo cargar tus clientes en tiempo real.');
+  });
+}
+function subscribeToRemoteServicios(user){
+  if(unsubscribeServicios){ unsubscribeServicios(); unsubscribeServicios = null; }
+  if(!user){
+    cacheServicios = localServices.slice();
+    renderServicios();
+    return;
+  }
+  const docRef = serviciosDoc();
+  unsubscribeServicios = onSnapshot(docRef, (snapshot)=>{
+    const data = snapshot.exists() ? snapshot.data() : {};
+    const items = Array.isArray(data?.items) ? data.items : [];
+    cacheServicios = items.map(String).filter(Boolean).sort((a,b)=>a.localeCompare(b));
+    renderServicios();
+  }, (error)=>{
+    console.error('Error al escuchar servicios', error);
+    toast('No se pudo cargar la lista de servicios.');
+  });
+}
+async function syncLocalServicesToCloudIfEmpty(){
+  if(!currentUser) return;
+  const docRef = serviciosDoc();
+  if(!docRef) return;
+  try{
+    const snap = await getDoc(docRef);
+    const data = snap.exists() ? snap.data() : {};
+    const items = Array.isArray(data?.items) ? data.items : [];
+    if(items.length === 0 && localServices.length){
+      await setDoc(docRef, { items: localServices.slice(), updatedAt: serverTimestamp() }, { merge: true });
+    }
+  }catch(error){
+    console.error('No se pudo sincronizar servicios locales', error);
+  }
+}
+function updateUserState(user){
+  currentUser = user;
+  if(user){
+    hideLanding();
+  }else{
+    showLanding('home');
+  }
+  authUpdateUI();
+  subscribeToRemoteClientes(user);
+  subscribeToRemoteServicios(user);
+  if(user){ syncLocalServicesToCloudIfEmpty(); }
+}
+onAuthStateChanged(auth, (user)=>{
+  updateUserState(user || null);
+});
 const btnAuthOpen  = document.getElementById('btnAuthOpen');
 const btnAuthSubmit= document.getElementById('btnAuthSubmit');
 const authEmailEl  = document.getElementById('authEmail');
@@ -1452,6 +1428,7 @@ const authPassEl   = document.getElementById('authPass');
 const authErrorEl  = document.getElementById('authError');
 const toggleAuthPass = document.getElementById('toggleAuthPass');
 const btnForgot    = document.getElementById('btnForgot');
+const googleButtonContainer = document.getElementById('googleButton');
 
 btnAuthOpen?.addEventListener('click', ()=>{
   showLanding('login');
@@ -1463,24 +1440,42 @@ toggleAuthPass?.addEventListener('click', ()=>{
   toggleAuthPass.textContent = isPass? '🙈':'👁';
 });
 
-// sign-in/up unificado
-async function autoSignInOrUp(email, password) {
+const googleProvider = new GoogleAuthProvider();
+
+function setFeedback(element, message, tone='danger'){
+  if(!element) return;
+  element.textContent = message || '';
+  element.style.color = tone === 'success' ? 'var(--success)' : tone === 'info' ? 'var(--muted)' : 'var(--danger)';
+}
+
+async function signInWithGoogle({ feedbackEl = googleFeedbackEl }={}){
+  if(feedbackEl){ setFeedback(feedbackEl, 'Abriendo Google…', 'info'); }
   try{
-    const payload = await apiFetch('/auth/sign-in', { method:'POST', body:{ email, password } });
-    if(payload?.session){ persistSession(payload.session); }
-    if(payload?.user){
-      updateUserState(payload.user);
-      authInitPromise = Promise.resolve(payload.user);
-    }
-    return { ok: true };
+    const credential = await signInWithPopup(auth, googleProvider);
+    if(feedbackEl){ setFeedback(feedbackEl, 'Sesión iniciada con Google.', 'success'); }
+    return credential;
   }catch(error){
-    return { ok: false, message: error.message };
+    console.error(error);
+    if(feedbackEl){ setFeedback(feedbackEl, error.message || 'No se pudo iniciar sesión con Google.'); }
+    throw error;
   }
 }
-async function handleAuthSuccess(message){
-  await ensureAuthInitialized();
-  hideLanding();
-  if(message){ toast(message); }
+
+if(googleButtonContainer){
+  const googleBtn = document.createElement('button');
+  googleBtn.type='button';
+  googleBtn.className='btn ghost';
+  googleBtn.textContent='Continuar con Google';
+  googleBtn.addEventListener('click', async ()=>{
+    googleBtn.disabled=true;
+    try{
+      await signInWithGoogle({ feedbackEl: googleFeedbackEl });
+    }finally{
+      googleBtn.disabled=false;
+    }
+  });
+  googleButtonContainer.innerHTML='';
+  googleButtonContainer.appendChild(googleBtn);
 }
 
 signupForm?.addEventListener('submit', async (event)=>{
@@ -1495,12 +1490,9 @@ signupForm?.addEventListener('submit', async (event)=>{
   const submitBtn=signupForm.querySelector('button[type="submit"]');
   submitBtn.disabled=true; submitBtn.textContent='Creando cuenta…';
   try{
-    const result=await autoSignInOrUp(email, pass);
-    if(!result.ok){ signupErrorEl.textContent=result.message||'No pudimos crear tu cuenta.'; }
-    else{
-      signupErrorEl.textContent='';
-      await handleAuthSuccess('¡Cuenta creada!');
-    }
+    await createUserWithEmailAndPassword(auth, email, pass);
+    signupErrorEl.textContent='';
+    toast('¡Cuenta creada!');
   }catch(error){
     signupErrorEl.textContent=error.message||'Error inesperado.';
   }finally{
@@ -1518,11 +1510,8 @@ loginForm?.addEventListener('submit', async (event)=>{
   if(!email||!pass){ authErrorEl.textContent='Completa correo y contraseña.'; return; }
   btnAuthSubmit.disabled=true; btnAuthSubmit.textContent='Procesando…';
   try{
-    const result=await autoSignInOrUp(email, pass);
-    if(!result.ok){ authErrorEl.textContent=result.message||'No se pudo acceder.'; }
-    else{
-      await handleAuthSuccess('¡Bienvenido!');
-    }
+    await signInWithEmailAndPassword(auth, email, pass);
+    authErrorEl.textContent='';
   }catch(error){
     authErrorEl.textContent=error.message||'Error inesperado.';
   }finally{
@@ -1531,89 +1520,17 @@ loginForm?.addEventListener('submit', async (event)=>{
   }
 });
 
-async function forwardGoogleCredential(credential,{ feedbackEl }={}){
-  const targetFeedback=feedbackEl||googleFeedbackEl;
-  const config=window.APP_CONFIG||{};
-  if(!config.googleCallbackEndpoint){
-    targetFeedback?.textContent='Configura "googleCallbackEndpoint" para procesar el token de Google.';
-    return false;
-  }
-  try{
-    const response=await fetch(config.googleCallbackEndpoint,{
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body:JSON.stringify({ credential })
-    });
-    if(!response.ok) throw new Error('Error enviando el token de Google');
-    const payload=await response.json().catch(()=>({}));
-    if(payload?.session){ persistSession(payload.session); }
-    if(payload?.user){
-      updateUserState(payload.user);
-      authInitPromise=Promise.resolve(payload.user);
-    }
-    return true;
-  }catch(error){
-    console.error(error);
-    targetFeedback?.textContent='No pudimos validar el inicio de sesión con Google.';
-    return false;
-  }
-}
-function handleGoogleCredentialResponse(response,{ feedbackEl, onSuccess }={}){
-  if(!response?.credential){ return; }
-  const targetFeedback=feedbackEl||googleFeedbackEl;
-  targetFeedback?.textContent='Validando credenciales…';
-  forwardGoogleCredential(response.credential,{ feedbackEl:targetFeedback }).then(async ok=>{
-    if(ok){
-      targetFeedback?.textContent='¡Sesión iniciada con Google!';
-      if(typeof onSuccess==='function'){
-        await onSuccess();
-      }else{
-        await handleAuthSuccess('¡Bienvenido!');
-      }
-    }
-  });
-}
-
-let googleClientInitialized=false;
-function initializeGoogleSignIn({ container=document.getElementById('googleButton'), feedbackEl=googleFeedbackEl, onSuccess }={}){
-  if(!container){ return; }
-  if(typeof window.google==='undefined'){ return; }
-  const config=window.APP_CONFIG||{};
-  const clientId=config.googleClientId;
-  if(!clientId){
-    feedbackEl?.textContent='Añade tu "googleClientId" en APP_CONFIG para mostrar este botón.';
-    return;
-  }
-  feedbackEl?.textContent='';
-  if(!googleClientInitialized){
-    googleClientInitialized=true;
-  }
-  window.google.accounts.id.initialize({ client_id:clientId, callback:response=>handleGoogleCredentialResponse(response,{ feedbackEl,onSuccess }) });
-  container.innerHTML='';
-  window.google.accounts.id.renderButton(container,{
-    theme:'outline',
-    size:'large',
-    shape:'pill',
-    width:'100%'
-  });
-}
-window.addEventListener('load',()=>initializeGoogleSignIn());
 document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
   try{
-    await apiFetch('/auth/sign-out', { method:'POST' });
-  }catch(err){
-    console.warn('No se pudo cerrar sesión remotamente', err);
-  }finally{
-    clearStoredSession();
-    updateUserState(null);
-    authInitPromise = Promise.resolve(null);
+    await signOut(auth);
+  }catch(error){
+    console.warn('No se pudo cerrar sesión', error);
   }
 });
 
-// reset pass
 async function requestPasswordReset(email){
   try{
-    await apiFetch('/auth/reset-password', { method:'POST', body:{ email, redirectTo: location.origin + location.pathname } });
+    await sendPasswordResetEmail(auth, email);
     return { ok:true, message:'Te enviamos un correo para restablecer tu contraseña.' };
   }catch(error){
     return { ok:false, message:error.message || 'No se pudo enviar el correo de recuperación.' };
@@ -1629,23 +1546,33 @@ btnForgot?.addEventListener('click', async ()=>{
   authErrorEl.textContent = result.message;
 });
 
-/* ====== DB en la nube (API) ====== */
+/* ====== DB en la nube (Firebase) ====== */
 let cacheClientes = localClients.slice();
-let cacheServicios = [];
+let cacheServicios = localServices.slice();
+
+function buildRemotePayload(rec){
+  const base = {
+    nombre: rec.nombre || '',
+    email: rec.email || '',
+    telefono: rec.telefono || '',
+    servicio: rec.servicio || '',
+    inicio: rec.inicio || '',
+    vence: rec.vence || '',
+    categoria: rec.categoria || '',
+    notas: rec.notas || '',
+    pin: rec.pin || '',
+    updatedAt: serverTimestamp()
+  };
+  base.ts = rec.ts || serverTimestamp();
+  return base;
+}
+
 const db = {
   getAll(){ return currentUser ? cacheClientes.slice() : localClients.slice(); },
   async fetchAll(){
     if(!currentUser){
       localClients = loadLocalClients();
       cacheClientes = localClients.slice();
-      return cacheClientes.slice();
-    }
-    try{
-      const payload = await apiFetch('/clients');
-      cacheClientes = payload?.items || [];
-    }catch(error){
-      console.error(error);
-      cacheClientes = [];
     }
     return cacheClientes.slice();
   },
@@ -1657,63 +1584,73 @@ const db = {
       const payload = { ...(idx>=0? localClients[idx]:{}), ...rec, id: recId };
       if(idx>=0) localClients[idx] = payload; else localClients.push(payload);
       localClients.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); saveLocalClients();
-      cacheClientes = localClients.slice(); return payload;
+      cacheClientes = localClients.slice();
+      return payload;
     }
-    const payload = {
-      nombre:rec.nombre, email:rec.email, telefono:rec.telefono, servicio:rec.servicio,
-      inicio:rec.inicio, vence:rec.vence, categoria:rec.categoria, notas:rec.notas, pin:rec.pin, ts:rec.ts
-    };
-    let saved;
-    const hasId = rec.id!==undefined && rec.id!==null && `${rec.id}`.trim()!=='';
-    if(hasId){
-      const response = await apiFetch(`/clients/${rec.id}`, { method:'PUT', body: payload });
-      saved = response?.item;
-    }else{
-      const response = await apiFetch('/clients', { method:'POST', body: payload });
-      saved = response?.item;
+    const colRef = clientesCollection();
+    if(!colRef) throw new Error('No hay usuario autenticado.');
+    const payload = buildRemotePayload(rec);
+    if(rec.id){
+      await updateDoc(doc(colRef, rec.id), payload);
+      return { ...rec };
     }
-    if(!saved) throw new Error('No se pudo guardar el cliente.');
-    const i = cacheClientes.findIndex(x=>x.id===saved.id);
-    if(i>=0) cacheClientes[i]=saved; else cacheClientes.push(saved);
-    cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); return saved;
+    const docRef = await addDoc(colRef, { ...payload, createdAt: serverTimestamp() });
+    return { ...rec, id: docRef.id };
   },
   async deleteOne(id){
     if(!currentUser){
-      localClients = loadLocalClients().filter(x=>x && x.id!==id); saveLocalClients(); cacheClientes = localClients.slice(); return;
+      localClients = loadLocalClients().filter(x=>x && x.id!==id); saveLocalClients(); cacheClientes = localClients.slice();
+      return;
     }
-    await apiFetch(`/clients/${id}`, { method:'DELETE' });
-    cacheClientes = cacheClientes.filter(x=>x.id!==id);
+    const colRef = clientesCollection();
+    if(!colRef) return;
+    await deleteDoc(doc(colRef, id));
   },
   async saveAll(arr){
     if(!currentUser){
-      localClients = arr.map(x=>({ ...x })); localClients.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')); saveLocalClients(); cacheClientes = localClients.slice(); return;
+      localClients = arr.map(x=>({ ...x }));
+      localClients.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+      saveLocalClients();
+      cacheClientes = localClients.slice();
+      return;
     }
-    await apiFetch('/clients/bulk', { method:'PUT', body:{ items: arr } });
-    cacheClientes = arr.slice();
+    const colRef = clientesCollection();
+    if(!colRef) return;
+    const keepIds = new Set();
+    for(const item of arr){
+      const payload = buildRemotePayload(item);
+      if(item.id){
+        await setDoc(doc(colRef, item.id), payload, { merge: true });
+        keepIds.add(item.id);
+      }else{
+        const docRef = await addDoc(colRef, { ...payload, createdAt: serverTimestamp() });
+        keepIds.add(docRef.id);
+      }
+    }
+    const existingIds = cacheClientes.map(x=>x.id).filter(Boolean);
+    await Promise.all(existingIds.filter(id=>!keepIds.has(id)).map(id=>deleteDoc(doc(colRef, id))));
   },
   getServicios(){ return currentUser ? cacheServicios.slice() : localServices.slice(); },
   async fetchServicios(){
-    if (!currentUser) return localServices.slice();
-    try{
-      const payload = await apiFetch('/services');
-      cacheServicios = payload?.items || [];
-    }catch(error){
-      console.error(error);
-      cacheServicios = [];
+    if(!currentUser){
+      return localServices.slice();
     }
     return cacheServicios.slice();
   },
   async replaceServicios(list){
-    if (!currentUser) { localServices = list.slice(); saveLocalServices(); return; }
-    await apiFetch('/services', { method:'PUT', body:{ items: list } });
-    cacheServicios = list.slice();
+    const cleaned = list.map(String).filter(Boolean).sort((a,b)=>a.localeCompare(b));
+    if(!currentUser){
+      localServices = cleaned;
+      saveLocalServices();
+      cacheServicios = localServices.slice();
+      return;
+    }
+    const docRef = serviciosDoc();
+    if(!docRef) return;
+    cacheServicios = cleaned.slice();
+    await setDoc(docRef, { items: cacheServicios.slice(), updatedAt: serverTimestamp() }, { merge: true });
   }
 };
-async function syncLocalServicesToCloudIfEmpty(){
-  if (!currentUser) return;
-  const cloud = await db.fetchServicios();
-  if (cloud.length === 0 && localServices.length) { await db.replaceServicios(localServices); localStorage.removeItem('services_local'); }
-}
 
 /* ====== UI dinámica ====== */
 async function renderServicios(sel){
@@ -2195,10 +2132,22 @@ function buildPrompt(userMsg){
   return prompt;
 }
 async function requestGemini(prompt){
-  return apiFetch('/ai/gemini', {
+  const endpoint = (window.APP_CONFIG?.aiEndpoint) || '/api/ai/gemini';
+  const headers = { 'Content-Type': 'application/json' };
+  try{
+    const token = await currentUser?.getIdToken?.();
+    if(token){ headers.Authorization = `Bearer ${token}`; }
+  }catch{}
+  const response = await fetch(endpoint, {
     method:'POST',
-    body:{ prompt }
+    headers,
+    body: JSON.stringify({ prompt })
   });
+  const text = await response.text();
+  if(!response.ok){
+    throw new Error(text || 'No se pudo procesar la solicitud de Gemini.');
+  }
+  return text ? JSON.parse(text) : null;
 }
 async function sendChat(){
   const text = (chatInputEl?.value||'').trim(); if(!text) return;
@@ -2328,27 +2277,6 @@ filterEstado?.addEventListener('change', () => renderTabla());
   try{ runTests(); }catch(e){ console.warn('[tests] fallo:', e); }
 })();
 
-registerAuthHost({
-  autoSignInOrUp,
-  handleAuthSuccess,
-  forwardGoogleCredential,
-  handleGoogleCredentialResponse,
-  initializeGoogleSignIn,
-  requestPasswordReset
-});
-
-async function bootstrap(){
-  const hasToken=!!getStoredAccessToken();
-  if(hasToken){
-    await ensureAuthInitialized();
-    hideLanding();
-  }else{
-    showLanding('home');
-  }
-}
-
-bootstrap();
 </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>

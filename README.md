@@ -1,97 +1,101 @@
 # Productos
 
-Flujo de autenticación inspirado en las capturas proporcionadas con múltiples pasos (correo,
-contraseña y verificación) y compatibilidad con acceso mediante Google Identity Services.
+Aplicación de ejemplo para gestionar clientes con autenticación mediante Firebase Authentication,
+formulario multipaso y sincronización en tiempo real con Cloud Firestore.
 
 ## Requisitos
 
-- Navegador moderno con soporte para ES2018 o superior.
-- Conexión a Internet para cargar Google Identity Services y la tipografía "Inter" desde
-  Google Fonts (opcional si se autohospeda).
-- Endpoint propio para validación/envío de correos electrónicos si se desea integración real.
+- Proyecto de Firebase con Authentication (Email/Password + Google) y Cloud Firestore habilitados.
+- Firebase CLI (para desplegar reglas) y Node.js 18+ para instalar dependencias opcionales.
+- Servir la aplicación desde dominios autorizados en Firebase (por ejemplo `http://localhost` o
+  `http://127.0.0.1`).
+- Navegador moderno con soporte para módulos ES.
 
 ## Configuración
 
-Todos los valores configurables se definen en `window.APP_CONFIG` dentro de
-[`index.html`](./index.html). Actualiza los siguientes campos según tu entorno:
+1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com) y habilita los
+   proveedores **Email/Password** y **Google** en la sección *Authentication*.
+2. Habilita Cloud Firestore en modo producción.
+3. Descarga la configuración web de tu app Firebase y copia los valores dentro de
+   `window.APP_CONFIG.firebaseConfig` en [`index.html`](./index.html). Ejemplo:
 
-- `apiBaseUrl`: URL base del backend protegido que expone los endpoints `/auth/*`,
-  `/clients` y `/services`. Por defecto la interfaz usa `/api` (ideal cuando se
-  sirve detrás de un proxy o plataforma serverless).
-- `googleClientId`: Client ID generado en Google Cloud Console para Google Identity Services.
-- `googleCallbackEndpoint`: Endpoint en tu backend que recibirá el `credential` devuelto por
-  Google. Debe validar y crear/iniciar sesión en la cuenta.
-- `checkEmailEndpoint`: Servicio REST (GET) que verifique si un correo existe. Debe aceptar el
-  parámetro `email` y responder un JSON con la forma `{ "exists": true/false }`.
-- `mailEndpoint`: Servicio (POST) que envíe el código de verificación al correo indicado. Debe
-  responder un JSON que incluya al menos la propiedad `code` con los 6 dígitos generados.
+   ```html
+   <script>
+     window.APP_CONFIG = {
+       firebaseConfig: {
+         apiKey: "...",
+         authDomain: "...",
+         projectId: "...",
+         storageBucket: "...",
+         messagingSenderId: "...",
+         appId: "..."
+       }
+     };
+   </script>
+   ```
 
-> **Nota:** Si no defines los endpoints anteriores, la aplicación utilizará datos simulados en
-> memoria para validar correos y generará códigos de verificación ficticios solo con fines de
-> demostración.
+4. (Opcional) Define `window.APP_CONFIG.aiEndpoint` si deseas conectar el chat con un endpoint
+   propio (por defecto se usa `/api/ai/gemini`).
+5. Actualiza los orígenes autorizados en Firebase Authentication para incluir `http://localhost`
+   y/o `http://127.0.0.1` según donde sirvas la app.
 
-## Backend API con Supabase
+## Despliegue de reglas de seguridad
 
-El repositorio incluye un backend minimalista en [`api/server.js`](./api/server.js) que actúa como
-capa intermedia entre la interfaz y Supabase. Este servicio:
-
-- Administra el inicio/cierre de sesión y la recuperación de contraseña sin exponer claves.
-- Expone endpoints REST (`/clients` y `/services`) para listar/crear/actualizar/eliminar registros.
-- Utiliza la clave `service_role` desde variables de entorno seguras.
-- Evita que claves sensibles aparezcan en el código compilado; sólo se leen desde el entorno del servidor.
-
-### Configuración de variables de entorno
-
-1. Copia el archivo `.env.example` a `.env` y completa los valores:
-   - `SUPABASE_URL`: URL de tu proyecto Supabase.
-   - `SUPABASE_SERVICE_ROLE_KEY`: clave `service_role` (mantenerla privada, no debe exponerse en el
-     frontend).
-   - `ALLOWED_ORIGINS`: (opcional) lista separada por comas de orígenes autorizados para CORS.
-   - `PORT`: (opcional) puerto local para el servidor Express.
-
-2. Instala las dependencias y levanta el backend:
+1. Instala dependencias:
 
    ```bash
    npm install
-   npm start
    ```
 
-3. Asegúrate de servir la interfaz (por ejemplo con `python -m http.server 8000`) y de que
-   `apiBaseUrl` apunte al backend (por ejemplo `http://localhost:3000/api`).
+2. Inicia sesión en Firebase e inicializa el proyecto si aún no lo has hecho:
 
-## Cómo ejecutar la página
+   ```bash
+   npx firebase login
+   npx firebase use --add
+   ```
 
-1. Clona este repositorio o descarga el código.
-2. Coloca tus valores reales dentro del bloque `window.APP_CONFIG` de `index.html`.
-3. (Opcional) Sirve el contenido con un servidor local, por ejemplo:
+3. Publica las reglas incluidas en [`firestore.rules`](./firestore.rules):
+
+   ```bash
+   npx firebase deploy --only firestore:rules
+   ```
+
+## Ejecución local
+
+1. Sirve el directorio con el servidor de tu preferencia, por ejemplo:
+
+   ```bash
+   npm install
+   npx firebase emulators:start --only hosting
+   ```
+
+   o simplemente:
 
    ```bash
    python -m http.server 8000
    ```
 
-4. Abre [`http://localhost:8000/index.html`](http://localhost:8000/index.html) o el archivo
-   `index.html` directamente en tu navegador.
+2. Abre `http://localhost:8000/index.html` o `http://127.0.0.1:8000/index.html` en tu navegador.
 
 ## Flujo de uso
 
-1. Ingresa el correo electrónico. El sistema consultará el endpoint configurado (o los datos
-   simulados) para determinar si la cuenta existe.
-2. Introduce o crea la contraseña según corresponda.
-3. Recibirás un código de verificación por correo. Puedes reenviarlo desde la misma pantalla.
-4. Alternativamente, utiliza el botón "Continuar con Google" para completar el proceso mediante
-   Google Identity Services.
+1. Inicia sesión o regístrate con correo/contraseña o con Google.
+2. Al autenticarse, los clientes se sincronizan en tiempo real desde `users/{uid}/clientes` en
+   Cloud Firestore.
+3. Los servicios personalizados se guardan bajo `users/{uid}/config/services` y también se
+   sincronizan en vivo.
+4. Al cerrar sesión se vuelve a la pantalla de aterrizaje; si no hay sesión se usan datos locales
+   almacenados en `localStorage`.
 
-## Recursos
+## Archivos relevantes
 
-- Estilos principales en [`styles.css`](./styles.css) con gradientes suaves y transiciones entre
-  pantallas.
-- Lógica de interacción en [`script.js`](./script.js) para manejar navegación, validaciones y
-  comunicación con endpoints externos.
-- Activos gráficos opcionales en [`assets/`](./assets/).
+- [`firebaseConfig.js`](./firebaseConfig.js): inicializa Firebase y expone `auth` y `db`.
+- [`index.html`](./index.html): lógica principal del SPA y listeners de Firestore.
+- [`firestore.rules`](./firestore.rules): reglas recomendadas para proteger los datos por usuario.
 
 ## Limitaciones
 
-- La validación de correo, el envío de códigos y el manejo del token de Google requieren
-  endpoints propios; el repositorio sólo provee la estructura y llamadas necesarias.
-- Google Identity Services exige que la página se sirva desde un origen autorizado configurado en
-  la consola de Google Cloud.
+- No se incluye hosting automático ni backend adicional; debes proporcionar tu propio hosting.
+- El chat opcional requiere definir `APP_CONFIG.aiEndpoint` que responda a las peticiones del
+  navegador.
+- Para usar Google Sign-In debes registrar los dominios locales en la consola de Firebase.

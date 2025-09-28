@@ -7,6 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"
+      }
+    }
+  </script>
   <style>
     :root{
       --bg:#000000; --ink:#f8fafc; --ink-soft:#d2d9e6; --muted:#9aa7bb;
@@ -181,14 +190,13 @@
     </article>
   </main>
   <script type="module">
+    import { auth } from './firebaseConfig.js';
     import {
-      autoSignInOrUp,
-      handleAuthSuccess,
-      handleGoogleCredentialResponse,
-      requestPasswordReset,
-      getAuthHost,
-      getAuthHostConfig
-    } from './auth-shared.js';
+      signInWithEmailAndPassword,
+      GoogleAuthProvider,
+      signInWithPopup,
+      sendPasswordResetEmail
+    } from 'firebase/auth';
 
     const loginForm=document.getElementById('loginForm');
     const authEmailEl=document.getElementById('authEmail');
@@ -202,19 +210,11 @@
     const googleButton=document.getElementById('googleButton');
     const hostWarning=document.getElementById('hostWarning');
 
-    function setError(message='', { tone='danger' }={}){
+    hostWarning.hidden=true;
+
+    function setError(message='', tone='danger'){
       authErrorEl.textContent=message;
-      authErrorEl.style.color = tone==='success' ? 'var(--success)' : 'var(--danger)';
-    }
-
-    function disableForm(disabled){
-      loginForm?.querySelectorAll('input,button').forEach(el=>{ el.disabled=disabled; });
-    }
-
-    const hostAvailable=Boolean(getAuthHost());
-    if(!hostAvailable){
-      hostWarning.hidden=false;
-      disableForm(true);
+      authErrorEl.style.color = tone==='success' ? 'var(--success)' : tone==='info' ? 'var(--muted)' : 'var(--danger)';
     }
 
     toggleAuthPass?.addEventListener('click',()=>{
@@ -224,15 +224,12 @@
     });
 
     btnClose?.addEventListener('click',()=>{
-      window.close();
+      if(window.opener){ window.close(); }
+      else{ window.location.href='index.html'; }
     });
 
     loginForm?.addEventListener('submit',async event=>{
       event.preventDefault();
-      if(!getAuthHost()){
-        hostWarning.hidden=false;
-        return;
-      }
       const email=(authEmailEl.value||'').trim();
       const pass=(authPassEl.value||'').trim();
       setError('');
@@ -240,21 +237,16 @@
         setError('Completa correo y contraseña.');
         return;
       }
-      btnAuthSubmit.disabled=true;
       const originalText=btnAuthSubmit.textContent;
+      btnAuthSubmit.disabled=true;
       btnAuthSubmit.textContent='Procesando…';
       try{
-        const result=await autoSignInOrUp(email,pass);
-        if(!result?.ok){
-          setError(result?.message||'No se pudo acceder.');
-          return;
-        }
-        setError('',{ tone:'success' });
-        await handleAuthSuccess('¡Bienvenido!');
-        window.close();
+        await signInWithEmailAndPassword(auth,email,pass);
+        setError('Sesión iniciada. Puedes cerrar esta ventana.', 'success');
+        setTimeout(()=>window.close(), 1200);
       }catch(error){
         console.error(error);
-        setError(error?.message||'Error inesperado.');
+        setError(error?.message||'No se pudo acceder.');
       }finally{
         btnAuthSubmit.disabled=false;
         btnAuthSubmit.textContent=originalText;
@@ -262,10 +254,6 @@
     });
 
     btnForgot?.addEventListener('click',async ()=>{
-      if(!getAuthHost()){
-        hostWarning.hidden=false;
-        return;
-      }
       const email=(authEmailEl.value||'').trim();
       setError('');
       if(!email){
@@ -273,54 +261,38 @@
         return;
       }
       try{
-        const result=await requestPasswordReset(email);
-        setError(result?.message||'',{ tone:result?.ok?'success':'danger' });
+        await sendPasswordResetEmail(auth,email);
+        setError('Te enviamos un correo para restablecer tu contraseña.', 'success');
       }catch(error){
         console.error(error);
         setError(error?.message||'No se pudo enviar el correo de recuperación.');
       }
     });
 
-    function setupGoogle(){
-      if(!getAuthHost()){
-        return;
-      }
-      if(typeof window.google==='undefined'){ return; }
-      const config=getAuthHostConfig();
-      const clientId=config?.googleClientId;
-      if(!clientId){
-        googleFeedbackEl.textContent='Añade tu "googleClientId" en APP_CONFIG para mostrar este botón.';
-        return;
-      }
-      googleFeedbackEl.textContent='';
-      try{
-        window.google.accounts.id.initialize({
-          client_id:clientId,
-          callback:response=>handleGoogleCredentialResponse(response,{
-            feedbackEl:googleFeedbackEl,
-            onSuccess:async()=>{
-              await handleAuthSuccess('¡Bienvenido!');
-              window.close();
-            }
-          })
-        });
-        googleButton.innerHTML='';
-        window.google.accounts.id.renderButton(googleButton,{
-          theme:'outline',
-          size:'large',
-          shape:'pill',
-          width:'100%'
-        });
-      }catch(error){
-        console.error(error);
-        googleFeedbackEl.textContent='No se pudo inicializar el botón de Google.';
-      }
+    const googleProvider=new GoogleAuthProvider();
+    if(googleButton){
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='btn ghost';
+      btn.textContent='Continuar con Google';
+      btn.addEventListener('click',async()=>{
+        btn.disabled=true;
+        setError('', 'danger');
+        if(googleFeedbackEl){ googleFeedbackEl.textContent='Abriendo Google…'; }
+        try{
+          await signInWithPopup(auth,googleProvider);
+          if(googleFeedbackEl){ googleFeedbackEl.textContent='Sesión iniciada. Puedes cerrar esta ventana.'; }
+          setTimeout(()=>window.close(), 1200);
+        }catch(error){
+          console.error(error);
+          if(googleFeedbackEl){ googleFeedbackEl.textContent=error?.message||'No se pudo iniciar sesión con Google.'; }
+        }finally{
+          btn.disabled=false;
+        }
+      });
+      googleButton.innerHTML='';
+      googleButton.appendChild(btn);
     }
-
-    window.addEventListener('load',()=>{
-      setupGoogle();
-    });
   </script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
