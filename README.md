@@ -15,6 +15,9 @@ contraseña y verificación) y compatibilidad con acceso mediante Google Identit
 Todos los valores configurables se definen en `window.APP_CONFIG` dentro de
 [`index.html`](./index.html). Actualiza los siguientes campos según tu entorno:
 
+- `apiBaseUrl`: URL base del backend protegido que expone los endpoints `/auth/*`,
+  `/clients` y `/services`. Por defecto la interfaz usa `/api` (ideal cuando se
+  sirve detrás de un proxy o plataforma serverless).
 - `googleClientId`: Client ID generado en Google Cloud Console para Google Identity Services.
 - `googleCallbackEndpoint`: Endpoint en tu backend que recibirá el `credential` devuelto por
   Google. Debe validar y crear/iniciar sesión en la cuenta.
@@ -26,6 +29,35 @@ Todos los valores configurables se definen en `window.APP_CONFIG` dentro de
 > **Nota:** Si no defines los endpoints anteriores, la aplicación utilizará datos simulados en
 > memoria para validar correos y generará códigos de verificación ficticios solo con fines de
 > demostración.
+
+## Backend API con Supabase
+
+El repositorio incluye un backend minimalista en [`api/server.js`](./api/server.js) que actúa como
+capa intermedia entre la interfaz y Supabase. Este servicio:
+
+- Administra el inicio/cierre de sesión y la recuperación de contraseña sin exponer claves.
+- Expone endpoints REST (`/clients` y `/services`) para listar/crear/actualizar/eliminar registros.
+- Utiliza la clave `service_role` desde variables de entorno seguras.
+- Evita que claves sensibles aparezcan en el código compilado; sólo se leen desde el entorno del servidor.
+
+### Configuración de variables de entorno
+
+1. Copia el archivo `.env.example` a `.env` y completa los valores:
+   - `SUPABASE_URL`: URL de tu proyecto Supabase.
+   - `SUPABASE_SERVICE_ROLE_KEY`: clave `service_role` (mantenerla privada, no debe exponerse en el
+     frontend).
+   - `ALLOWED_ORIGINS`: (opcional) lista separada por comas de orígenes autorizados para CORS.
+   - `PORT`: (opcional) puerto local para el servidor Express.
+
+2. Instala las dependencias y levanta el backend:
+
+   ```bash
+   npm install
+   npm start
+   ```
+
+3. Asegúrate de servir la interfaz (por ejemplo con `python -m http.server 8000`) y de que
+   `apiBaseUrl` apunte al backend (por ejemplo `http://localhost:3000/api`).
 
 ## Cómo ejecutar la página
 
