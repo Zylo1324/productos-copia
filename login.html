@@ -197,7 +197,6 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
-  sendEmailVerification,   // <-- agrega esta
   signOut                  // <-- y esta
 } from 'firebase/auth';
 
@@ -245,15 +244,12 @@ import {
       btnAuthSubmit.textContent='Procesando…';
       try {
         const cred = await signInWithEmailAndPassword(auth, email, pass);
-        
         await cred.user.reload();
         if (!cred.user.emailVerified) {
-          try { 
-            await sendEmailVerification(cred.user); 
-          } catch (_) {}
-          
-          setError('✉️ Debes verificar tu correo. Te enviamos un email de verificación. Revisa tu bandeja.', 'info');
+          setError('Debes verificar tu correo antes de iniciar sesión');
           await signOut(auth);   // Cierra sesión hasta que confirme
+          btnAuthSubmit.disabled=false;
+          btnAuthSubmit.textContent=originalText;
           return;
         }
         setError('Sesión iniciada. Puedes cerrar esta ventana.', 'success');
@@ -261,6 +257,9 @@ import {
       } catch (error) {
         console.error(error);
         setError(error?.message || 'No se pudo acceder.');
+      } finally {
+        btnAuthSubmit.disabled=false;
+        btnAuthSubmit.textContent=originalText;
       }
 
     });
