@@ -50,6 +50,29 @@
     *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
     html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
     body{position:relative;min-height:100vh;overflow-x:hidden;padding-left:0;transition:padding-left .3s ease}
+    .landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;padding:48px 16px;text-align:center}
+    .landing[hidden]{display:none}
+    .landing-hero{max-width:640px;display:grid;gap:18px;justify-items:center}
+    .landing-logo{width:84px;height:84px;border-radius:24px;background:linear-gradient(135deg,var(--btn),#facc15);display:flex;align-items:center;justify-content:center;font-size:42px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+    .landing-pill{padding:6px 16px;border-radius:999px;background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--border);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:0}
+    .landing-title{margin:0;font-size:clamp(34px,8vw,68px);font-weight:800;color:var(--ink);text-shadow:0 14px 32px rgba(0,0,0,.45)}
+    .landing-subtitle{margin:0;color:var(--ink-soft);font-size:16px;line-height:1.6}
+    .landing-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+    .landing-panels{width:min(520px,92vw);display:grid;gap:20px}
+    .landing-panel{background:var(--card-bg);border-radius:20px;border:1px solid var(--border);padding:28px;box-shadow:var(--shadow);backdrop-filter:blur(22px);text-align:left;display:grid;gap:18px}
+    .landing-panel[hidden]{display:none}
+    .landing-panel h2{margin:0;font-size:24px;font-weight:700;color:var(--ink)}
+    .landing-panel p{margin:0;color:var(--muted);line-height:1.5}
+    .landing-form{display:grid;gap:16px}
+    .landing-errors{min-height:18px;font-size:13px;color:var(--danger)}
+    .landing-errors:empty{display:none}
+    .landing-google{display:grid;gap:8px}
+    .landing-google .small{margin:0;text-align:left}
+    @media(max-width:600px){
+      .landing{padding:36px 14px}
+      .landing-actions{flex-direction:column}
+      .landing-panel{padding:24px}
+    }
     .scroll-fade{will-change:opacity,transform}
     body.scroll-animations-ready .scroll-fade{opacity:0;transform:translateY(36px);transition:opacity .7s ease,transform .7s ease}
     body.scroll-animations-ready .scroll-fade.is-visible{opacity:1;transform:none}
@@ -403,6 +426,83 @@
   </style>
 </head>
 <body>
+  <section class="landing" data-landing>
+    <div class="landing-hero">
+      <div class="landing-logo" aria-hidden="true">🪄</div>
+      <p class="landing-pill">Asistente para negocios digitales</p>
+      <h1 class="landing-title">Administra tus clientes con ZYLO</h1>
+      <p class="landing-subtitle">Conecta tus servicios, centraliza credenciales y ofrece una experiencia premium desde un solo panel.</p>
+      <div class="landing-actions" data-landing-actions>
+        <button type="button" class="btn primary" id="landingStart">Empezar ahora</button>
+        <button type="button" class="btn ghost" id="landingLogin">Ya tengo una cuenta</button>
+      </div>
+    </div>
+
+    <div class="landing-panels">
+      <article class="landing-panel" data-landing-view="home" aria-hidden="false">
+        <h2>Elige cómo continuar</h2>
+        <p>Configura una cuenta nueva o ingresa con tus credenciales existentes.</p>
+      </article>
+
+      <article class="landing-panel" data-landing-view="signup" aria-hidden="true" hidden>
+        <header>
+          <h2>Crea tu cuenta</h2>
+          <p>Registra tus datos para sincronizar tus servicios. Podrás editarlo todo luego.</p>
+        </header>
+        <form id="signupForm" class="landing-form">
+          <div class="row">
+            <label for="signupEmail">Correo</label>
+            <input id="signupEmail" type="email" autocomplete="email" placeholder="tucorreo@empresa.com" required>
+          </div>
+          <div class="row">
+            <label for="signupPass">Crea una contraseña</label>
+            <input id="signupPass" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required>
+          </div>
+          <div class="row">
+            <label for="signupConfirm">Confirma tu contraseña</label>
+            <input id="signupConfirm" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="8" required>
+          </div>
+          <div class="landing-errors" id="signupError" role="alert"></div>
+          <div class="actions">
+            <button type="submit" class="btn primary">Crear cuenta</button>
+            <button type="button" class="btn ghost" data-landing-back>Volver</button>
+          </div>
+        </form>
+      </article>
+
+      <article class="landing-panel" data-landing-view="login" aria-hidden="true" hidden>
+        <header>
+          <h2>Inicia sesión</h2>
+          <p>Usa tu correo y contraseña registrados para entrar al dashboard.</p>
+        </header>
+        <form id="loginForm" class="landing-form">
+          <div class="row">
+            <label for="authEmail">Correo</label>
+            <input id="authEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" required>
+          </div>
+          <div class="row">
+            <label for="authPass">Contraseña</label>
+            <div class="pin-wrap">
+              <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" required>
+              <button type="button" class="eye" id="toggleAuthPass" aria-label="Mostrar/ocultar contraseña">👁</button>
+            </div>
+          </div>
+          <div class="landing-errors" id="authError" role="alert"></div>
+          <div class="actions">
+            <button type="submit" class="btn primary" id="btnAuthSubmit">Entrar</button>
+            <button type="button" class="btn ghost" data-landing-back>Volver</button>
+          </div>
+          <button id="btnForgot" class="linklike" type="button">¿Olvidaste tu contraseña?</button>
+          <div class="landing-google">
+            <div id="googleButton"></div>
+            <p class="small" data-google-feedback></p>
+          </div>
+        </form>
+      </article>
+    </div>
+  </section>
+
+  <div data-dashboard hidden>
   <button type="button" id="sidebarLauncher" class="sidebar-launcher" aria-controls="sidebar" aria-label="Abrir navegación" aria-expanded="false">☰</button>
 
   <aside class="sidebar" id="sidebar" data-pinned="false" aria-hidden="true">
@@ -598,39 +698,6 @@
     </div>
   </div>
 
-  <!-- ===== Modal Acceso (login/registro en 1) ===== -->
-  <div id="authModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-label="Acceder">
-      <header>
-        <strong>Acceder</strong>
-        <button class="btn ghost" id="btnAuthClose">Cancelar</button>
-      </header>
-      <div class="body">
-        <div class="row">
-          <label for="authEmail">Correo</label>
-          <input id="authEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email">
-        </div>
-        <div class="row">
-          <label for="authPass">Contraseña</label>
-          <div class="pin-wrap">
-            <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password">
-            <button type="button" class="eye" id="toggleAuthPass" aria-label="Mostrar/ocultar contraseña">👁</button>
-          </div>
-        </div>
-
-        <div class="small" style="text-align:left;margin-top:0">
-          <button id="btnForgot" class="linklike" type="button">¿Olvidaste tu contraseña?</button>
-        </div>
-
-        <div class="actions" style="justify-content:flex-end">
-          <button class="btn primary" id="btnAuthSubmit">Continuar</button>
-        </div>
-        <div class="small" id="authHelp">Si es tu primera vez, crearemos tu cuenta automáticamente.</div>
-        <div class="small" id="authError" style="color:var(--danger)"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- ===== Modal Correos enlazados ===== -->
   <div id="linkedModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-label="Correos enlazados">
@@ -664,6 +731,8 @@
       </div>
     </div>
   </div>
+
+</div>
 
 <script>
 /* ====== CONFIG API ====== */
@@ -741,6 +810,56 @@ const btnVerClientes=document.getElementById('btnVerClientes');
 const btnVolverFormulario=document.getElementById('btnVolverFormulario');
 const tablaSection=document.getElementById('TablaClientes');
 const formSection=document.getElementById('Formulario');
+const landing=document.querySelector('[data-landing]');
+const dashboardContainer=document.querySelector('[data-dashboard]');
+const landingPanels=document.querySelectorAll('[data-landing-view]');
+const landingStartBtn=document.getElementById('landingStart');
+const landingLoginBtn=document.getElementById('landingLogin');
+const landingBackButtons=document.querySelectorAll('[data-landing-back]');
+const signupForm=document.getElementById('signupForm');
+const signupEmailEl=document.getElementById('signupEmail');
+const signupPassEl=document.getElementById('signupPass');
+const signupConfirmEl=document.getElementById('signupConfirm');
+const signupErrorEl=document.getElementById('signupError');
+const loginForm=document.getElementById('loginForm');
+const googleFeedbackEl=document.querySelector('[data-google-feedback]');
+
+function setLandingView(view){
+  landingPanels.forEach(panel=>{
+    const isActive=panel.dataset.landingView===view;
+    panel.hidden=!isActive;
+    panel.setAttribute('aria-hidden',String(!isActive));
+  });
+  if(view==='login'){
+    if(typeof initializeGoogleSignIn==='function'){ initializeGoogleSignIn(); }
+    setTimeout(()=>authEmailEl?.focus(),0);
+  }else if(view==='signup'){
+    setTimeout(()=>signupEmailEl?.focus(),0);
+  }
+}
+
+function showLanding(view='home'){
+  if(landing){ landing.hidden=false; landing.removeAttribute('hidden'); }
+  if(dashboardContainer){ dashboardContainer.hidden=true; }
+  setLandingView(view);
+}
+
+function hideLanding(){
+  if(landing){ landing.hidden=true; }
+  if(dashboardContainer){ dashboardContainer.hidden=false; }
+}
+
+landingStartBtn?.addEventListener('click',()=>{
+  showLanding('signup');
+});
+
+landingLoginBtn?.addEventListener('click',()=>{
+  showLanding('login');
+});
+
+landingBackButtons.forEach(btn=>{
+  btn.addEventListener('click',()=>setLandingView('home'));
+});
 
 const themeButton=document.getElementById('btnTheme');
 const themeLabel=document.getElementById('themeLabel');
@@ -1235,6 +1354,11 @@ let authInitPromise = null;
 
 function updateUserState(user){
   currentUser = user;
+  if(user){
+    hideLanding();
+  }else{
+    showLanding('home');
+  }
   authUpdateUI();
   (async()=>{
     try{
@@ -1298,9 +1422,7 @@ function authUpdateUI(){
     btnLogout.style.display='none';
   }
 }
-const authModal    = document.getElementById('authModal');
 const btnAuthOpen  = document.getElementById('btnAuthOpen');
-const btnAuthClose = document.getElementById('btnAuthClose');
 const btnAuthSubmit= document.getElementById('btnAuthSubmit');
 const authEmailEl  = document.getElementById('authEmail');
 const authPassEl   = document.getElementById('authPass');
@@ -1308,12 +1430,9 @@ const authErrorEl  = document.getElementById('authError');
 const toggleAuthPass = document.getElementById('toggleAuthPass');
 const btnForgot    = document.getElementById('btnForgot');
 
-function openAuth(){ authErrorEl.textContent=''; authErrorEl.style.color='var(--danger)'; authModal.classList.add('open'); authModal.setAttribute('aria-hidden','false'); setTimeout(()=>authEmailEl?.focus(), 0); }
-function closeAuth(){ authModal.classList.remove('open'); authModal.setAttribute('aria-hidden','true'); }
-btnAuthOpen?.addEventListener('click', openAuth);
-btnAuthClose?.addEventListener('click', closeAuth);
-authModal?.addEventListener('click', (e)=>{ if(e.target===authModal) closeAuth(); });
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAuth(); });
+btnAuthOpen?.addEventListener('click', ()=>{
+  showLanding('login');
+});
 
 toggleAuthPass?.addEventListener('click', ()=>{
   const isPass = authPassEl.type==='password';
@@ -1335,19 +1454,123 @@ async function autoSignInOrUp(email, password) {
     return { ok: false, message: error.message };
   }
 }
-btnAuthSubmit?.addEventListener('click', async () => {
-  const email = (authEmailEl.value || '').trim();
-  const pass  = (authPassEl.value || '').trim();
-  authErrorEl.textContent = ''; authErrorEl.style.color = 'var(--danger)';
-  if (!email || !pass) { authErrorEl.textContent = 'Completa correo y contraseña.'; return; }
-  btnAuthSubmit.disabled = true; btnAuthSubmit.textContent = 'Procesando…';
+async function handleAuthSuccess(message){
+  await ensureAuthInitialized();
+  hideLanding();
+  if(message){ toast(message); }
+}
+
+signupForm?.addEventListener('submit', async (event)=>{
+  event.preventDefault();
+  signupErrorEl.textContent='';
+  const email=(signupEmailEl.value||'').trim();
+  const pass=(signupPassEl.value||'').trim();
+  const confirm=(signupConfirmEl.value||'').trim();
+  if(!email||!pass){ signupErrorEl.textContent='Completa correo y contraseña.'; return; }
+  if(pass.length<8){ signupErrorEl.textContent='La contraseña debe tener al menos 8 caracteres.'; return; }
+  if(pass!==confirm){ signupErrorEl.textContent='Las contraseñas no coinciden.'; return; }
+  const submitBtn=signupForm.querySelector('button[type="submit"]');
+  submitBtn.disabled=true; submitBtn.textContent='Creando cuenta…';
   try{
-    const r = await autoSignInOrUp(email, pass);
-    if (!r.ok) authErrorEl.textContent = r.message || 'No se pudo acceder.';
-    else { closeAuth(); toast('¡Bienvenido!'); }
-  }catch(err){ authErrorEl.textContent = err.message || 'Error inesperado.'; }
-  finally{ btnAuthSubmit.disabled = false; btnAuthSubmit.textContent = 'Continuar'; }
+    const result=await autoSignInOrUp(email, pass);
+    if(!result.ok){ signupErrorEl.textContent=result.message||'No pudimos crear tu cuenta.'; }
+    else{
+      signupErrorEl.textContent='';
+      await handleAuthSuccess('¡Cuenta creada!');
+    }
+  }catch(error){
+    signupErrorEl.textContent=error.message||'Error inesperado.';
+  }finally{
+    submitBtn.disabled=false;
+    submitBtn.textContent='Crear cuenta';
+  }
 });
+
+loginForm?.addEventListener('submit', async (event)=>{
+  event.preventDefault();
+  const email=(authEmailEl.value||'').trim();
+  const pass=(authPassEl.value||'').trim();
+  authErrorEl.textContent='';
+  authErrorEl.style.color='var(--danger)';
+  if(!email||!pass){ authErrorEl.textContent='Completa correo y contraseña.'; return; }
+  btnAuthSubmit.disabled=true; btnAuthSubmit.textContent='Procesando…';
+  try{
+    const result=await autoSignInOrUp(email, pass);
+    if(!result.ok){ authErrorEl.textContent=result.message||'No se pudo acceder.'; }
+    else{
+      await handleAuthSuccess('¡Bienvenido!');
+    }
+  }catch(error){
+    authErrorEl.textContent=error.message||'Error inesperado.';
+  }finally{
+    btnAuthSubmit.disabled=false;
+    btnAuthSubmit.textContent='Entrar';
+  }
+});
+
+async function forwardGoogleCredential(credential){
+  const config=window.APP_CONFIG||{};
+  if(!config.googleCallbackEndpoint){
+    googleFeedbackEl?.textContent='Configura "googleCallbackEndpoint" para procesar el token de Google.';
+    return false;
+  }
+  try{
+    const response=await fetch(config.googleCallbackEndpoint,{
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ credential })
+    });
+    if(!response.ok) throw new Error('Error enviando el token de Google');
+    const payload=await response.json().catch(()=>({}));
+    if(payload?.session){ persistSession(payload.session); }
+    if(payload?.user){
+      updateUserState(payload.user);
+      authInitPromise=Promise.resolve(payload.user);
+    }
+    return true;
+  }catch(error){
+    console.error(error);
+    googleFeedbackEl?.textContent='No pudimos validar el inicio de sesión con Google.';
+    return false;
+  }
+}
+
+function handleGoogleCredentialResponse(response){
+  if(!response?.credential){ return; }
+  googleFeedbackEl?.textContent='Validando credenciales…';
+  forwardGoogleCredential(response.credential).then(async ok=>{
+    if(ok){
+      googleFeedbackEl.textContent='¡Sesión iniciada con Google!';
+      await handleAuthSuccess('¡Bienvenido!');
+    }
+  });
+}
+
+let googleButtonInitialized=false;
+function initializeGoogleSignIn(){
+  const googleContainer=document.getElementById('googleButton');
+  if(!googleContainer){ return; }
+  if(typeof window.google==='undefined'){ return; }
+  const config=window.APP_CONFIG||{};
+  const clientId=config.googleClientId;
+  if(!clientId){
+    googleFeedbackEl?.textContent='Añade tu "googleClientId" en APP_CONFIG para mostrar este botón.';
+    return;
+  }
+  googleFeedbackEl?.textContent='';
+  if(!googleButtonInitialized){
+    google.accounts.id.initialize({ client_id:clientId, callback:handleGoogleCredentialResponse });
+    googleButtonInitialized=true;
+  }
+  googleContainer.innerHTML='';
+  google.accounts.id.renderButton(googleContainer,{
+    theme:'outline',
+    size:'large',
+    shape:'pill',
+    width:'100%'
+  });
+}
+window.addEventListener('load',()=>initializeGoogleSignIn());
 document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
   try{
     await apiFetch('/auth/sign-out', { method:'POST' });
@@ -2073,8 +2296,18 @@ filterEstado?.addEventListener('change', () => renderTabla());
   try{ runTests(); }catch(e){ console.warn('[tests] fallo:', e); }
 })();
 
-/* inicio */
-ensureAuthInitialized();
+async function bootstrap(){
+  const hasToken=!!getStoredAccessToken();
+  if(hasToken){
+    await ensureAuthInitialized();
+    hideLanding();
+  }else{
+    showLanding('home');
+  }
+}
+
+bootstrap();
 </script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
