@@ -11,6 +11,7 @@ const state = {
 };
 
 const selectors = {
+  stepper: document.querySelector("[data-stepper]"),
   steps: document.querySelectorAll("[data-step]"),
   emailForm: document.getElementById("email-form"),
   emailInput: document.getElementById("email"),
@@ -29,7 +30,9 @@ const selectors = {
   passwordTitle: document.getElementById("password-title"),
   passwordDescription: document.getElementById("password-description"),
   currentEmail: document.querySelectorAll(".current-email"),
-  actionButtons: document.querySelectorAll('[data-action="back"]')
+  actionButtons: document.querySelectorAll('[data-action="back"]'),
+  dashboard: document.querySelector("[data-dashboard]"),
+  dashboardFrame: document.querySelector("[data-dashboard-frame]")
 };
 
 function showStep(stepName) {
@@ -46,6 +49,22 @@ function showStep(stepName) {
   }
   if (stepName === "verification") {
     selectors.verificationInput.focus({ preventScroll: true });
+  }
+}
+
+function showDashboard() {
+  const stepper = document.querySelector("[data-stepper]");
+  if (stepper) {
+    stepper.hidden = true;
+  }
+
+  if (selectors.dashboard) {
+    selectors.dashboard.hidden = false;
+  }
+
+  if (selectors.dashboardFrame && !selectors.dashboardFrame.src) {
+    selectors.dashboardFrame.src =
+      "https://raw.githubusercontent.com/iamwrely/Admin-Clientes/refs/heads/main/index.html";
   }
 }
 
@@ -241,6 +260,7 @@ async function handleVerificationSubmit(event) {
 
   setFeedback(selectors.feedback.verification, "");
   setFeedback(selectors.feedback.verificationSuccess, "¡Listo! Tu identidad ha sido verificada.", "success");
+  showDashboard();
   selectors.verificationForm.querySelector("button[type='submit']").disabled = true;
   selectors.resendButton.disabled = true;
   clearInterval(state.resendTimer);
