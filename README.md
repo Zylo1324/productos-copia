@@ -22,6 +22,12 @@ Todos los valores configurables se definen en `window.APP_CONFIG` dentro de
   parámetro `email` y responder un JSON con la forma `{ "exists": true/false }`.
 - `mailEndpoint`: Servicio (POST) que envíe el código de verificación al correo indicado. Debe
   responder un JSON que incluya al menos la propiedad `code` con los 6 dígitos generados.
+- `geminiEndpoint`: Ruta del backend que actuará como proxy seguro hacia Gemini (por defecto
+  `/api/gemini`).
+- `geminiModel`: Modelo de Gemini a solicitar. Si no se especifica usa `gemini-1.5-flash`.
+- `sessionCookieName` y/o `sessionToken`: Identificadores que utilizará el frontend para enviar el
+  token de sesión al backend del chat. Para desarrollos locales puedes establecer `sessionToken`
+  con un valor de prueba, pero en producción se recomienda que el servidor entregue la cookie.
 
 > **Nota:** Si no defines los endpoints anteriores, la aplicación utilizará datos simulados en
 > memoria para validar correos y generará códigos de verificación ficticios solo con fines de
@@ -31,14 +37,23 @@ Todos los valores configurables se definen en `window.APP_CONFIG` dentro de
 
 1. Clona este repositorio o descarga el código.
 2. Coloca tus valores reales dentro del bloque `window.APP_CONFIG` de `index.html`.
-3. (Opcional) Sirve el contenido con un servidor local, por ejemplo:
+3. Crea un archivo `.env` tomando como referencia [`.env.example`](./.env.example) y define al
+   menos `GEMINI_API_KEY` y un token válido en `VALID_SESSION_TOKENS`.
+4. Instala las dependencias y arranca el backend de Express:
 
    ```bash
-   python -m http.server 8000
+   npm install
+   npm run dev
    ```
 
-4. Abre [`http://localhost:8000/index.html`](http://localhost:8000/index.html) o el archivo
+5. Sirve el contenido estático (por ejemplo con `python -m http.server 8000`) o configura Express
+   para entregar también el frontend.
+6. Abre [`http://localhost:8000/index.html`](http://localhost:8000/index.html) o el archivo
    `index.html` directamente en tu navegador.
+
+> **Nota:** El backend valida que cada solicitud incluya un token de sesión válido (mediante la
+> cabecera `X-Session-Token` o la cookie configurada) y aplica un rate limiting básico por sesión.
+> Ajusta estos mecanismos según el sistema de autenticación que utilices.
 
 ## Flujo de uso
 
@@ -56,6 +71,17 @@ Todos los valores configurables se definen en `window.APP_CONFIG` dentro de
 - Lógica de interacción en [`script.js`](./script.js) para manejar navegación, validaciones y
   comunicación con endpoints externos.
 - Activos gráficos opcionales en [`assets/`](./assets/).
+
+## Backend de Gemini
+
+- [`server.js`](./server.js) expone un servicio Express en `/api/gemini` que inserta la clave de
+  Gemini desde variables de entorno, aplica verificación de sesión (cabecera `X-Session-Token` o
+  cookie) y limita la cantidad de solicitudes por ventana de tiempo.
+- [`.env.example`](./.env.example) detalla las variables necesarias para ejecutar el proxy de forma
+  local.
+- Se incluye rate limiting en memoria. Para producción se recomienda sustituirlo por un mecanismo
+  distribuido (Redis, Memcached, etc.) y enlazarlo con el sistema real de sesiones de tu
+  aplicación.
 
 ## Limitaciones
 

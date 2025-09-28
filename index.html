@@ -7,6 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    window.APP_CONFIG = Object.assign(
+      {
+        geminiEndpoint: '/api/gemini',
+        geminiModel: 'gemini-1.5-flash',
+        sessionCookieName: 'sessionToken',
+        sessionToken: 'demo-session'
+      },
+      window.APP_CONFIG || {}
+    );
+  </script>
   <style>
     :root{
       --bg:#000000; --ink:#f8fafc; --ink-soft:#d2d9e6; --muted:#9aa7bb;
@@ -1701,8 +1712,6 @@ $('#btnEliminarServicio').onclick = async ()=>{
 document.getElementById('togglePin')?.addEventListener('click',()=>{ const el=f.pin; const isPass=el.type==='password'; el.type=isPass?'text':'password'; document.getElementById('togglePin').textContent=isPass?'🙈':'👁'; });
 
 /* ===== Chat (Gemini) ===== */
-const GEMINI_API_KEY = 'AIzaSyC9hpKbGmUx3_YcgVGI3AEOdKvWRSoU81k';
-const GEMINI_MODEL  = 'gemini-1.5-flash';
 const chatModal = document.getElementById('chatModal');
 const btnChatOpen = document.getElementById('btnChatOpen');
 const btnChatClose = document.getElementById('btnChatClose');
@@ -1750,13 +1759,32 @@ function buildPrompt(userMsg){
   const prompt = [...guidance,'DATOS(JSON):',JSON.stringify(context),`PREGUNTA: ${userMsg}`].join('\n');
   return prompt;
 }
+function getSessionToken(){
+  const config = window.APP_CONFIG || {};
+  if (config.sessionToken) return config.sessionToken;
+  const cookieName = config.sessionCookieName || 'sessionToken';
+  const matcher = new RegExp(`(?:^|; )${cookieName}=([^;]*)`);
+  const match = document.cookie.match(matcher);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 async function requestGemini(prompt){
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-  const payload = { contents: [{ role:'user', parts:[{ text: prompt }]}] };
-  const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  if(!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  return json?.candidates?.[0]?.content?.parts?.[0]?.text || '(sin respuesta)';
+  const config = window.APP_CONFIG || {};
+  const endpoint = config.geminiEndpoint || '/api/gemini';
+  const model = config.geminiModel || 'gemini-1.5-flash';
+  const headers = { 'Content-Type':'application/json' };
+  const sessionToken = getSessionToken();
+  if(sessionToken){ headers['X-Session-Token'] = sessionToken; }
+  const payload = { prompt, model };
+  const res = await fetch(endpoint, { method:'POST', headers, body: JSON.stringify(payload) });
+  let data = null;
+  try{ data = await res.json(); }
+  catch(_err){ /* sin contenido */ }
+  if(!res.ok){
+    const message = data?.error || `HTTP ${res.status}`;
+    throw new Error(message);
+  }
+  return data?.reply || '(sin respuesta)';
 }
 async function sendChat(){
   const text = (chatInputEl?.value||'').trim(); if(!text) return;
