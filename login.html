@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión • Zyl0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#000000; --ink:#f8fafc; --ink-soft:#d2d9e6; --muted:#9aa7bb;
+      --field:rgba(14,18,26,.85); --field-focus:rgba(20,26,36,.92); --border:rgba(255,255,255,.12);
+      --btn:#f28a2d; --btn-ink:#1c130a; --ghost:rgba(255,255,255,.06); --ghost-border:rgba(255,255,255,.18);
+      --ghost-hover-bg:rgba(255,255,255,.12); --ghost-hover-border:rgba(255,255,255,.26);
+      --ghost-active-bg:rgba(255,255,255,.18); --ghost-active-border:rgba(255,255,255,.32);
+      --success:#16f2a6; --danger:#f97373; --focus:#7dd3fc;
+      font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
+    }
+    *{box-sizing:border-box;font-family:inherit;}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:48px 16px;
+      position:relative;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-40%;
+      background:
+        linear-gradient(rgba(0,0,0,.78),rgba(0,0,0,.78)),
+        url("https://images.unsplash.com/photo-1524230572899-a752b3835840?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat fixed;
+      pointer-events:none;
+      z-index:-1;
+      filter:blur(12px);
+      transform:scale(1.06);
+    }
+    .login-shell{
+      width:min(520px,100%);
+      display:grid;
+    }
+    .landing-panel{
+      background:rgba(255,255,255,.06);
+      border-radius:20px;
+      border:1px solid var(--border);
+      padding:32px;
+      box-shadow:0 30px 60px rgba(0,0,0,.55);
+      backdrop-filter:blur(22px);
+      display:grid;
+      gap:20px;
+    }
+    .landing-panel header h2{
+      margin:0;
+      font-size:28px;
+      font-weight:700;
+    }
+    .landing-panel header p{
+      margin:8px 0 0;
+      color:var(--ink-soft);
+      line-height:1.5;
+    }
+    .landing-form{
+      display:grid;
+      gap:18px;
+    }
+    .landing-form .row{display:grid;gap:8px;text-align:left;}
+    label{font-weight:600;}
+    input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:var(--field);
+      color:var(--ink);
+      font-size:15px;
+      transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;
+    }
+    input:focus{
+      outline:2px solid transparent;
+      border-color:var(--focus);
+      box-shadow:0 0 0 4px rgba(125,211,252,.18);
+      background:var(--field-focus);
+    }
+    .pin-wrap{position:relative;display:flex;align-items:center;}
+    .pin-wrap input{padding-right:42px;}
+    .eye{
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform:translateY(-50%);
+      background:var(--ghost);
+      border:1px solid var(--ghost-border);
+      border-radius:10px;
+      padding:4px 8px;
+      cursor:pointer;
+      font-size:16px;
+      transition:background-color .2s ease,border-color .2s ease;
+    }
+    .eye:hover{background:var(--ghost-hover-bg);border-color:var(--ghost-hover-border);}
+    .landing-errors{
+      min-height:18px;
+      font-size:13px;
+      color:var(--danger);
+    }
+    .landing-errors:empty{display:none;}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;}
+    .btn{
+      border:0;
+      border-radius:14px;
+      padding:10px 16px;
+      cursor:pointer;
+      font-weight:600;
+      transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+      color:var(--ink);
+      background:var(--ghost);
+      border:1px solid var(--ghost-border);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .btn.primary{background:var(--btn);color:var(--btn-ink);box-shadow:0 12px 24px rgba(242,138,45,.35);}
+    .btn:hover,.btn:focus-visible{box-shadow:0 14px 28px rgba(5,9,15,.45);transform:translateY(-1px);}
+    .btn:active{transform:translateY(0);box-shadow:0 6px 12px rgba(5,9,15,.6);}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
+    .linklike{
+      background:none;
+      border:0;
+      color:var(--ink-soft);
+      cursor:pointer;
+      padding:0;
+      text-align:left;
+      font-size:14px;
+      text-decoration:underline;
+      align-self:flex-start;
+    }
+    .landing-google{display:grid;gap:8px;}
+    .landing-google .small{margin:0;font-size:13px;color:var(--ink-soft);}    
+    .status-message{margin:0;color:var(--danger);font-size:14px;}
+    .status-message[hidden]{display:none;}
+    @media(max-width:520px){
+      body{padding:36px 14px;}
+      .landing-panel{padding:28px;}
+    }
+  </style>
+</head>
+<body>
+  <main class="login-shell">
+    <article class="landing-panel" aria-labelledby="loginTitle">
+      <header>
+        <h2 id="loginTitle">Inicia sesión</h2>
+        <p>Usa tu correo y contraseña registrados para entrar al dashboard.</p>
+      </header>
+      <p id="hostWarning" class="status-message" hidden>Abre esta ventana desde la aplicación principal para iniciar sesión.</p>
+      <form id="loginForm" class="landing-form" autocomplete="on">
+        <div class="row">
+          <label for="authEmail">Correo</label>
+          <input id="authEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
+        </div>
+        <div class="row">
+          <label for="authPass">Contraseña</label>
+          <div class="pin-wrap">
+            <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <button type="button" class="eye" id="toggleAuthPass" aria-label="Mostrar u ocultar contraseña">👁</button>
+          </div>
+        </div>
+        <div class="landing-errors" id="authError" role="alert"></div>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="btnAuthSubmit">Entrar</button>
+          <button type="button" class="btn ghost" id="btnClose">Cancelar</button>
+        </div>
+        <button id="btnForgot" class="linklike" type="button">¿Olvidaste tu contraseña?</button>
+        <div class="landing-google">
+          <div id="googleButton"></div>
+          <p class="small" data-google-feedback></p>
+        </div>
+      </form>
+    </article>
+  </main>
+  <script type="module">
+    import {
+      autoSignInOrUp,
+      handleAuthSuccess,
+      handleGoogleCredentialResponse,
+      requestPasswordReset,
+      getAuthHost,
+      getAuthHostConfig
+    } from './auth-shared.js';
+
+    const loginForm=document.getElementById('loginForm');
+    const authEmailEl=document.getElementById('authEmail');
+    const authPassEl=document.getElementById('authPass');
+    const authErrorEl=document.getElementById('authError');
+    const btnAuthSubmit=document.getElementById('btnAuthSubmit');
+    const toggleAuthPass=document.getElementById('toggleAuthPass');
+    const btnForgot=document.getElementById('btnForgot');
+    const btnClose=document.getElementById('btnClose');
+    const googleFeedbackEl=document.querySelector('[data-google-feedback]');
+    const googleButton=document.getElementById('googleButton');
+    const hostWarning=document.getElementById('hostWarning');
+
+    function setError(message='', { tone='danger' }={}){
+      authErrorEl.textContent=message;
+      authErrorEl.style.color = tone==='success' ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function disableForm(disabled){
+      loginForm?.querySelectorAll('input,button').forEach(el=>{ el.disabled=disabled; });
+    }
+
+    const hostAvailable=Boolean(getAuthHost());
+    if(!hostAvailable){
+      hostWarning.hidden=false;
+      disableForm(true);
+    }
+
+    toggleAuthPass?.addEventListener('click',()=>{
+      const isPass=authPassEl.type==='password';
+      authPassEl.type=isPass?'text':'password';
+      toggleAuthPass.textContent=isPass?'🙈':'👁';
+    });
+
+    btnClose?.addEventListener('click',()=>{
+      window.close();
+    });
+
+    loginForm?.addEventListener('submit',async event=>{
+      event.preventDefault();
+      if(!getAuthHost()){
+        hostWarning.hidden=false;
+        return;
+      }
+      const email=(authEmailEl.value||'').trim();
+      const pass=(authPassEl.value||'').trim();
+      setError('');
+      if(!email||!pass){
+        setError('Completa correo y contraseña.');
+        return;
+      }
+      btnAuthSubmit.disabled=true;
+      const originalText=btnAuthSubmit.textContent;
+      btnAuthSubmit.textContent='Procesando…';
+      try{
+        const result=await autoSignInOrUp(email,pass);
+        if(!result?.ok){
+          setError(result?.message||'No se pudo acceder.');
+          return;
+        }
+        setError('',{ tone:'success' });
+        await handleAuthSuccess('¡Bienvenido!');
+        window.close();
+      }catch(error){
+        console.error(error);
+        setError(error?.message||'Error inesperado.');
+      }finally{
+        btnAuthSubmit.disabled=false;
+        btnAuthSubmit.textContent=originalText;
+      }
+    });
+
+    btnForgot?.addEventListener('click',async ()=>{
+      if(!getAuthHost()){
+        hostWarning.hidden=false;
+        return;
+      }
+      const email=(authEmailEl.value||'').trim();
+      setError('');
+      if(!email){
+        setError('Escribe tu correo arriba para enviarte el enlace.');
+        return;
+      }
+      try{
+        const result=await requestPasswordReset(email);
+        setError(result?.message||'',{ tone:result?.ok?'success':'danger' });
+      }catch(error){
+        console.error(error);
+        setError(error?.message||'No se pudo enviar el correo de recuperación.');
+      }
+    });
+
+    function setupGoogle(){
+      if(!getAuthHost()){
+        return;
+      }
+      if(typeof window.google==='undefined'){ return; }
+      const config=getAuthHostConfig();
+      const clientId=config?.googleClientId;
+      if(!clientId){
+        googleFeedbackEl.textContent='Añade tu "googleClientId" en APP_CONFIG para mostrar este botón.';
+        return;
+      }
+      googleFeedbackEl.textContent='';
+      try{
+        window.google.accounts.id.initialize({
+          client_id:clientId,
+          callback:response=>handleGoogleCredentialResponse(response,{
+            feedbackEl:googleFeedbackEl,
+            onSuccess:async()=>{
+              await handleAuthSuccess('¡Bienvenido!');
+              window.close();
+            }
+          })
+        });
+        googleButton.innerHTML='';
+        window.google.accounts.id.renderButton(googleButton,{
+          theme:'outline',
+          size:'large',
+          shape:'pill',
+          width:'100%'
+        });
+      }catch(error){
+        console.error(error);
+        googleFeedbackEl.textContent='No se pudo inicializar el botón de Google.';
+      }
+    }
+
+    window.addEventListener('load',()=>{
+      setupGoogle();
+    });
+  </script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
