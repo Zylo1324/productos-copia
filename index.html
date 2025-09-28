@@ -734,7 +734,8 @@
 
 </div>
 
-<script>
+<script type="module">
+import { registerAuthHost } from './auth-shared.js';
 /* ====== CONFIG API ====== */
 const API_BASE_URL = ((window.APP_CONFIG?.apiBaseUrl) || '/api').replace(/\/$/, '');
 const SESSION_STORAGE_KEY = 'cloud_session_v1';
@@ -853,8 +854,30 @@ landingStartBtn?.addEventListener('click',()=>{
   showLanding('signup');
 });
 
-landingLoginBtn?.addEventListener('click',()=>{
-  showLanding('login');
+let loginPopupWindow=null;
+function openLoginWindow(){
+  const loginUrl=new URL('login.html',window.location.href).toString();
+  if(loginPopupWindow&&!loginPopupWindow.closed){
+    try{
+      loginPopupWindow.location.href=loginUrl;
+    }catch(err){
+      console.warn('No se pudo reutilizar la ventana de login existente',err);
+    }
+    loginPopupWindow.focus();
+    return loginPopupWindow;
+  }
+  const features='popup=yes,width=480,height=720,resizable=yes,scrollbars=yes';
+  loginPopupWindow=window.open(loginUrl,'zyloAuthWindow',features);
+  if(loginPopupWindow){ loginPopupWindow.focus(); }
+  return loginPopupWindow;
+}
+
+landingLoginBtn?.addEventListener('click',event=>{
+  event.preventDefault();
+  const popup=openLoginWindow();
+  if(!popup){
+    showLanding('login');
+  }
 });
 
 landingBackButtons.forEach(btn=>{
@@ -1508,10 +1531,11 @@ loginForm?.addEventListener('submit', async (event)=>{
   }
 });
 
-async function forwardGoogleCredential(credential){
+async function forwardGoogleCredential(credential,{ feedbackEl }={}){
+  const targetFeedback=feedbackEl||googleFeedbackEl;
   const config=window.APP_CONFIG||{};
   if(!config.googleCallbackEndpoint){
-    googleFeedbackEl?.textContent='Configura "googleCallbackEndpoint" para procesar el token de Google.';
+    targetFeedback?.textContent='Configura "googleCallbackEndpoint" para procesar el token de Google.';
     return false;
   }
   try{
@@ -1530,40 +1554,43 @@ async function forwardGoogleCredential(credential){
     return true;
   }catch(error){
     console.error(error);
-    googleFeedbackEl?.textContent='No pudimos validar el inicio de sesión con Google.';
+    targetFeedback?.textContent='No pudimos validar el inicio de sesión con Google.';
     return false;
   }
 }
-
-function handleGoogleCredentialResponse(response){
+function handleGoogleCredentialResponse(response,{ feedbackEl, onSuccess }={}){
   if(!response?.credential){ return; }
-  googleFeedbackEl?.textContent='Validando credenciales…';
-  forwardGoogleCredential(response.credential).then(async ok=>{
+  const targetFeedback=feedbackEl||googleFeedbackEl;
+  targetFeedback?.textContent='Validando credenciales…';
+  forwardGoogleCredential(response.credential,{ feedbackEl:targetFeedback }).then(async ok=>{
     if(ok){
-      googleFeedbackEl.textContent='¡Sesión iniciada con Google!';
-      await handleAuthSuccess('¡Bienvenido!');
+      targetFeedback?.textContent='¡Sesión iniciada con Google!';
+      if(typeof onSuccess==='function'){
+        await onSuccess();
+      }else{
+        await handleAuthSuccess('¡Bienvenido!');
+      }
     }
   });
 }
 
-let googleButtonInitialized=false;
-function initializeGoogleSignIn(){
-  const googleContainer=document.getElementById('googleButton');
-  if(!googleContainer){ return; }
+let googleClientInitialized=false;
+function initializeGoogleSignIn({ container=document.getElementById('googleButton'), feedbackEl=googleFeedbackEl, onSuccess }={}){
+  if(!container){ return; }
   if(typeof window.google==='undefined'){ return; }
   const config=window.APP_CONFIG||{};
   const clientId=config.googleClientId;
   if(!clientId){
-    googleFeedbackEl?.textContent='Añade tu "googleClientId" en APP_CONFIG para mostrar este botón.';
+    feedbackEl?.textContent='Añade tu "googleClientId" en APP_CONFIG para mostrar este botón.';
     return;
   }
-  googleFeedbackEl?.textContent='';
-  if(!googleButtonInitialized){
-    google.accounts.id.initialize({ client_id:clientId, callback:handleGoogleCredentialResponse });
-    googleButtonInitialized=true;
+  feedbackEl?.textContent='';
+  if(!googleClientInitialized){
+    googleClientInitialized=true;
   }
-  googleContainer.innerHTML='';
-  google.accounts.id.renderButton(googleContainer,{
+  window.google.accounts.id.initialize({ client_id:clientId, callback:response=>handleGoogleCredentialResponse(response,{ feedbackEl,onSuccess }) });
+  container.innerHTML='';
+  window.google.accounts.id.renderButton(container,{
     theme:'outline',
     size:'large',
     shape:'pill',
@@ -1584,17 +1611,22 @@ document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
 });
 
 // reset pass
+async function requestPasswordReset(email){
+  try{
+    await apiFetch('/auth/reset-password', { method:'POST', body:{ email, redirectTo: location.origin + location.pathname } });
+    return { ok:true, message:'Te enviamos un correo para restablecer tu contraseña.' };
+  }catch(error){
+    return { ok:false, message:error.message || 'No se pudo enviar el correo de recuperación.' };
+  }
+}
+
 btnForgot?.addEventListener('click', async ()=>{
   const email = (authEmailEl.value||'').trim();
   authErrorEl.style.color = 'var(--danger)'; authErrorEl.textContent = '';
   if(!email){ authErrorEl.textContent = 'Escribe tu correo arriba para enviarte el enlace.'; return; }
-  try{
-    await apiFetch('/auth/reset-password', { method:'POST', body:{ email, redirectTo: location.origin + location.pathname } });
-    authErrorEl.style.color = 'var(--success)';
-    authErrorEl.textContent = 'Te enviamos un correo para restablecer tu contraseña.';
-  }catch(error){
-    authErrorEl.textContent = error.message || 'No se pudo enviar el correo de recuperación.';
-  }
+  const result = await requestPasswordReset(email);
+  authErrorEl.style.color = result.ok ? 'var(--success)' : 'var(--danger)';
+  authErrorEl.textContent = result.message;
 });
 
 /* ====== DB en la nube (API) ====== */
@@ -2295,6 +2327,15 @@ filterEstado?.addEventListener('change', () => renderTabla());
   }
   try{ runTests(); }catch(e){ console.warn('[tests] fallo:', e); }
 })();
+
+registerAuthHost({
+  autoSignInOrUp,
+  handleAuthSuccess,
+  forwardGoogleCredential,
+  handleGoogleCredentialResponse,
+  initializeGoogleSignIn,
+  requestPasswordReset
+});
 
 async function bootstrap(){
   const hasToken=!!getStoredAccessToken();
