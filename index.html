@@ -769,8 +769,8 @@ import {
 
 const persistenceReadyForInit = persistenceReady.catch(error => {
   if (error?.code === 'failed-precondition') {
-    console.info('IndexedDB persistence unavailable: another tab already has offline data. Falling back to memory cache.');
-    toast('Otra pestaña ya tiene los datos sin conexión activos. Esta usará conexión en línea.');
+    console.warn('La persistencia de Firestore solo puede habilitarse en una pestaña a la vez');
+    toast('La persistencia de Firestore solo puede habilitarse en una pestaña a la vez');
   } else if (error?.code === 'unimplemented') {
     console.info('IndexedDB persistence unavailable: browser does not support it.');
     toast('Tu navegador no soporta el modo sin conexión de Firestore.');
