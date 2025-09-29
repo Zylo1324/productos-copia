@@ -1509,10 +1509,10 @@ signupForm?.addEventListener('submit', async (event)=>{
   const submitBtn=signupForm.querySelector('button[type="submit"]');
   submitBtn.disabled=true; submitBtn.textContent='Creando cuenta…';
   try{
-    const cred=await createUserWithEmailAndPassword(auth, email, pass);
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await sendEmailVerification(cred.user);
     signupErrorEl.textContent='';
-    window.location.href='verify.html';
+    window.location.href = 'verify.html';
     return;
   }catch(error){
     signupErrorEl.textContent=error.message||'Error inesperado.';
