@@ -1335,6 +1335,20 @@ function clearCachedClientsForUser(uid){
   if(!key) return;
   try{ localStorage.removeItem(key); }catch{}
 }
+function clearCachedClients(){
+  try{
+    const keysToRemove = [];
+    for(let i=0;i<localStorage.length;i+=1){
+      const key = localStorage.key(i);
+      if(key && key.startsWith(CLIENTS_CACHE_PREFIX)){
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key)=>{
+      try{ localStorage.removeItem(key); }catch{}
+    });
+  }catch{}
+}
 function loadLocalClients(){
   try{
     const raw=localStorage.getItem(LOCAL_CLIENTS_KEY); if(!raw) return [];
@@ -1614,13 +1628,19 @@ function rememberLastClientsUser(uid){
 function handleClientStorageForUser(user){
   const nextUid = user?.uid ? String(user.uid) : null;
   const lastUid = getLastClientsUser();
-  if(lastUid && lastUid !== nextUid){
-    clearCachedClientsForUser(lastUid);
-  }
   if(!nextUid){
+    if(lastUid){
+      clearCachedClientsForUser(lastUid);
+    }
     return;
   }
-  rememberLastClientsUser(nextUid);
+  const isDifferentUser = Boolean(lastUid && lastUid !== nextUid);
+  if(isDifferentUser){
+    clearCachedClients();
+  }
+  if(!lastUid || isDifferentUser){
+    rememberLastClientsUser(nextUid);
+  }
   const cached = loadCachedClientsForUser(nextUid);
   if(cached.length){
     cacheClientes = cached.slice();
