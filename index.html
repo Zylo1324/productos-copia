@@ -1305,6 +1305,7 @@ function saveLocalServices() {
 
 /* ===== clientes locales ===== */
 const LOCAL_CLIENTS_KEY = 'clients_local_v1';
+const CLIENTS_LAST_USER_KEY = 'clients_last_uid';
 function loadLocalClients(){
   try{
     const raw=localStorage.getItem(LOCAL_CLIENTS_KEY); if(!raw) return [];
@@ -1358,9 +1359,13 @@ function subscribeToRemoteClientes(user){
   if(unsubscribeClientes){ unsubscribeClientes(); unsubscribeClientes = null; }
   if(!user){
     cacheClientes = localClients.slice();
+    isClientesBootstrapped = true;
     renderTabla();
     return;
   }
+  isClientesBootstrapped = false;
+  cacheClientes = [];
+  renderTabla();
   const colRef = clientesCollection();
   unsubscribeClientes = onSnapshot(colRef, (snapshot)=>{
     cacheClientes = snapshot.docs.map(docSnap=>{
@@ -1368,10 +1373,13 @@ function subscribeToRemoteClientes(user){
       return { id: docSnap.id, ...data };
     });
     cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+    isClientesBootstrapped = true;
     renderTabla();
   }, (error)=>{
     console.error('Error al escuchar clientes', error);
     toast('No se pudo cargar tus clientes en tiempo real.');
+    isClientesBootstrapped = true;
+    renderTabla();
   });
 }
 function subscribeToRemoteServicios(user){
@@ -1409,6 +1417,9 @@ async function syncLocalServicesToCloudIfEmpty(){
 }
 function updateUserState(user){
   currentUser = user;
+  if(user){
+    handleClientStorageForUser(user);
+  }
   if(user){
     hideLanding();
   }else{
@@ -1552,6 +1563,29 @@ btnForgot?.addEventListener('click', async ()=>{
 /* ====== DB en la nube (Firebase) ====== */
 let cacheClientes = localClients.slice();
 let cacheServicios = localServices.slice();
+let isClientesBootstrapped = true;
+
+function clearStoredClients(){
+  localClients = [];
+  cacheClientes = [];
+  isClientesBootstrapped = false;
+  try{ localStorage.removeItem(LOCAL_CLIENTS_KEY); }catch{}
+}
+function getLastClientsUser(){
+  try{ return localStorage.getItem(CLIENTS_LAST_USER_KEY) || null; }catch{ return null; }
+}
+function rememberLastClientsUser(uid){
+  if(!uid) return;
+  try{ localStorage.setItem(CLIENTS_LAST_USER_KEY, uid); }catch{}
+}
+function handleClientStorageForUser(user){
+  if(!user || !user.uid) return;
+  const lastUid = getLastClientsUser();
+  if(lastUid !== user.uid){
+    clearStoredClients();
+  }
+  rememberLastClientsUser(user.uid);
+}
 
 function buildRemotePayload(rec){
   const base = {
@@ -1576,6 +1610,10 @@ const db = {
     if(!currentUser){
       localClients = loadLocalClients();
       cacheClientes = localClients.slice();
+      isClientesBootstrapped = true;
+    }
+    if(currentUser && !isClientesBootstrapped){
+      return [];
     }
     return cacheClientes.slice();
   },
@@ -1665,6 +1703,10 @@ async function renderServicios(sel){
   handleEmailSuggestionSelection();
 }
 async function renderTabla(){
+  if(currentUser && !isClientesBootstrapped){
+    tbody.innerHTML = '<tr class="table-loading"><td colspan="8" data-label="">Cargando clientes…</td></tr>';
+    return;
+  }
   const arr = await db.fetchAll();
   const items=arr.filter(x=>coincide(x,q?.value)&&pasaEstado(x,filterEstado?.value))
                  .sort((a,b)=> (diasRestantes(a.vence)??1e9) - (diasRestantes(b.vence)??1e9));
