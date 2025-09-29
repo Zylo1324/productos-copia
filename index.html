@@ -1405,11 +1405,11 @@ function subscribeToRemoteClientes(user){
       return { id: docSnap.id, ...data };
     });
     cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+    isClientesBootstrapped = true;
+    renderTabla();
     if(currentUser?.uid){
       saveCachedClientsForUser(currentUser.uid, cacheClientes);
     }
-    isClientesBootstrapped = true;
-    renderTabla();
   }, (error)=>{
     console.error('Error al escuchar clientes', error);
     toast('No se pudo cargar tus clientes en tiempo real.');
