@@ -1614,6 +1614,14 @@ let cacheClientes = localClients.slice();
 let cacheServicios = localServices.slice();
 let isClientesBootstrapped = true;
 
+function resetClientMemoryState({ render = true } = {}){
+  cacheClientes = [];
+  isClientesBootstrapped = false;
+  if(render){
+    renderTabla();
+  }
+}
+
 function clearStoredClients(){
   localClients = [];
   try{ localStorage.removeItem(LOCAL_CLIENTS_KEY); }catch{}
@@ -1629,16 +1637,12 @@ function handleClientStorageForUser(user){
   const nextUid = user?.uid ? String(user.uid) : null;
   const lastUid = getLastClientsUser();
   if(!nextUid){
-    cacheClientes = [];
-    isClientesBootstrapped = false;
-    renderTabla();
+    resetClientMemoryState();
     return;
   }
   const isDifferentUser = Boolean(lastUid && lastUid !== nextUid);
   if(isDifferentUser){
-    cacheClientes = [];
-    isClientesBootstrapped = false;
-    renderTabla();
+    resetClientMemoryState();
   }
   if(!lastUid || isDifferentUser){
     rememberLastClientsUser(nextUid);
