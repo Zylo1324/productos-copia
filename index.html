@@ -1630,21 +1630,26 @@ function handleClientStorageForUser(user){
     resetClientMemoryState();
     return;
   }
+  const cached = loadCachedClientsForUser(nextUid);
+  const hasCached = cached.length > 0;
   const isDifferentUser = Boolean(lastUid && lastUid !== nextUid);
-  if(isDifferentUser){
-    resetClientMemoryState();
+  const shouldResetState = !lastUid || isDifferentUser;
+  if(shouldResetState){
+    resetClientMemoryState({ render: !hasCached });
   }
   if(!lastUid || isDifferentUser){
     rememberLastClientsUser(nextUid);
   }
-  const cached = loadCachedClientsForUser(nextUid);
-  if(cached.length){
+  if(hasCached){
     cacheClientes = cached.slice();
     isClientesBootstrapped = true;
     renderTabla();
   }else{
     cacheClientes = [];
     isClientesBootstrapped = false;
+    if(!shouldResetState){
+      renderTabla();
+    }
   }
 }
 
@@ -1764,7 +1769,7 @@ async function renderServicios(sel){
   handleEmailSuggestionSelection();
 }
 async function renderTabla(){
-  if(currentUser && !isClientesBootstrapped){
+  if(currentUser && !isClientesBootstrapped && cacheClientes.length === 0){
     tbody.innerHTML = '<tr class="table-loading"><td colspan="8" data-label="">Cargando clientes…</td></tr>';
     return;
   }
