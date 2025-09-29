@@ -1335,20 +1335,6 @@ function clearCachedClientsForUser(uid){
   if(!key) return;
   try{ localStorage.removeItem(key); }catch{}
 }
-function clearCachedClients(){
-  try{
-    const keysToRemove = [];
-    for(let i=0;i<localStorage.length;i+=1){
-      const key = localStorage.key(i);
-      if(key && key.startsWith(CLIENTS_CACHE_PREFIX)){
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach((key)=>{
-      try{ localStorage.removeItem(key); }catch{}
-    });
-  }catch{}
-}
 function loadLocalClients(){
   try{
     const raw=localStorage.getItem(LOCAL_CLIENTS_KEY); if(!raw) return [];
@@ -1617,6 +1603,10 @@ let isClientesBootstrapped = true;
 function resetClientMemoryState({ render = true } = {}){
   cacheClientes = [];
   isClientesBootstrapped = false;
+  if(unsubscribeClientes){
+    try{ unsubscribeClientes(); }catch{}
+    unsubscribeClientes = null;
+  }
   if(render){
     renderTabla();
   }
