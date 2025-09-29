@@ -1,5 +1,5 @@
 // firebaseConfig.js
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
@@ -16,6 +16,9 @@ const firebaseConfig = {
 
 // Inicializa Firebase
 const app = initializeApp(firebaseConfig);
+
+const { projectId, appId, apiKey } = getApp().options;
+console.log("Firebase configuration", { projectId, appId, apiKey });
 
 // Servicios que sí vas a usar en tu app
 const auth = getAuth(app);
