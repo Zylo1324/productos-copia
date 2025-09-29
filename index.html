@@ -1629,9 +1629,9 @@ function handleClientStorageForUser(user){
   const nextUid = user?.uid ? String(user.uid) : null;
   const lastUid = getLastClientsUser();
   if(!nextUid){
-    if(lastUid){
-      clearCachedClientsForUser(lastUid);
-    }
+    cacheClientes = [];
+    isClientesBootstrapped = false;
+    renderTabla();
     return;
   }
   const isDifferentUser = Boolean(lastUid && lastUid !== nextUid);
