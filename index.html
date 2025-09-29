@@ -1306,6 +1306,35 @@ function saveLocalServices() {
 /* ===== clientes locales ===== */
 const LOCAL_CLIENTS_KEY = 'clients_local_v1';
 const CLIENTS_LAST_USER_KEY = 'clients_last_uid';
+const CLIENTS_CACHE_PREFIX = 'clients_cache_v1:';
+
+function getClientsCacheKey(uid){
+  const clean = String(uid||'').trim();
+  return clean ? `${CLIENTS_CACHE_PREFIX}${clean}` : null;
+}
+function loadCachedClientsForUser(uid){
+  const key = getClientsCacheKey(uid);
+  if(!key) return [];
+  try{
+    const raw = localStorage.getItem(key); if(!raw) return [];
+    const arr = JSON.parse(raw)||[];
+    arr.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+    return arr;
+  }catch{ return []; }
+}
+function saveCachedClientsForUser(uid, clients){
+  const key = getClientsCacheKey(uid);
+  if(!key) return;
+  try{
+    const clean = (Array.isArray(clients)?clients:[]).slice().sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+    localStorage.setItem(key, JSON.stringify(clean));
+  }catch{}
+}
+function clearCachedClientsForUser(uid){
+  const key = getClientsCacheKey(uid);
+  if(!key) return;
+  try{ localStorage.removeItem(key); }catch{}
+}
 function loadLocalClients(){
   try{
     const raw=localStorage.getItem(LOCAL_CLIENTS_KEY); if(!raw) return [];
@@ -1363,9 +1392,12 @@ function subscribeToRemoteClientes(user){
     renderTabla();
     return;
   }
-  isClientesBootstrapped = false;
-  cacheClientes = [];
-  renderTabla();
+  const hasPreloadedData = Array.isArray(cacheClientes) && cacheClientes.length>0 && isClientesBootstrapped;
+  if(!hasPreloadedData){
+    isClientesBootstrapped = false;
+    cacheClientes = [];
+    renderTabla();
+  }
   const colRef = clientesCollection();
   unsubscribeClientes = onSnapshot(colRef, (snapshot)=>{
     cacheClientes = snapshot.docs.map(docSnap=>{
@@ -1373,6 +1405,9 @@ function subscribeToRemoteClientes(user){
       return { id: docSnap.id, ...data };
     });
     cacheClientes.sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+    if(currentUser?.uid){
+      saveCachedClientsForUser(currentUser.uid, cacheClientes);
+    }
     isClientesBootstrapped = true;
     renderTabla();
   }, (error)=>{
@@ -1567,8 +1602,6 @@ let isClientesBootstrapped = true;
 
 function clearStoredClients(){
   localClients = [];
-  cacheClientes = [];
-  isClientesBootstrapped = false;
   try{ localStorage.removeItem(LOCAL_CLIENTS_KEY); }catch{}
 }
 function getLastClientsUser(){
@@ -1579,12 +1612,24 @@ function rememberLastClientsUser(uid){
   try{ localStorage.setItem(CLIENTS_LAST_USER_KEY, uid); }catch{}
 }
 function handleClientStorageForUser(user){
-  if(!user || !user.uid) return;
+  const nextUid = user?.uid ? String(user.uid) : null;
   const lastUid = getLastClientsUser();
-  if(lastUid !== user.uid){
-    clearStoredClients();
+  if(lastUid && lastUid !== nextUid){
+    clearCachedClientsForUser(lastUid);
   }
-  rememberLastClientsUser(user.uid);
+  if(!nextUid){
+    return;
+  }
+  rememberLastClientsUser(nextUid);
+  const cached = loadCachedClientsForUser(nextUid);
+  if(cached.length){
+    cacheClientes = cached.slice();
+    isClientesBootstrapped = true;
+    renderTabla();
+  }else{
+    cacheClientes = [];
+    isClientesBootstrapped = false;
+  }
 }
 
 function buildRemotePayload(rec){
