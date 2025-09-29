@@ -744,7 +744,7 @@
 </div>
 
 <script type="module">
-import { auth, db as firestore } from './firebaseConfig.js';
+import { auth, db as firestore, persistenceReady } from './firebaseConfig.js';
 import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -766,6 +766,19 @@ import {
   setDoc,
   getDoc
 } from 'firebase/firestore';
+
+const persistenceReadyForInit = persistenceReady.catch(error => {
+  if (error?.code === 'failed-precondition') {
+    console.info('IndexedDB persistence unavailable: another tab already has offline data. Falling back to memory cache.');
+    toast('Otra pestaña ya tiene los datos sin conexión activos. Esta usará conexión en línea.');
+  } else if (error?.code === 'unimplemented') {
+    console.info('IndexedDB persistence unavailable: browser does not support it.');
+    toast('Tu navegador no soporta el modo sin conexión de Firestore.');
+  } else if (error) {
+    console.error('No se pudo activar la persistencia de Firestore', error);
+    toast('No se pudo activar el modo sin conexión.');
+  }
+});
 
 /* ===== helpers y refs ===== */
 const $=s=>document.querySelector(s);
@@ -1498,9 +1511,11 @@ async function updateUserState(user){
   if(user){ syncLocalServicesToCloudIfEmpty(); }
 }
 onAuthStateChanged(auth, (user)=>{
-  updateUserState(user || null).catch(err=>{
-    console.error('No se pudo actualizar el estado del usuario', err);
-  });
+  persistenceReadyForInit
+    .then(()=>updateUserState(user || null))
+    .catch(err=>{
+      console.error('No se pudo actualizar el estado del usuario', err);
+    });
 });
 const btnAuthOpen  = document.getElementById('btnAuthOpen');
 const btnAuthSubmit= document.getElementById('btnAuthSubmit');

@@ -1,7 +1,7 @@
 // firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
 // Tu configuración real de Firebase
 const firebaseConfig = {
@@ -21,5 +21,21 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let persistenceEnabled = true;
+let persistenceError = null;
+
+const persistenceReady = enableIndexedDbPersistence(db).catch(error => {
+  persistenceEnabled = false;
+  persistenceError = error;
+  if (error?.code === "failed-precondition") {
+    console.info("Firestore persistence disabled: another tab already has persistence enabled.");
+  } else if (error?.code === "unimplemented") {
+    console.info("Firestore persistence disabled: the current browser doesn't support IndexedDB persistence.");
+  } else {
+    console.error("Unexpected error enabling Firestore persistence", error);
+  }
+  throw error;
+});
+
 // Exporta para usarlos en otros archivos
-export { app, auth, db };
+export { app, auth, db, persistenceReady, persistenceEnabled, persistenceError };
