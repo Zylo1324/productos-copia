@@ -28,7 +28,7 @@ const persistenceReady = enableIndexedDbPersistence(db).catch(error => {
   persistenceEnabled = false;
   persistenceError = error;
   if (error?.code === "failed-precondition") {
-    console.info("Firestore persistence disabled: another tab already has persistence enabled.");
+    console.warn("La persistencia de Firestore solo puede habilitarse en una pestaña a la vez");
   } else if (error?.code === "unimplemented") {
     console.info("Firestore persistence disabled: the current browser doesn't support IndexedDB persistence.");
   } else {
