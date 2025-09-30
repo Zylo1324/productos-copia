@@ -534,18 +534,6 @@
               <option value="vencida">Vencidas</option>
             </select>
           </li>
-          <li>
-            <div class="menu-wrap theme-switcher">
-              <button type="button" class="btn ghost theme-btn label" id="btnTheme" data-menu-toggle aria-haspopup="menu" aria-expanded="false">
-                <span class="theme-btn-label label">Tema: <span id="themeLabel">Oscuro</span></span>
-                <span class="theme-btn-icon" aria-hidden="true">▾</span>
-              </button>
-              <div class="menu" id="themeMenu" role="menu" aria-hidden="true">
-                <button class="menu-item" type="button" role="menuitemradio" data-theme-option="dark" aria-checked="true">Oscuro</button>
-                <button class="menu-item" type="button" role="menuitemradio" data-theme-option="light" aria-checked="false">Claro</button>
-              </div>
-            </div>
-          </li>
           <li class="auth-controls">
             <button class="btn ghost label" id="btnAuthOpen">Acceder</button>
             <button class="btn ghost label" id="btnLogout" style="display:none">Cerrar sesión</button>
@@ -845,12 +833,6 @@ landingLoginBtn?.addEventListener('click',event=>{
 landingBackButtons.forEach(btn=>{
   btn.addEventListener('click',()=>setLandingView('home'));
 });
-
-const themeButton=document.getElementById('btnTheme');
-const themeLabel=document.getElementById('themeLabel');
-const themeMenu=document.getElementById('themeMenu');
-const themeOptions=Array.from(themeMenu?.querySelectorAll('[data-theme-option]')||[]);
-const THEME_STORAGE_KEY='ui_theme_mode_v1';
 
 let editId=null;
 const views={form:vistaFormulario,clientes:vistaClientes};
@@ -1156,23 +1138,17 @@ function esc(s){return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','
 function fmt(iso){return iso? new Date(iso+'T00:00:00').toLocaleDateString(): '-'}
 
 /* ===== Tema ===== */
-function updateThemeControls(mode){
-  if(themeLabel){ themeLabel.textContent = mode==='light' ? 'Claro' : 'Oscuro'; }
-  themeOptions.forEach(btn=>{
-    const isActive = btn.dataset.themeOption === mode;
-    btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-  });
+const systemDarkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function syncThemeWithSystem(){
+  const isDark = systemDarkQuery ? systemDarkQuery.matches : true;
+  document.body.classList.toggle('theme-light', !isDark);
 }
-function applyTheme(mode,{persist=true}={}){
-  const normalized = mode==='light' ? 'light' : 'dark';
-  document.body.classList.toggle('theme-light', normalized==='light');
-  if(persist){ try{ localStorage.setItem(THEME_STORAGE_KEY, normalized); }catch{} }
-  updateThemeControls(normalized);
-  return normalized;
+syncThemeWithSystem();
+if(systemDarkQuery){
+  const listener = () => syncThemeWithSystem();
+  if(systemDarkQuery.addEventListener){ systemDarkQuery.addEventListener('change', listener); }
+  else if(systemDarkQuery.addListener){ systemDarkQuery.addListener(listener); }
 }
-const storedTheme = (()=>{ try{ return localStorage.getItem(THEME_STORAGE_KEY); }catch{ return null; } })();
-const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-applyTheme(storedTheme==='light'?'light':(storedTheme==='dark'?'dark':(prefersDark?'dark':'light')),{persist:false});
 
 /* ===== sidebar responsive ===== */
 const sidebarMobileQuery=window.matchMedia? window.matchMedia('(max-width: 768px)') : { matches:false };
@@ -2165,7 +2141,7 @@ async function borrar(id){
   await db.deleteOne(id); await renderTabla();
 }
 
-/* Menús (kebab + tema) + cierre fuera de la fila activa */
+/* Menús (kebab) + cierre fuera de la fila activa */
 function getMenuController(menu){
   if(!menu) return null;
   const wrap=menu.closest('.menu-wrap');
@@ -2197,13 +2173,10 @@ document.addEventListener('click',(e)=>{
     return;
   }
   if(item){
-    if(item.dataset.themeOption){ applyTheme(item.dataset.themeOption); }
-    else{
-      const id=item.dataset.id;
-      if(item.dataset.action==='edit') editar(id);
-      else if(item.dataset.action==='label') etiquetar(id);
-      else if(item.dataset.action==='delete') borrar(id);
-    }
+    const id=item.dataset.id;
+    if(item.dataset.action==='edit') editar(id);
+    else if(item.dataset.action==='label') etiquetar(id);
+    else if(item.dataset.action==='delete') borrar(id);
     closeAllMenus(); return;
   }
 
