@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0b1420" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="Canvas" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="Canvas" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="color-scheme" content="light dark" />
@@ -20,6 +20,30 @@
         "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"
       }
     }
+  </script>
+  <script>
+    (() => {
+      const themeMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+      if (!themeMetas.length) return;
+
+      const applyThemeColor = () => {
+        const background = getComputedStyle(document.documentElement).backgroundColor;
+        themeMetas.forEach((meta) => meta.setAttribute('content', background));
+      };
+
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', applyThemeColor);
+      } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(applyThemeColor);
+      }
+
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        applyThemeColor();
+      } else {
+        document.addEventListener('DOMContentLoaded', applyThemeColor, { once: true });
+      }
+    })();
   </script>
   <style>
     :root{
