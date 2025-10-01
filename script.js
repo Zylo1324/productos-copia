@@ -1,5 +1,46 @@
 const existingEmails = new Set(["sofia@example.com", "usuario@productos.io", "cliente@correo.com"]);
 
+const THEME_STORAGE_KEY = "theme-mode";
+const VALID_THEME_MODES = new Set(["system", "light", "dark"]);
+
+function setThemeMode(mode) {
+  if (!VALID_THEME_MODES.has(mode)) {
+    console.warn(`Modo de tema desconocido: ${mode}`);
+    return;
+  }
+
+  const root = document.documentElement;
+
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, mode);
+  } catch (error) {
+    console.warn("No se pudo guardar el modo de tema en localStorage.", error);
+  }
+
+  if (mode === "system") {
+    delete root.dataset.theme;
+  } else {
+    root.dataset.theme = mode;
+  }
+}
+
+function initializeThemeMode() {
+  let storedMode = null;
+  try {
+    storedMode = localStorage.getItem(THEME_STORAGE_KEY);
+  } catch (error) {
+    console.warn("No se pudo leer el modo de tema almacenado.", error);
+  }
+
+  if (storedMode && VALID_THEME_MODES.has(storedMode)) {
+    setThemeMode(storedMode);
+  }
+}
+
+initializeThemeMode();
+window.setThemeMode = setThemeMode;
+window.initializeThemeMode = initializeThemeMode;
+
 const state = {
   currentStep: "email",
   email: "",
