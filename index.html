@@ -1591,7 +1591,10 @@ function setUserConfigPanelState(open){
     panel.classList.add('hidden');
     trigger.setAttribute('aria-expanded', 'false');
   }
+  panel.toggleAttribute('hidden', !shouldOpen);
+  panel.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
 }
+setUserConfigPanelState(false);
 function authUpdateUI(profileData){
   const btnAuthOpen = document.getElementById('btnAuthOpen');
   const authUserShell = document.getElementById('authUserShell');
