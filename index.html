@@ -647,15 +647,8 @@
             </select>
           </li>
           <li>
-            <div class="menu-wrap theme-switcher">
-              <button type="button" class="btn ghost theme-btn label" id="btnTheme" data-menu-toggle aria-haspopup="menu" aria-expanded="false">
-                <span class="theme-btn-label label">Tema: <span id="themeLabel">Oscuro</span></span>
-                <span class="theme-btn-icon" aria-hidden="true">▾</span>
-              </button>
-              <div class="menu" id="themeMenu" role="menu" aria-hidden="true">
-                <button class="menu-item" type="button" role="menuitemradio" data-theme-option="dark" aria-checked="true">Oscuro</button>
-                <button class="menu-item" type="button" role="menuitemradio" data-theme-option="light" aria-checked="false">Claro</button>
-              </div>
+            <div class="theme-switcher" role="status" aria-live="polite">
+              <span class="label">Tema detectado: <span id="themeLabel">Oscuro</span></span>
             </div>
           </li>
           <li class="auth-controls">
@@ -958,11 +951,7 @@ landingBackButtons.forEach(btn=>{
   btn.addEventListener('click',()=>setLandingView('home'));
 });
 
-const themeButton=document.getElementById('btnTheme');
 const themeLabel=document.getElementById('themeLabel');
-const themeMenu=document.getElementById('themeMenu');
-const themeOptions=Array.from(themeMenu?.querySelectorAll('[data-theme-option]')||[]);
-const THEME_STORAGE_KEY='ui_theme_mode_v1';
 const themeMedia=window.matchMedia? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
 let editId=null;
@@ -1269,46 +1258,21 @@ function esc(s){return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','
 function fmt(iso){return iso? new Date(iso+'T00:00:00').toLocaleDateString(): '-'}
 
 /* ===== Tema ===== */
-const storedTheme = (()=>{ try{ return localStorage.getItem(THEME_STORAGE_KEY); }catch{ return null; } })();
-let themePreference = storedTheme==='light' || storedTheme==='dark' ? storedTheme : 'system';
-
 function resolveSystemTheme(){
   return themeMedia && themeMedia.matches ? 'dark' : 'light';
 }
 function updateThemeControls(mode){
   if(themeLabel){ themeLabel.textContent = mode==='light' ? 'Claro' : 'Oscuro'; }
-  themeOptions.forEach(btn=>{
-    const isActive = btn.dataset.themeOption === mode;
-    btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-  });
 }
-function setSystemTheme({persist=false}={}){
-  themePreference='system';
-  document.documentElement.removeAttribute('data-theme');
-  if(persist){ try{ localStorage.removeItem(THEME_STORAGE_KEY); }catch{} }
+function applySystemTheme(){
   const active = resolveSystemTheme();
   updateThemeControls(active);
   return active;
 }
-function applyTheme(mode,{persist=true}={}){
-  if(mode==='system'){ return setSystemTheme({persist}); }
-  const normalized = mode==='light' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', normalized);
-  if(persist){ try{ localStorage.setItem(THEME_STORAGE_KEY, normalized); }catch{} }
-  themePreference = normalized;
-  updateThemeControls(normalized);
-  return normalized;
-}
-if(themePreference==='system'){
-  setSystemTheme();
-}else{
-  applyTheme(themePreference,{persist:false});
-}
+applySystemTheme();
 if(themeMedia){
-  const handleSystemThemeChange = (event)=>{
-    if(themePreference==='system'){
-      updateThemeControls(event.matches ? 'dark' : 'light');
-    }
+  const handleSystemThemeChange = ()=>{
+    applySystemTheme();
   };
   if(themeMedia.addEventListener){ themeMedia.addEventListener('change', handleSystemThemeChange); }
   else if(themeMedia.addListener){ themeMedia.addListener(handleSystemThemeChange); }
@@ -2337,13 +2301,10 @@ document.addEventListener('click',(e)=>{
     return;
   }
   if(item){
-    if(item.dataset.themeOption){ applyTheme(item.dataset.themeOption); }
-    else{
-      const id=item.dataset.id;
-      if(item.dataset.action==='edit') editar(id);
-      else if(item.dataset.action==='label') etiquetar(id);
-      else if(item.dataset.action==='delete') borrar(id);
-    }
+    const id=item.dataset.id;
+    if(item.dataset.action==='edit') editar(id);
+    else if(item.dataset.action==='label') etiquetar(id);
+    else if(item.dataset.action==='delete') borrar(id);
     closeAllMenus(); return;
   }
 
