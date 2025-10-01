@@ -1,5 +1,7 @@
 :root {
   color-scheme: light;
+  --bg-light: #f6f7fb;
+  --bg-dark: #0b1420;
   --bg: #f8fafc;
   --card: #ffffff;
   --text: #0f172a;
@@ -129,6 +131,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
+    --bg-light: #f6f7fb;
+    --bg-dark: #0b1420;
     --bg: #020617;
     --card: #111827;
     --text: #e2e8f0;
@@ -143,6 +147,9 @@
     --success: #16f2a6;
     --danger: #fb7185;
     --logo-highlight: color-mix(in srgb, var(--primary) 45%, var(--warn) 55%);
+  }
+  html, body {
+    background-color: var(--bg-dark);
   }
 }
 
@@ -189,10 +196,16 @@ html[data-theme="dark"] {
 body {
   margin: 0;
   min-height: 100vh;
+  background-color: var(--bg-light);
   background: var(--body-surface);
   display: grid;
   place-items: center;
   color: var(--ink);
+}
+
+html,
+body {
+  background-color: var(--bg-light);
 }
 
 .shell {
