@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
   <title>Iniciar sesión • Zyl0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,14 +20,162 @@
   <style>
     :root{
       color-scheme:light;
-      --bg:#f8fafc; --ink:#0f172a; --ink-soft:#1e293b; --muted:#475569;
-      --field:#ffffff; --field-focus:#f1f5f9; --border:rgba(148,163,184,.35);
-      --btn:#f28a2d; --btn-ink:#1c130a; --ghost:rgba(226,232,240,.82); --ghost-border:rgba(148,163,184,.5);
-      --ghost-hover-bg:rgba(148,163,184,.28); --ghost-hover-border:rgba(100,116,139,.5);
-      --ghost-active-bg:rgba(148,163,184,.36); --ghost-active-border:rgba(71,85,105,.55);
-      --success:#16f2a6; --danger:#f97373; --focus:rgba(37,99,235,.45);
-      --panel-shadow:0 20px 38px -24px rgba(15,23,42,.28);
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --primary:#f28a2d;
+      --accent:#1d4ed8;
+
+      --ink:var(--text);
+      --ink-soft:color-mix(in srgb,var(--text) 78%,var(--bg));
+      --field:var(--card);
+      --field-focus:color-mix(in srgb,var(--card) 88%,var(--bg));
+      --border:color-mix(in srgb,var(--muted) 32%,transparent);
+      --pill-bg:color-mix(in srgb,var(--accent) 14%,transparent);
+      --pill-ink:var(--accent);
+      --btn:var(--primary);
+      --btn-ink:#1c130a;
+      --primary-hover:color-mix(in srgb,var(--primary) 92%,var(--card));
+      --primary-active:color-mix(in srgb,var(--primary) 88%,var(--muted));
+      --ghost:color-mix(in srgb,var(--card) 86%,var(--bg));
+      --ghost-border:color-mix(in srgb,var(--muted) 38%,transparent);
+      --ghost-hover-bg:color-mix(in srgb,var(--ghost) 80%,var(--accent) 20%);
+      --ghost-active-bg:color-mix(in srgb,var(--ghost) 68%,var(--accent) 32%);
+      --ghost-hover-border:color-mix(in srgb,var(--accent) 38%,transparent);
+      --ghost-active-border:color-mix(in srgb,var(--accent) 48%,transparent);
+      --ok:#4ade80;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --link:#2563eb;
+      --link-hover:color-mix(in srgb,var(--accent) 35%,var(--bg));
+      --link-active:color-mix(in srgb,var(--accent) 55%,var(--bg));
+      --success:#16f2a6;
+      --danger:#f97373;
+      --shadow:0 4px 12px color-mix(in srgb,var(--text) 12%,transparent);
+      --shadow-strong:0 12px 28px color-mix(in srgb,var(--text) 18%,transparent);
+      --shadow-float:0 10px 20px color-mix(in srgb,var(--text) 22%,transparent);
+      --primary-shadow:0 8px 18px color-mix(in srgb,var(--primary) 28%,transparent);
+      --panel-shadow-lg:0 20px 38px -24px color-mix(in srgb,var(--text) 24%,transparent);
+      --toolbar-bg:color-mix(in srgb,var(--card) 92%,transparent);
+      --input-bg:var(--card);
+      --input-border:color-mix(in srgb,var(--muted) 42%,transparent);
+      --input-focus-border:color-mix(in srgb,var(--accent) 48%,transparent);
+      --input-focus-shadow:color-mix(in srgb,var(--accent) 18%,transparent);
+      --input-inner-shadow:inset 0 1px 0 color-mix(in srgb,var(--muted) 16%,transparent);
+      --ghost-inner-shadow:inset 0 1px 0 color-mix(in srgb,var(--card) 60%,transparent);
+      --surface-inner-shadow:inset 0 1px 0 color-mix(in srgb,var(--muted) 12%,transparent);
+      --card-bg:var(--card);
+      --table-card-bg:var(--card);
+      --table-border:color-mix(in srgb,var(--muted) 24%,transparent);
+      --table-row-alt-bg:color-mix(in srgb,var(--bg) 74%,var(--accent) 26%);
+      --table-row-hover-bg:color-mix(in srgb,var(--accent) 16%,transparent);
+      --table-row-hover-shadow:inset 0 0 0 999px color-mix(in srgb,var(--text) 8%,transparent);
+      --menu-bg:var(--card);
+      --menu-hover-bg:color-mix(in srgb,var(--bg) 86%,var(--accent) 14%);
+      --modal-bg:var(--card);
+      --backdrop-bg:color-mix(in srgb,var(--text) 35%,transparent);
+      --chat-log-bg:var(--bg);
+      --ai-bubble-bg:color-mix(in srgb,var(--card) 88%,var(--bg));
+      --ai-bubble-border:color-mix(in srgb,var(--muted) 32%,transparent);
+      --eye-bg:color-mix(in srgb,var(--card) 82%,var(--bg));
+      --eye-border:color-mix(in srgb,var(--muted) 52%,transparent);
+      --addserv-bg:color-mix(in srgb,var(--accent) 28%,var(--bg));
+      --addserv-border:color-mix(in srgb,var(--accent) 45%,transparent);
+      --addserv-hover-bg:color-mix(in srgb,var(--accent) 32%,var(--bg));
+      --addserv-hover-border:color-mix(in srgb,var(--accent) 55%,transparent);
+      --addserv-active-bg:color-mix(in srgb,var(--accent) 38%,var(--bg));
+      --addserv-active-border:color-mix(in srgb,var(--accent) 65%,transparent);
+      --addserv-ink:var(--accent);
+      --tag-border:color-mix(in srgb,var(--muted) 36%,transparent);
+      --tag-bg:color-mix(in srgb,var(--bg) 82%,var(--muted) 18%);
+      --tag-ok-bg:color-mix(in srgb,var(--ok) 18%,transparent);
+      --tag-ok-border:color-mix(in srgb,var(--ok) 38%,transparent);
+      --tag-warn-bg:color-mix(in srgb,var(--warn) 18%,transparent);
+      --tag-warn-border:color-mix(in srgb,var(--warn) 38%,transparent);
+      --tag-bad-bg:color-mix(in srgb,var(--bad) 18%,transparent);
+      --tag-bad-border:color-mix(in srgb,var(--bad) 40%,transparent);
+      --danger-soft-ink:color-mix(in srgb,var(--bad) 26%,var(--card));
+      --logo-highlight:color-mix(in srgb,var(--primary) 55%,var(--warn) 45%);
+      --launcher-grad:linear-gradient(150deg,var(--card) 0%,color-mix(in srgb,var(--card) 82%,var(--accent) 18%) 100%);
+      --sidebar-grad:linear-gradient(180deg,var(--card) 0%,color-mix(in srgb,var(--card) 80%,var(--bg)) 100%);
+      --panel-grad:linear-gradient(180deg,var(--card) 0%,color-mix(in srgb,var(--card) 78%,var(--bg)) 100%);
+      --chat-grad:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 86%,var(--muted)) 100%);
+      --tag-grad:linear-gradient(135deg,color-mix(in srgb,var(--bg) 92%,var(--muted) 8%) 0%,color-mix(in srgb,var(--bg) 82%,var(--muted) 18%) 100%);
+      --table-hover-shadow:inset 0 0 0 999px color-mix(in srgb,var(--accent) 12%,transparent);
+      --launcher-focus-outline:color-mix(in srgb,var(--accent) 35%,transparent);
+      --action-focus-outline:color-mix(in srgb,var(--accent) 45%,transparent);
+      --danger-ghost-bg:color-mix(in srgb,var(--bad) 18%,transparent);
+      --danger-ghost-border:color-mix(in srgb,var(--bad) 45%,transparent);
+      --danger-ghost-active:color-mix(in srgb,var(--bad) 32%,transparent);
+      --menu-danger-bg:color-mix(in srgb,var(--bad) 12%,transparent);
+      --menu-danger-border:color-mix(in srgb,var(--bad) 35%,transparent);
+      --modal-grad:linear-gradient(180deg,var(--card) 0%,color-mix(in srgb,var(--card) 74%,var(--bg)) 100%);
+      --user-bubble-grad:linear-gradient(135deg,var(--primary) 0%,color-mix(in srgb,var(--primary) 80%,var(--warn)) 100%);
+      --user-bubble-shadow:0 8px 18px color-mix(in srgb,var(--primary) 28%,transparent);
+      --ai-bubble-shadow:0 8px 18px color-mix(in srgb,var(--text) 18%,transparent);
+      --radial-accent:color-mix(in srgb,var(--accent) 24%,transparent);
+      --radial-success:color-mix(in srgb,var(--success) 18%,transparent);
+      --radial-primary:color-mix(in srgb,var(--primary) 18%,transparent);
+      --scrollbar-thumb:color-mix(in srgb,var(--accent) 65%,transparent);
+      --scrollbar-track:transparent;
       font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
+    }
+
+    @media(prefers-color-scheme:dark){
+      :root{
+        color-scheme:dark;
+        --bg:#020617;
+        --card:#111827;
+        --text:#e2e8f0;
+        --muted:#94a3b8;
+        --primary:#f59e0b;
+        --accent:#60a5fa;
+        --btn-ink:#1a1205;
+        --ok:#34d399;
+        --warn:#fbbf24;
+        --bad:#fb7185;
+        --link:#93c5fd;
+        --success:#16f2a6;
+        --danger:#fb7185;
+        --logo-highlight:color-mix(in srgb,var(--primary) 45%,var(--warn) 55%);
+      }
+    }
+
+    html[data-theme="light"]{
+      color-scheme:light;
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --primary:#f28a2d;
+      --accent:#1d4ed8;
+      --btn-ink:#1c130a;
+      --ok:#4ade80;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --link:#2563eb;
+      --success:#16f2a6;
+      --danger:#f97373;
+      --logo-highlight:color-mix(in srgb,var(--primary) 55%,var(--warn) 45%);
+    }
+
+    html[data-theme="dark"]{
+      color-scheme:dark;
+      --bg:#020617;
+      --card:#111827;
+      --text:#e2e8f0;
+      --muted:#94a3b8;
+      --primary:#f59e0b;
+      --accent:#60a5fa;
+      --btn-ink:#1a1205;
+      --ok:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --link:#93c5fd;
+      --success:#16f2a6;
+      --danger:#fb7185;
+      --logo-highlight:color-mix(in srgb,var(--primary) 45%,var(--warn) 55%);
     }
     *{box-sizing:border-box;font-family:inherit;}
     body{
@@ -39,20 +188,20 @@
       padding:48px 16px;
       position:relative;
       background:
-        radial-gradient(circle at 20% 20%,rgba(191,219,254,.35),rgba(191,219,254,0) 52%),
-        radial-gradient(circle at 78% 18%,rgba(148,163,184,.24),rgba(148,163,184,0) 58%),
-        linear-gradient(180deg,#f8fafc 0%,#e2e8f0 100%);
+        radial-gradient(circle at 20% 20%,color-mix(in srgb,var(--accent) 28%,transparent),transparent 52%),
+        radial-gradient(circle at 78% 18%,color-mix(in srgb,var(--muted) 24%,transparent),transparent 58%),
+        linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 70%,var(--muted)) 100%);
     }
     .login-shell{
       width:min(520px,100%);
       display:grid;
     }
     .landing-panel{
-      background:rgba(255,255,255,.92);
+      background:var(--toolbar-bg);
       border-radius:20px;
       border:1px solid var(--border);
       padding:32px;
-      box-shadow:var(--panel-shadow);
+      box-shadow:var(--panel-shadow-lg);
       display:grid;
       gap:20px;
     }
@@ -84,8 +233,8 @@
     }
     input:focus{
       outline:2px solid transparent;
-      border-color:var(--focus);
-      box-shadow:0 0 0 4px rgba(37,99,235,.18);
+      border-color:var(--input-focus-border);
+      box-shadow:0 0 0 4px var(--input-focus-shadow);
       background:var(--field-focus);
     }
     .pin-wrap{position:relative;display:flex;align-items:center;}
@@ -121,23 +270,26 @@
       color:var(--ink);
       background:var(--ghost);
       border:1px solid var(--ghost-border);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+      box-shadow:var(--ghost-inner-shadow);
     }
-    .btn.primary{background:var(--btn);color:var(--btn-ink);box-shadow:0 8px 18px rgba(242,138,45,.28);}
-    .btn:hover,.btn:focus-visible{box-shadow:0 10px 20px rgba(15,23,42,.22);transform:translateY(-1px);}
-    .btn:active{transform:translateY(0);box-shadow:0 6px 14px rgba(15,23,42,.16);}
+    .btn.primary{background:var(--btn);color:var(--btn-ink);box-shadow:var(--primary-shadow);}
+    .btn:hover,.btn:focus-visible{box-shadow:var(--shadow-float);transform:translateY(-1px);}
+    .btn:active{transform:translateY(0);box-shadow:var(--shadow);}
     .btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
     .linklike{
       background:none;
       border:0;
-      color:var(--ink-soft);
+      color:var(--link);
       cursor:pointer;
       padding:0;
       text-align:left;
       font-size:14px;
       text-decoration:underline;
       align-self:flex-start;
+      transition:color .2s ease;
     }
+    .linklike:hover,.linklike:focus-visible{color:var(--link-hover);}
+    .linklike:active{color:var(--link-active);}
     .landing-google{display:grid;gap:8px;}
     .landing-google .small{margin:0;font-size:13px;color:var(--ink-soft);}    
     .status-message{margin:0;color:var(--danger);font-size:14px;}
