@@ -650,7 +650,7 @@
                 <span class="auth-name" id="userDisplayName"></span>
                 <span class="sr-only">Abrir configuración</span>
               </button>
-              <div class="auth-config-panel" id="userConfigPanel" hidden role="menu" aria-label="Configuración de usuario">
+              <div class="auth-config-panel hidden" id="userConfigPanel" role="menu" aria-label="Configuración de usuario">
                 <button class="btn ghost label" id="btnUserSettings" type="button">Configuración</button>
                 <button class="btn ghost label" id="btnLogout" type="button">Cerrar</button>
               </div>
@@ -1582,15 +1582,13 @@ let activeSnapshotSession = 0;
 function setUserConfigPanelState(open){
   const panel = document.getElementById('userConfigPanel');
   const trigger = document.getElementById('btnUserMenu');
-  const shouldOpen = typeof open === 'boolean' ? open : panel?.hidden;
+  const shouldOpen = typeof open === 'boolean' ? open : panel?.classList.contains('hidden');
   if(!panel || !trigger) return;
   if(shouldOpen){
-    panel.hidden = false;
-    panel.removeAttribute('hidden');
+    panel.classList.remove('hidden');
     trigger.setAttribute('aria-expanded', 'true');
   }else{
-    panel.hidden = true;
-    panel.setAttribute('hidden', '');
+    panel.classList.add('hidden');
     trigger.setAttribute('aria-expanded', 'false');
   }
 }
@@ -1651,7 +1649,8 @@ function authUpdateUI(profileData){
     const truncated = truncateDisplayName(data.displayName || data.email || 'Usuario');
     btnUserMenu.disabled = false;
     btnUserMenu.setAttribute('aria-label', `Abrir configuración de ${truncated}`);
-    btnUserMenu.setAttribute('aria-expanded', String(!document.getElementById('userConfigPanel')?.hidden));
+    const panel = document.getElementById('userConfigPanel');
+    btnUserMenu.setAttribute('aria-expanded', String(Boolean(panel && !panel.classList.contains('hidden'))));
     if(userDisplayNameEl){
       userDisplayNameEl.textContent = truncated;
       userDisplayNameEl.title = data.displayName || data.email || truncated;
@@ -1846,6 +1845,7 @@ const googleButtonContainer = document.getElementById('googleButton');
 const btnUserMenu = document.getElementById('btnUserMenu');
 const btnUserSettings = document.getElementById('btnUserSettings');
 const userConfigPanel = document.getElementById('userConfigPanel');
+const isUserConfigPanelHidden = () => userConfigPanel?.classList.contains('hidden') ?? true;
 const authUserShell = document.getElementById('authUserShell');
 const settingsModal = document.getElementById('settingsModal');
 const btnSettingsClose = document.getElementById('btnSettingsClose');
@@ -1887,7 +1887,7 @@ btnUserMenu?.addEventListener('click', (event)=>{
   event.preventDefault();
   event.stopPropagation();
   if(btnUserMenu.disabled) return;
-  const shouldOpen = Boolean(userConfigPanel?.hidden);
+  const shouldOpen = isUserConfigPanelHidden();
   setUserConfigPanelState(shouldOpen);
 });
 
@@ -1910,7 +1910,7 @@ settingsModal?.addEventListener('click', (event)=>{
 });
 
 document.addEventListener('click', (event)=>{
-  if(!userConfigPanel || userConfigPanel.hidden) return;
+  if(!userConfigPanel || isUserConfigPanelHidden()) return;
   if(authUserShell && authUserShell.contains(event.target)) return;
   setUserConfigPanelState(false);
 });
@@ -1922,7 +1922,7 @@ document.addEventListener('keydown', (event)=>{
     closeSettingsModal();
     return;
   }
-  if(!userConfigPanel?.hidden){
+  if(!isUserConfigPanelHidden()){
     setUserConfigPanelState(false);
   }
 });
