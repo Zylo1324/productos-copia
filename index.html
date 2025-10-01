@@ -485,6 +485,15 @@
     .sidebar-list li{display:flex;flex-direction:column;gap:8px;color:var(--ink)}
     .sidebar-list li button.btn{align-self:flex-start}
     .auth-controls{gap:12px}
+    .auth-user{position:relative;display:flex;flex-direction:column;gap:10px}
+    .auth-avatar-btn{display:inline-flex;align-items:center;gap:10px;padding:6px 12px;border-radius:999px;border:1px solid var(--ghost-border);background:var(--ghost);color:var(--ink);font-weight:600;cursor:pointer;transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease}
+    .auth-avatar-btn:hover{background:var(--ghost-hover-bg);border-color:var(--ghost-hover-border)}
+    .auth-avatar-btn:active{background:var(--ghost-active-bg);border-color:var(--ghost-active-border)}
+    .auth-avatar-btn:focus-visible{outline:2px solid var(--action-focus-outline);outline-offset:2px}
+    .auth-avatar{--avatar-color:var(--accent);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:16px;color:var(--card);background:var(--avatar-color);text-transform:uppercase}
+    .auth-name{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:var(--ink)}
+    .auth-config-panel{position:absolute;top:calc(100% + 10px);left:0;display:flex;flex-direction:column;gap:10px;background:var(--panel-grad);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:12px;min-width:220px;z-index:60}
+    .auth-config-panel .btn{width:100%;justify-content:center}
     .sidebar input,.sidebar select{border:1px solid var(--input-border);background:var(--input-bg);color:var(--ink)}
     .sidebar-search{position:relative;display:flex;align-items:center}
     .sidebar-search-icon{position:absolute;left:14px;display:flex;align-items:center;justify-content:center;color:var(--muted);pointer-events:none;font-size:16px}
@@ -639,8 +648,16 @@
           </li>
           <li class="auth-controls">
             <button class="btn ghost label" id="btnAuthOpen">Acceder</button>
-            <button class="btn ghost label" id="btnLogout" style="display:none">Cerrar sesión</button>
-            <span id="userInfo" class="pill label" style="display:none"></span>
+            <div class="auth-user" id="authUserShell" hidden aria-hidden="true">
+              <button type="button" class="auth-avatar-btn" id="btnUserMenu" aria-haspopup="true" aria-expanded="false">
+                <span class="auth-avatar" id="userAvatar" aria-hidden="true">U</span>
+                <span class="auth-name" id="userDisplayName"></span>
+                <span class="sr-only">Abrir configuración</span>
+              </button>
+              <div class="auth-config-panel" id="userConfigPanel" hidden role="menu" aria-label="Configuración de usuario">
+                <button class="btn ghost label" id="btnLogout" type="button">Cerrar sesión</button>
+              </div>
+            </div>
           </li>
           <li>
             <button class="btn ghost label" id="btnLinkedOpen">Correos enlazados</button>
@@ -914,6 +931,13 @@ function generateAvatarColor(seed){
   const hash=hashString(seed||'default');
   const hue=hash%360;
   return `hsl(${hue}, 65%, 55%)`;
+}
+const AUTH_DISPLAY_NAME_LIMIT = 16;
+function truncateDisplayName(name, limit = AUTH_DISPLAY_NAME_LIMIT){
+  const clean = String(name || '').trim();
+  if(!clean) return '';
+  if(clean.length <= limit) return clean;
+  return `${clean.slice(0, Math.max(1, limit - 1)).trimEnd()}…`;
 }
 function getDefaultLanguage(){
   if(typeof navigator!=='undefined'){
@@ -1495,19 +1519,93 @@ let snapshotRenderQueue = Promise.resolve();
 let latestSnapshotVersion = 0;
 let activeSnapshotSession = 0;
 
-function authUpdateUI(){
-  const badge = document.getElementById('userInfo');
-  const btnAuthOpen = document.getElementById('btnAuthOpen');
-  const btnLogout = document.getElementById('btnLogout');
-  if(currentUser){
-    badge.style.display='inline-block';
-    badge.textContent = currentUser.email;
-    btnAuthOpen.style.display='none';
-    btnLogout.style.display='inline-block';
+function setUserConfigPanelState(open){
+  const panel = document.getElementById('userConfigPanel');
+  const trigger = document.getElementById('btnUserMenu');
+  const shouldOpen = typeof open === 'boolean' ? open : panel?.hidden;
+  if(!panel || !trigger) return;
+  if(shouldOpen){
+    panel.hidden = false;
+    panel.removeAttribute('hidden');
+    trigger.setAttribute('aria-expanded', 'true');
   }else{
-    badge.style.display='none';
-    btnAuthOpen.style.display='inline-block';
-    btnLogout.style.display='none';
+    panel.hidden = true;
+    panel.setAttribute('hidden', '');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+}
+function authUpdateUI(profileData){
+  const btnAuthOpen = document.getElementById('btnAuthOpen');
+  const authUserShell = document.getElementById('authUserShell');
+  const btnUserMenu = document.getElementById('btnUserMenu');
+  const userAvatar = document.getElementById('userAvatar');
+  const userDisplayNameEl = document.getElementById('userDisplayName');
+  const btnLogout = document.getElementById('btnLogout');
+  const isLoggedIn = Boolean(currentUser);
+  const fallbackName = isLoggedIn ? ((currentUser.displayName || '').trim() || (currentUser.email || '').split('@')[0] || 'Usuario') : '';
+  const baseData = isLoggedIn ? {
+    displayName: fallbackName,
+    email: currentUser.email || '',
+    avatarColor: generateAvatarColor(String(currentUser.uid || currentUser.email || fallbackName))
+  } : null;
+  const data = isLoggedIn ? { ...baseData, ...(profileData || {}) } : null;
+
+  if(btnAuthOpen){
+    btnAuthOpen.style.display = isLoggedIn ? 'none' : 'inline-flex';
+    btnAuthOpen.disabled = isLoggedIn;
+  }
+
+  if(btnLogout){
+    btnLogout.disabled = !isLoggedIn;
+  }
+
+  if(!isLoggedIn){
+    if(authUserShell){
+      authUserShell.hidden = true;
+      authUserShell.setAttribute('hidden', '');
+      authUserShell.setAttribute('aria-hidden', 'true');
+    }
+    setUserConfigPanelState(false);
+    if(btnUserMenu){
+      btnUserMenu.setAttribute('aria-label', 'Abrir configuración');
+      btnUserMenu.disabled = true;
+    }
+    if(userAvatar){
+      userAvatar.textContent = 'U';
+      userAvatar.style.removeProperty('--avatar-color');
+    }
+    if(userDisplayNameEl){
+      userDisplayNameEl.textContent = '';
+      userDisplayNameEl.removeAttribute('title');
+    }
+    return;
+  }
+
+  if(authUserShell){
+    authUserShell.hidden = false;
+    authUserShell.removeAttribute('hidden');
+    authUserShell.setAttribute('aria-hidden', 'false');
+  }
+
+  if(btnUserMenu){
+    const truncated = truncateDisplayName(data.displayName || data.email || 'Usuario');
+    btnUserMenu.disabled = false;
+    btnUserMenu.setAttribute('aria-label', `Abrir configuración de ${truncated}`);
+    btnUserMenu.setAttribute('aria-expanded', String(!document.getElementById('userConfigPanel')?.hidden));
+    if(userDisplayNameEl){
+      userDisplayNameEl.textContent = truncated;
+      userDisplayNameEl.title = data.displayName || data.email || truncated;
+    }
+    if(userAvatar){
+      const labelSource = (data.displayName || data.email || 'Usuario').trim();
+      const initial = labelSource ? labelSource.charAt(0).toUpperCase() : 'U';
+      userAvatar.textContent = initial;
+      if(data.avatarColor){
+        userAvatar.style.setProperty('--avatar-color', data.avatarColor);
+      }else{
+        userAvatar.style.setProperty('--avatar-color', generateAvatarColor(labelSource || 'Usuario'));
+      }
+    }
   }
 }
 function normalizeRemoteRecord(data){
@@ -1621,13 +1719,42 @@ async function syncLocalServicesToCloudIfEmpty(){
     console.error('No se pudo sincronizar servicios locales', error);
   }
 }
+async function fetchUserProfileData(user, overrides={}){
+  if(!user) return null;
+  const baseName = ((user.displayName || '').trim()) || ((user.email || '').split('@')[0]) || 'Usuario';
+  const fallback = {
+    displayName: baseName,
+    email: user.email || '',
+    avatarColor: generateAvatarColor(String(user.uid || user.email || baseName))
+  };
+  const initial = { ...fallback, ...(overrides || {}) };
+  try{
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const snapshot = await getDoc(userDocRef);
+    if(snapshot.exists()){
+      const data = snapshot.data() || {};
+      return {
+        ...initial,
+        ...data,
+        displayName: (data.displayName || initial.displayName),
+        avatarColor: (data.avatarColor || initial.avatarColor)
+      };
+    }
+  }catch(error){
+    console.error('No se pudo obtener el perfil del usuario', error);
+  }
+  return initial;
+}
 async function updateUserState(user){
   currentUser = user;
+  let profileData = null;
   if(user){
     try{
-      await syncUserProfile(user);
+      const synced = await syncUserProfile(user);
+      profileData = await fetchUserProfileData(user, synced);
     }catch(error){
       console.error('No se pudo sincronizar el perfil del usuario', error);
+      profileData = await fetchUserProfileData(user);
     }
   }
   await handleClientStorageForUser(user);
@@ -1636,7 +1763,7 @@ async function updateUserState(user){
   }else{
     showLanding('home');
   }
-  authUpdateUI();
+  authUpdateUI(profileData);
   subscribeToRemoteClientes(user);
   subscribeToRemoteServicios(user);
   if(user){ syncLocalServicesToCloudIfEmpty(); }
@@ -1656,9 +1783,32 @@ const authErrorEl  = document.getElementById('authError');
 const toggleAuthPass = document.getElementById('toggleAuthPass');
 const btnForgot    = document.getElementById('btnForgot');
 const googleButtonContainer = document.getElementById('googleButton');
+const btnUserMenu = document.getElementById('btnUserMenu');
+const userConfigPanel = document.getElementById('userConfigPanel');
+const authUserShell = document.getElementById('authUserShell');
 
 btnAuthOpen?.addEventListener('click', ()=>{
   showLanding('login');
+});
+
+btnUserMenu?.addEventListener('click', (event)=>{
+  event.preventDefault();
+  event.stopPropagation();
+  if(btnUserMenu.disabled) return;
+  const shouldOpen = Boolean(userConfigPanel?.hidden);
+  setUserConfigPanelState(shouldOpen);
+});
+
+document.addEventListener('click', (event)=>{
+  if(!userConfigPanel || userConfigPanel.hidden) return;
+  if(authUserShell && authUserShell.contains(event.target)) return;
+  setUserConfigPanelState(false);
+});
+
+document.addEventListener('keydown', (event)=>{
+  if(event.key === 'Escape' && !userConfigPanel?.hidden){
+    setUserConfigPanelState(false);
+  }
 });
 
 toggleAuthPass?.addEventListener('click', ()=>{
@@ -1755,6 +1905,7 @@ loginForm?.addEventListener('submit', async (event)=>{
 });
 
 document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
+  setUserConfigPanelState(false);
   try{
     await signOut(auth);
   }catch(error){
