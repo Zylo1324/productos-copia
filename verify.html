@@ -28,37 +28,35 @@
     body{
       margin:0;
       min-height:100vh;
-      background:var(--bg);
       color:var(--ink);
       display:flex;
       align-items:center;
       justify-content:center;
       padding:48px 16px;
+      background:radial-gradient(circle at 25% 25%,rgba(96,165,250,.2),rgba(3,7,18,0) 55%),
+        radial-gradient(circle at 70% 75%,rgba(45,212,191,.16),rgba(3,7,18,0) 60%),
+        #030712;
     }
     body::before{
       content:"";
       position:fixed;
       inset:-40%;
-      background:
-        linear-gradient(rgba(3,7,18,.82),rgba(3,7,18,.82)),
-        url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat fixed;
+      background:radial-gradient(circle at 18% 20%,rgba(59,130,246,.18),rgba(3,7,18,0) 55%),
+        radial-gradient(circle at 82% 80%,rgba(14,165,233,.14),rgba(3,7,18,0) 60%);
       pointer-events:none;
       z-index:-1;
-      filter:blur(14px);
-      transform:scale(1.06);
     }
     main{
       width:min(480px,100%);
     }
     .panel{
-      background:var(--panel);
+      background:linear-gradient(180deg,rgba(15,23,42,.85) 0%,rgba(3,7,18,.92) 100%);
       border:1px solid var(--panel-border);
       border-radius:22px;
       padding:32px;
       display:grid;
       gap:20px;
-      box-shadow:0 30px 60px rgba(15,23,42,.58);
-      backdrop-filter:blur(18px);
+      box-shadow:0 10px 26px rgba(3,7,18,.46);
     }
     h1{margin:0;font-size:28px;}
     p{margin:0;color:var(--muted);line-height:1.5;}
@@ -84,9 +82,9 @@
       font-weight:600;
       transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease;
     }
-    .primary{background:var(--btn);color:var(--btn-ink);box-shadow:0 12px 24px rgba(242,138,45,.32);}
+    .primary{background:var(--btn);color:var(--btn-ink);box-shadow:0 8px 18px rgba(242,138,45,.28);}
     .ghost{background:var(--ghost);color:var(--ink);border:1px solid var(--ghost-border);}
-    button:hover:not(:disabled),button:focus-visible:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 24px rgba(5,9,15,.45);}
+    button:hover:not(:disabled),button:focus-visible:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,23,42,.32);}
     button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
     @media(max-width:520px){
       body{padding:36px 14px;}
