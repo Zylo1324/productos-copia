@@ -3,62 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="color-scheme" content="light dark" id="metaColorScheme" />
-  <meta name="theme-color" content="#f8fafc" id="metaThemeColor">
+  <meta name="theme-color" content="Canvas" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="Canvas" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="color-scheme" content="light dark" />
   <title>Zyl0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    (() => {
-      const SETTINGS_KEY = 'settings';
-      const VALID_THEMES = new Set(['auto', 'light', 'dark']);
-      const matchDark = typeof window !== 'undefined' && window.matchMedia
-        ? window.matchMedia('(prefers-color-scheme: dark)')
-        : null;
-
-      const readSettings = () => {
-        try {
-          const raw = localStorage.getItem(SETTINGS_KEY);
-          if (!raw) return {};
-          const parsed = JSON.parse(raw);
-          return typeof parsed === 'object' && parsed ? parsed : {};
-        } catch (error) {
-          console.warn('No se pudo leer settings desde localStorage.', error);
-          return {};
-        }
-      };
-
-      const resolveTheme = (mode) => {
-        if (mode === 'light' || mode === 'dark') return mode;
-        const prefersDark = matchDark ? matchDark.matches : false;
-        return prefersDark ? 'dark' : 'light';
-      };
-
-      const ensureValidMode = (mode) => (VALID_THEMES.has(mode) ? mode : 'auto');
-      const stored = readSettings();
-      const mode = ensureValidMode(typeof stored.theme === 'string' ? stored.theme : 'auto');
-      const resolved = resolveTheme(mode);
-
-      const root = document.documentElement;
-      if (root) {
-        root.dataset.theme = resolved;
-        root.dataset.themeMode = mode;
-      }
-
-      const colorSchemeMeta = document.getElementById('metaColorScheme');
-      if (colorSchemeMeta) {
-        colorSchemeMeta.setAttribute('content', mode === 'auto' ? 'light dark' : resolved);
-      }
-      const themeColorMeta = document.getElementById('metaThemeColor');
-      if (themeColorMeta) {
-        const fallback = resolved === 'dark' ? '#0f172a' : '#f8fafc';
-        themeColorMeta.setAttribute('content', fallback);
-      }
-    })();
-  </script>
   <script type="importmap">
     {
       "imports": {
@@ -67,6 +20,30 @@
         "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"
       }
     }
+  </script>
+  <script>
+    (() => {
+      const themeMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+      if (!themeMetas.length) return;
+
+      const applyThemeColor = () => {
+        const background = getComputedStyle(document.documentElement).backgroundColor;
+        themeMetas.forEach((meta) => meta.setAttribute('content', background));
+      };
+
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', applyThemeColor);
+      } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(applyThemeColor);
+      }
+
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        applyThemeColor();
+      } else {
+        document.addEventListener('DOMContentLoaded', applyThemeColor, { once: true });
+      }
+    })();
   </script>
   <style>
     :root{
@@ -515,18 +492,7 @@
     .auth-avatar-btn:focus-visible{outline:2px solid var(--action-focus-outline);outline-offset:2px}
     .auth-avatar{--avatar-color:var(--accent);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:16px;color:var(--card);background:var(--avatar-color);text-transform:uppercase}
     .auth-name{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:var(--ink)}
-    .auth-config-panel{position:absolute;top:calc(100% + 10px);left:0;display:flex;flex-direction:column;gap:12px;background:var(--panel-grad);border:1px solid var(--border);border-radius:14px;box-shadow:var(--panel-shadow-lg);padding:16px;min-width:260px;z-index:60}
-    .auth-config-title{margin:0;font-size:15px;font-weight:700;color:var(--ink)}
-    .auth-settings{display:flex;flex-direction:column;gap:14px}
-    .auth-settings label,.auth-settings legend{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
-    .auth-settings select{width:100%;border:1px solid var(--input-border);border-radius:12px;padding:10px;background:var(--field);color:var(--ink);box-shadow:var(--input-inner-shadow)}
-    .auth-settings select:focus{border-color:var(--input-focus-border);box-shadow:0 0 0 3px var(--input-focus-shadow)}
-    .auth-settings fieldset{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:8px}
-    .auth-settings .option-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink);background:var(--ghost);padding:8px 10px;border-radius:12px;border:1px solid var(--ghost-border)}
-    .auth-settings .option-row input{margin:0}
-    .auth-settings .option-row:focus-within{border-color:var(--input-focus-border);box-shadow:0 0 0 3px var(--input-focus-shadow)}
-    .auth-settings small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
-    .auth-config-panel .settings-actions{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+    .auth-config-panel{position:absolute;top:calc(100% + 10px);left:0;display:flex;flex-direction:column;gap:10px;background:var(--panel-grad);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:12px;min-width:220px;z-index:60}
     .auth-config-panel .btn{width:100%;justify-content:center}
     .sidebar input,.sidebar select{border:1px solid var(--input-border);background:var(--input-bg);color:var(--ink)}
     .sidebar-search{position:relative;display:flex;align-items:center}
@@ -580,9 +546,9 @@
   <section class="landing" data-landing>
     <div class="landing-hero">
       <div class="landing-logo" aria-hidden="true">🪄</div>
-      <p class="landing-pill" id="landingPill">Asistente para negocios digitales</p>
-      <h1 class="landing-title" id="landingTitle">Administra tus clientes con ZYLO</h1>
-      <p class="landing-subtitle" id="landingSubtitle">Conecta tus servicios, centraliza credenciales y ofrece una experiencia premium desde un solo panel.</p>
+      <p class="landing-pill">Asistente para negocios digitales</p>
+      <h1 class="landing-title">Administra tus clientes con ZYLO</h1>
+      <p class="landing-subtitle">Conecta tus servicios, centraliza credenciales y ofrece una experiencia premium desde un solo panel.</p>
       <div class="landing-actions" data-landing-actions>
         <button type="button" class="btn primary" id="landingStart">Empezar ahora</button>
         <button type="button" class="btn ghost" id="landingLogin">Ya tengo una cuenta</button>
@@ -591,14 +557,14 @@
 
     <div class="landing-panels">
       <article class="landing-panel" data-landing-view="home" aria-hidden="false">
-        <h2 id="landingChoiceTitle">Elige cómo continuar</h2>
-        <p id="landingChoiceText">Configura una cuenta nueva o ingresa con tus credenciales existentes.</p>
+        <h2>Elige cómo continuar</h2>
+        <p>Configura una cuenta nueva o ingresa con tus credenciales existentes.</p>
       </article>
 
       <article class="landing-panel" data-landing-view="signup" aria-hidden="true" hidden>
         <header>
-          <h2 id="signupTitle">Crea tu cuenta</h2>
-          <p id="signupDescription">Registra tus datos para sincronizar tus servicios. Podrás editarlo todo luego.</p>
+          <h2>Crea tu cuenta</h2>
+          <p>Registra tus datos para sincronizar tus servicios. Podrás editarlo todo luego.</p>
         </header>
         <form id="signupForm" class="landing-form">
           <div class="row">
@@ -620,15 +586,15 @@
           <div class="landing-errors" id="signupError" role="alert"></div>
           <div class="actions">
             <button type="submit" class="btn primary">Crear cuenta</button>
-            <button type="button" class="btn ghost" data-landing-back id="signupBack">Volver</button>
+            <button type="button" class="btn ghost" data-landing-back>Volver</button>
           </div>
         </form>
       </article>
 
       <article class="landing-panel" data-landing-view="login" aria-hidden="true" hidden>
         <header>
-          <h2 id="loginTitle">Inicia sesión</h2>
-          <p id="loginDescription">Usa tu correo y contraseña registrados para entrar al dashboard.</p>
+          <h2>Inicia sesión</h2>
+          <p>Usa tu correo y contraseña registrados para entrar al dashboard.</p>
         </header>
         <form id="loginForm" class="landing-form">
           <div class="row">
@@ -645,7 +611,7 @@
           <div class="landing-errors" id="authError" role="alert"></div>
           <div class="actions">
             <button type="submit" class="btn primary" id="btnAuthSubmit">Entrar</button>
-            <button type="button" class="btn ghost" data-landing-back id="loginBack">Volver</button>
+            <button type="button" class="btn ghost" data-landing-back>Volver</button>
           </div>
           <button id="btnForgot" class="linklike" type="button">¿Olvidaste tu contraseña?</button>
           <div class="landing-google">
@@ -688,35 +654,8 @@
                 <span class="auth-name" id="userDisplayName"></span>
                 <span class="sr-only">Abrir configuración</span>
               </button>
-              <div class="auth-config-panel" id="userConfigPanel" hidden role="dialog" aria-modal="false" aria-labelledby="userConfigTitle">
-                <h3 class="auth-config-title" id="userConfigTitle">Configuración</h3>
-                <form class="auth-settings" id="userSettingsForm">
-                  <label for="settingsLanguage" id="settingsLanguageLabel">Idioma</label>
-                  <select id="settingsLanguage">
-                    <option value="auto">Automático</option>
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                  </select>
-                  <fieldset>
-                    <legend id="settingsThemeLegend">Tema</legend>
-                    <label class="option-row" for="settingsThemeAuto">
-                      <input type="radio" id="settingsThemeAuto" name="settingsTheme" value="auto" checked>
-                      <span id="themeOptionAuto">Automático</span>
-                    </label>
-                    <label class="option-row" for="settingsThemeLight">
-                      <input type="radio" id="settingsThemeLight" name="settingsTheme" value="light">
-                      <span id="themeOptionLight">Claro</span>
-                    </label>
-                    <label class="option-row" for="settingsThemeDark">
-                      <input type="radio" id="settingsThemeDark" name="settingsTheme" value="dark">
-                      <span id="themeOptionDark">Oscuro</span>
-                    </label>
-                    <small id="settingsThemeHint">La opción automático usa la preferencia del sistema.</small>
-                  </fieldset>
-                </form>
-                <div class="settings-actions">
-                  <button class="btn ghost label" id="btnLogout" type="button">Cerrar sesión</button>
-                </div>
+              <div class="auth-config-panel" id="userConfigPanel" hidden role="menu" aria-label="Configuración de usuario">
+                <button class="btn ghost label" id="btnLogout" type="button">Cerrar sesión</button>
               </div>
             </div>
           </li>
@@ -950,472 +889,6 @@ const persistenceReadyForInit = persistenceReady.catch(error => {
   }
 });
 
-const SETTINGS_STORAGE_KEY = 'settings';
-const DEFAULT_SETTINGS = { language: 'auto', theme: 'auto' };
-const VALID_LANGUAGE_CODES = new Set(['auto', 'es', 'en']);
-const VALID_THEME_MODES = new Set(['auto', 'light', 'dark']);
-const THEME_MEDIA_QUERY = '(prefers-color-scheme: dark)';
-
-const settingsState = {
-  values: { ...DEFAULT_SETTINGS },
-  resolvedLanguage: 'es',
-  resolvedTheme: document.documentElement?.dataset?.theme || 'light',
-  dictionary: null,
-  themeMediaQuery: null,
-  themeMediaHandler: null,
-  applyingRemote: false,
-  pendingRemoteSync: null,
-  controls: { language: null, themeRadios: [] }
-};
-
-let lastKnownProfile = null;
-
-const LANGUAGE_DICTIONARIES = {
-  es: async () => ({
-    strings: {
-      userMenu: {
-        open: 'Abrir configuración',
-        openWithName: 'Abrir configuración de {name}',
-        close: 'Cerrar configuración'
-      }
-    },
-    texts: {
-      '#landingPill': 'Asistente para negocios digitales',
-      '#landingTitle': 'Administra tus clientes con ZYLO',
-      '#landingSubtitle': 'Conecta tus servicios, centraliza credenciales y ofrece una experiencia premium desde un solo panel.',
-      '#landingChoiceTitle': 'Elige cómo continuar',
-      '#landingChoiceText': 'Configura una cuenta nueva o ingresa con tus credenciales existentes.',
-      '#signupTitle': 'Crea tu cuenta',
-      '#signupDescription': 'Registra tus datos para sincronizar tus servicios. Podrás editarlo todo luego.',
-      '#landingStart': 'Empezar ahora',
-      '#landingLogin': 'Ya tengo una cuenta',
-      '#signupForm button[type="submit"]': 'Crear cuenta',
-      '#signupBack': 'Volver',
-      '#loginTitle': 'Inicia sesión',
-      '#loginDescription': 'Usa tu correo y contraseña registrados para entrar al dashboard.',
-      '#loginBack': 'Volver',
-      '#btnAuthSubmit': 'Entrar',
-      '#btnForgot': '¿Olvidaste tu contraseña?',
-      'label[for="signupName"]': 'Nombre para mostrar',
-      'label[for="signupEmail"]': 'Correo',
-      'label[for="signupPass"]': 'Crea una contraseña',
-      'label[for="signupConfirm"]': 'Confirma tu contraseña',
-      'label[for="authEmail"]': 'Correo',
-      'label[for="authPass"]': 'Contraseña',
-      '#btnAuthOpen': 'Acceder',
-      '#btnLinkedOpen': 'Correos enlazados',
-      '#btnChatOpen': 'Chat Gemini',
-      '#btnVerClientes': 'Ver clientes registrados',
-      '#btnVolverFormulario': '← Volver al formulario',
-      '#clientesTitulo': 'Clientes registrados',
-      '#btnLinkedSave': 'Guardar',
-      '#btnLinkedDelete': 'Eliminar',
-      '#btnLinkedHeaderClose': 'Cancelar',
-      '#btnChatClose': 'Cerrar',
-      '#btnSend': 'Enviar',
-      '#userConfigTitle': 'Configuración',
-      '#settingsLanguageLabel': 'Idioma',
-      '#settingsThemeLegend': 'Tema',
-      '#themeOptionAuto': 'Automático',
-      '#themeOptionLight': 'Claro',
-      '#themeOptionDark': 'Oscuro',
-      '#settingsThemeHint': 'La opción automático usa la preferencia del sistema.',
-      '#btnLogout': 'Cerrar sesión',
-      '#settingsLanguage option[value="auto"]': 'Automático',
-      '#settingsLanguage option[value="es"]': 'Español',
-      '#settingsLanguage option[value="en"]': 'Inglés'
-    },
-    placeholders: {
-      '#signupName': 'Tu nombre o marca',
-      '#signupEmail': 'tucorreo@empresa.com',
-      '#signupPass': 'Mínimo 8 caracteres',
-      '#signupConfirm': 'Repite tu contraseña',
-      '#authEmail': 'tucorreo@ejemplo.com',
-      '#authPass': '••••••••',
-      '#linkedEmail': 'correo@ejemplo.com',
-      '#linkedPassword': '••••••••'
-    },
-    aria: {
-      '#toggleAuthPass': { 'aria-label': 'Mostrar u ocultar contraseña' },
-      '#btnChatOpen': { title: 'Abrir chat con Gemini' },
-      '#settingsThemeAuto': { 'aria-label': 'Tema automático' },
-      '#settingsThemeLight': { 'aria-label': 'Tema claro' },
-      '#settingsThemeDark': { 'aria-label': 'Tema oscuro' }
-    }
-  }),
-  en: async () => ({
-    strings: {
-      userMenu: {
-        open: 'Open settings',
-        openWithName: 'Open settings for {name}',
-        close: 'Close settings'
-      }
-    },
-    texts: {
-      '#landingPill': 'Assistant for digital businesses',
-      '#landingTitle': 'Manage your clients with ZYLO',
-      '#landingSubtitle': 'Connect your services, centralize credentials, and deliver a premium experience from one hub.',
-      '#landingChoiceTitle': 'Choose how to continue',
-      '#landingChoiceText': 'Create a new account or sign in with your existing credentials.',
-      '#signupTitle': 'Create your account',
-      '#signupDescription': 'Enter your details to sync your services. You can edit everything later.',
-      '#landingStart': 'Get started',
-      '#landingLogin': 'I already have an account',
-      '#signupForm button[type="submit"]': 'Create account',
-      '#signupBack': 'Back',
-      '#loginTitle': 'Sign in',
-      '#loginDescription': 'Use your registered email and password to enter the dashboard.',
-      '#loginBack': 'Back',
-      '#btnAuthSubmit': 'Sign in',
-      '#btnForgot': 'Forgot your password?',
-      'label[for="signupName"]': 'Display name',
-      'label[for="signupEmail"]': 'Email',
-      'label[for="signupPass"]': 'Create a password',
-      'label[for="signupConfirm"]': 'Confirm your password',
-      'label[for="authEmail"]': 'Email',
-      'label[for="authPass"]': 'Password',
-      '#btnAuthOpen': 'Sign in',
-      '#btnLinkedOpen': 'Linked emails',
-      '#btnChatOpen': 'Gemini chat',
-      '#btnVerClientes': 'View registered clients',
-      '#btnVolverFormulario': '← Back to form',
-      '#clientesTitulo': 'Registered clients',
-      '#btnLinkedSave': 'Save',
-      '#btnLinkedDelete': 'Delete',
-      '#btnLinkedHeaderClose': 'Cancel',
-      '#btnChatClose': 'Close',
-      '#btnSend': 'Send',
-      '#userConfigTitle': 'Settings',
-      '#settingsLanguageLabel': 'Language',
-      '#settingsThemeLegend': 'Theme',
-      '#themeOptionAuto': 'Automatic',
-      '#themeOptionLight': 'Light',
-      '#themeOptionDark': 'Dark',
-      '#settingsThemeHint': 'Auto follows your system preference.',
-      '#btnLogout': 'Sign out',
-      '#settingsLanguage option[value="auto"]': 'Automatic',
-      '#settingsLanguage option[value="es"]': 'Spanish',
-      '#settingsLanguage option[value="en"]': 'English'
-    },
-    placeholders: {
-      '#signupName': 'Your name or brand',
-      '#signupEmail': 'you@company.com',
-      '#signupPass': 'At least 8 characters',
-      '#signupConfirm': 'Repeat your password',
-      '#authEmail': 'you@example.com',
-      '#authPass': '••••••••',
-      '#linkedEmail': 'email@example.com',
-      '#linkedPassword': '••••••••'
-    },
-    aria: {
-      '#toggleAuthPass': { 'aria-label': 'Show or hide password' },
-      '#btnChatOpen': { title: 'Open Gemini chat' },
-      '#settingsThemeAuto': { 'aria-label': 'Automatic theme' },
-      '#settingsThemeLight': { 'aria-label': 'Light theme' },
-      '#settingsThemeDark': { 'aria-label': 'Dark theme' }
-    }
-  })
-};
-
-function formatString(template, params = {}){
-  return String(template || '').replace(/\{(\w+)\}/g, (_, key) => (params[key] ?? ''));
-}
-
-function normalizeLanguage(value){
-  const raw = (value ?? '').toString().toLowerCase();
-  if (raw === 'auto') return 'auto';
-  if (raw.startsWith('en')) return 'en';
-  if (raw.startsWith('es')) return 'es';
-  return VALID_LANGUAGE_CODES.has(raw) ? raw : 'auto';
-}
-
-function normalizeTheme(value){
-  const raw = (value ?? '').toString().toLowerCase();
-  return VALID_THEME_MODES.has(raw) ? raw : 'auto';
-}
-
-function detectPreferredLanguage(){
-  if (typeof navigator === 'undefined') return 'es';
-  const languages = Array.isArray(navigator.languages) && navigator.languages.length
-    ? navigator.languages
-    : [navigator.language, navigator.userLanguage].filter(Boolean);
-  for (const lang of languages){
-    const base = (lang || '').toString().slice(0,2).toLowerCase();
-    if (base === 'es' || base === 'en') return base;
-  }
-  return 'es';
-}
-
-function readSettingsFromStorage(){
-  try {
-    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (!raw) return { ...DEFAULT_SETTINGS };
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return { ...DEFAULT_SETTINGS };
-    return {
-      language: normalizeLanguage(parsed.language),
-      theme: normalizeTheme(parsed.theme)
-    };
-  } catch (error) {
-    console.warn('No se pudieron leer las preferencias locales.', error);
-    return { ...DEFAULT_SETTINGS };
-  }
-}
-
-function writeSettingsToStorage(values){
-  try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({
-      language: values.language,
-      theme: values.theme
-    }));
-  } catch (error) {
-    console.warn('No se pudieron guardar las preferencias locales.', error);
-  }
-}
-
-function applyDocumentLanguage(lang){
-  if (document?.documentElement){
-    document.documentElement.lang = lang;
-  }
-}
-
-function applyLanguageDictionary(dictionary){
-  if (!dictionary) return;
-  const { texts = {}, placeholders = {}, aria = {} } = dictionary;
-  Object.entries(texts).forEach(([selector, value]) => {
-    const element = document.querySelector(selector);
-    if (element) element.textContent = value;
-  });
-  Object.entries(placeholders).forEach(([selector, value]) => {
-    const element = document.querySelector(selector);
-    if (element) element.setAttribute('placeholder', value);
-  });
-  Object.entries(aria).forEach(([selector, attrs]) => {
-    const element = document.querySelector(selector);
-    if (!element) return;
-    Object.entries(attrs || {}).forEach(([attr, value]) => {
-      if (value === null || value === undefined){
-        element.removeAttribute(attr);
-      } else {
-        element.setAttribute(attr, value);
-      }
-    });
-  });
-}
-
-function getString(path, fallback=''){
-  const segments = path.split('.');
-  let cursor = settingsState.dictionary?.strings;
-  for (const key of segments){
-    if (cursor && Object.prototype.hasOwnProperty.call(cursor, key)){
-      cursor = cursor[key];
-    } else {
-      cursor = null;
-      break;
-    }
-  }
-  return typeof cursor === 'string' ? cursor : fallback;
-}
-
-function refreshSettingsControls(){
-  const { language, themeRadios } = settingsState.controls;
-  if (language) language.value = settingsState.values.language;
-  if (Array.isArray(themeRadios)){
-    themeRadios.forEach((radio) => {
-      radio.checked = radio.value === settingsState.values.theme;
-    });
-  }
-}
-
-function refreshThemeColorMeta(resolvedTheme){
-  const meta = document.getElementById('metaThemeColor');
-  if (!meta) return;
-  let background = '';
-  try {
-    const styles = getComputedStyle(document.documentElement);
-    background = (styles.getPropertyValue('--bg') || styles.backgroundColor || '').trim();
-  } catch {}
-  if (!background){
-    background = resolvedTheme === 'dark' ? '#0f172a' : '#f8fafc';
-  }
-  meta.setAttribute('content', background);
-}
-
-function updateThemeMeta(mode, resolved){
-  const colorSchemeMeta = document.getElementById('metaColorScheme');
-  if (colorSchemeMeta){
-    colorSchemeMeta.setAttribute('content', mode === 'auto' ? 'light dark' : resolved);
-  }
-  refreshThemeColorMeta(resolved);
-  if (typeof requestAnimationFrame === 'function'){
-    requestAnimationFrame(() => refreshThemeColorMeta(resolved));
-  }
-}
-
-function detachThemeListener(){
-  const { themeMediaQuery, themeMediaHandler } = settingsState;
-  if (themeMediaQuery && themeMediaHandler){
-    if (themeMediaQuery.removeEventListener){
-      themeMediaQuery.removeEventListener('change', themeMediaHandler);
-    } else if (themeMediaQuery.removeListener){
-      themeMediaQuery.removeListener(themeMediaHandler);
-    }
-  }
-  settingsState.themeMediaQuery = null;
-  settingsState.themeMediaHandler = null;
-}
-
-function resolveTheme(mode){
-  if (mode === 'light' || mode === 'dark') return mode;
-  if (typeof window !== 'undefined' && window.matchMedia){
-    return window.matchMedia(THEME_MEDIA_QUERY).matches ? 'dark' : 'light';
-  }
-  return 'light';
-}
-
-function attachThemeListener(){
-  detachThemeListener();
-  if (settingsState.values.theme !== 'auto' || typeof window === 'undefined' || !window.matchMedia) return;
-  const query = window.matchMedia(THEME_MEDIA_QUERY);
-  const handler = () => {
-    const resolved = resolveTheme('auto');
-    settingsState.resolvedTheme = resolved;
-    if (document?.documentElement){
-      document.documentElement.dataset.theme = resolved;
-      document.documentElement.dataset.themeMode = settingsState.values.theme;
-    }
-    updateThemeMeta('auto', resolved);
-  };
-  if (query.addEventListener){
-    query.addEventListener('change', handler);
-  } else if (query.addListener){
-    query.addListener(handler);
-  }
-  settingsState.themeMediaQuery = query;
-  settingsState.themeMediaHandler = handler;
-}
-
-function scheduleRemoteSettingsUpdate(){
-  if (!currentUser || settingsState.applyingRemote) return;
-  if (settingsState.pendingRemoteSync){
-    clearTimeout(settingsState.pendingRemoteSync);
-  }
-  settingsState.pendingRemoteSync = setTimeout(async () => {
-    settingsState.pendingRemoteSync = null;
-    try {
-      const userDocRef = doc(firestore, 'users', currentUser.uid);
-      await setDoc(userDocRef, {
-        settings: {
-          language: settingsState.values.language,
-          theme: settingsState.values.theme
-        },
-        language: settingsState.values.language,
-        theme: settingsState.values.theme,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-    } catch (error) {
-      console.error('No se pudieron sincronizar las preferencias con la nube.', error);
-    }
-  }, 160);
-}
-
-function normalizeSettings(input){
-  const base = {
-    language: settingsState.values.language ?? DEFAULT_SETTINGS.language,
-    theme: settingsState.values.theme ?? DEFAULT_SETTINGS.theme
-  };
-  if (!input || typeof input !== 'object') return base;
-  if ('language' in input) base.language = normalizeLanguage(input.language);
-  if ('theme' in input) base.theme = normalizeTheme(input.theme);
-  return base;
-}
-
-function extractSettingsFromData(data){
-  if (!data || typeof data !== 'object') return null;
-  if (data.settings && typeof data.settings === 'object'){
-    return normalizeSettings(data.settings);
-  }
-  if ('language' in data || 'theme' in data){
-    return normalizeSettings({ language: data.language, theme: data.theme });
-  }
-  return null;
-}
-
-async function applyRemoteSettings(settings){
-  if (!settings) return;
-  const normalized = normalizeSettings(settings);
-  settingsState.applyingRemote = true;
-  try {
-    await setLanguage(normalized.language, { persistLocal: true, persistRemote: false });
-    await setTheme(normalized.theme, { persistLocal: true, persistRemote: false });
-  } finally {
-    settingsState.applyingRemote = false;
-  }
-}
-
-async function loadDictionary(lang){
-  const loader = LANGUAGE_DICTIONARIES[lang] || LANGUAGE_DICTIONARIES.es;
-  try {
-    return await loader();
-  } catch (error) {
-    console.error('No se pudo cargar el diccionario de idioma', lang, error);
-    return await LANGUAGE_DICTIONARIES.es();
-  }
-}
-
-async function setLanguage(language, { persistLocal = true, persistRemote = true } = {}){
-  const normalized = normalizeLanguage(language);
-  settingsState.values.language = normalized;
-  const resolved = normalized === 'auto' ? detectPreferredLanguage() : normalized;
-  settingsState.resolvedLanguage = resolved;
-  settingsState.dictionary = await loadDictionary(resolved);
-  applyLanguageDictionary(settingsState.dictionary);
-  applyDocumentLanguage(resolved);
-  if(document?.documentElement){
-    document.documentElement.dataset.language = resolved;
-    document.documentElement.dataset.languageMode = normalized;
-  }
-  refreshSettingsControls();
-  if (persistLocal) writeSettingsToStorage(settingsState.values);
-  if (persistRemote) scheduleRemoteSettingsUpdate();
-  if (typeof authUpdateUI === 'function'){
-    authUpdateUI(lastKnownProfile);
-  }
-  return resolved;
-}
-
-async function setTheme(mode, { persistLocal = true, persistRemote = true } = {}){
-  const normalized = normalizeTheme(mode);
-  settingsState.values.theme = normalized;
-  const resolved = resolveTheme(normalized);
-  settingsState.resolvedTheme = resolved;
-  if (document?.documentElement){
-    document.documentElement.dataset.theme = resolved;
-    document.documentElement.dataset.themeMode = normalized;
-  }
-  updateThemeMeta(normalized, resolved);
-  refreshSettingsControls();
-  if (persistLocal) writeSettingsToStorage(settingsState.values);
-  if (persistRemote) scheduleRemoteSettingsUpdate();
-  if (normalized === 'auto') attachThemeListener(); else detachThemeListener();
-  return resolved;
-}
-
-async function initializeSettings(){
-  settingsState.values = readSettingsFromStorage();
-  settingsState.resolvedLanguage = settingsState.values.language === 'auto'
-    ? detectPreferredLanguage()
-    : settingsState.values.language;
-  settingsState.resolvedTheme = resolveTheme(settingsState.values.theme);
-  await setLanguage(settingsState.values.language, { persistLocal: false, persistRemote: false });
-  await setTheme(settingsState.values.theme, { persistLocal: false, persistRemote: false });
-  if (settingsState.values.theme === 'auto') attachThemeListener();
-}
-
-await initializeSettings();
-window.setLanguage = setLanguage;
-window.setTheme = setTheme;
-
 /* ===== helpers y refs ===== */
 const $=s=>document.querySelector(s);
 const tbody=$('#tabla tbody');
@@ -1466,6 +939,17 @@ function truncateDisplayName(name, limit = AUTH_DISPLAY_NAME_LIMIT){
   if(clean.length <= limit) return clean;
   return `${clean.slice(0, Math.max(1, limit - 1)).trimEnd()}…`;
 }
+function getDefaultLanguage(){
+  if(typeof navigator!=='undefined'){
+    return navigator.language || navigator.userLanguage || 'es';
+  }
+  return 'es';
+}
+function getCurrentThemePreference(){
+  const themeAttr=document.documentElement?.dataset?.theme;
+  if(themeAttr&&themeAttr.trim()){ return themeAttr.trim(); }
+  return 'system';
+}
 async function syncUserProfile(user, { displayName }={}){
   if(!user) return null;
   const requestedName=(displayName||'').trim();
@@ -1483,17 +967,15 @@ async function syncUserProfile(user, { displayName }={}){
   }
   const avatarSeed=user.uid||user.email||finalDisplayName;
   const avatarColor=generateAvatarColor(String(avatarSeed));
+  const language=getDefaultLanguage();
+  const theme=getCurrentThemePreference();
   const userDocRef=doc(firestore, 'users', user.uid);
   const payload={
     displayName: finalDisplayName,
     email: user.email||'',
     avatarColor,
-    language: settingsState.values.language,
-    theme: settingsState.values.theme,
-    settings: {
-      language: settingsState.values.language,
-      theme: settingsState.values.theme
-    },
+    language,
+    theme,
     updatedAt: serverTimestamp()
   };
   await setDoc(userDocRef, payload, { merge: true });
@@ -2046,18 +1528,10 @@ function setUserConfigPanelState(open){
     panel.hidden = false;
     panel.removeAttribute('hidden');
     trigger.setAttribute('aria-expanded', 'true');
-    trigger.setAttribute('aria-label', getString('userMenu.close', 'Cerrar configuración'));
-    refreshSettingsControls();
-    settingsState.controls.language?.focus?.();
   }else{
     panel.hidden = true;
     panel.setAttribute('hidden', '');
     trigger.setAttribute('aria-expanded', 'false');
-    const truncated = lastKnownProfile ? truncateDisplayName(lastKnownProfile.displayName || lastKnownProfile.email || 'Usuario') : '';
-    const openTemplate = truncated
-      ? getString('userMenu.openWithName', 'Abrir configuración de {name}')
-      : getString('userMenu.open', 'Abrir configuración');
-    trigger.setAttribute('aria-label', formatString(openTemplate, { name: truncated }));
   }
 }
 function authUpdateUI(profileData){
@@ -2076,8 +1550,6 @@ function authUpdateUI(profileData){
   } : null;
   const data = isLoggedIn ? { ...baseData, ...(profileData || {}) } : null;
 
-  lastKnownProfile = isLoggedIn ? (data || null) : null;
-
   if(btnAuthOpen){
     btnAuthOpen.style.display = isLoggedIn ? 'none' : 'inline-flex';
     btnAuthOpen.disabled = isLoggedIn;
@@ -2095,7 +1567,7 @@ function authUpdateUI(profileData){
     }
     setUserConfigPanelState(false);
     if(btnUserMenu){
-      btnUserMenu.setAttribute('aria-label', getString('userMenu.open', 'Abrir configuración'));
+      btnUserMenu.setAttribute('aria-label', 'Abrir configuración');
       btnUserMenu.disabled = true;
     }
     if(userAvatar){
@@ -2118,13 +1590,8 @@ function authUpdateUI(profileData){
   if(btnUserMenu){
     const truncated = truncateDisplayName(data.displayName || data.email || 'Usuario');
     btnUserMenu.disabled = false;
-    const panelHidden = document.getElementById('userConfigPanel')?.hidden !== false;
-    const openTemplate = truncated
-      ? getString('userMenu.openWithName', 'Abrir configuración de {name}')
-      : getString('userMenu.open', 'Abrir configuración');
-    const closeLabel = getString('userMenu.close', 'Cerrar configuración');
-    btnUserMenu.setAttribute('aria-label', panelHidden ? formatString(openTemplate, { name: truncated }) : closeLabel);
-    btnUserMenu.setAttribute('aria-expanded', String(!panelHidden));
+    btnUserMenu.setAttribute('aria-label', `Abrir configuración de ${truncated}`);
+    btnUserMenu.setAttribute('aria-expanded', String(!document.getElementById('userConfigPanel')?.hidden));
     if(userDisplayNameEl){
       userDisplayNameEl.textContent = truncated;
       userDisplayNameEl.title = data.displayName || data.email || truncated;
@@ -2260,19 +1727,17 @@ async function fetchUserProfileData(user, overrides={}){
     email: user.email || '',
     avatarColor: generateAvatarColor(String(user.uid || user.email || baseName))
   };
-  const initial = { ...fallback, ...(overrides || {}), settings: null };
+  const initial = { ...fallback, ...(overrides || {}) };
   try{
     const userDocRef = doc(firestore, 'users', user.uid);
     const snapshot = await getDoc(userDocRef);
     if(snapshot.exists()){
       const data = snapshot.data() || {};
-      const settings = extractSettingsFromData(data);
       return {
         ...initial,
         ...data,
         displayName: (data.displayName || initial.displayName),
-        avatarColor: (data.avatarColor || initial.avatarColor),
-        settings: settings || initial.settings
+        avatarColor: (data.avatarColor || initial.avatarColor)
       };
     }
   }catch(error){
@@ -2290,11 +1755,6 @@ async function updateUserState(user){
     }catch(error){
       console.error('No se pudo sincronizar el perfil del usuario', error);
       profileData = await fetchUserProfileData(user);
-    }
-    if(profileData?.settings){
-      await applyRemoteSettings(profileData.settings);
-    }else{
-      scheduleRemoteSettingsUpdate();
     }
   }
   await handleClientStorageForUser(user);
@@ -2326,26 +1786,6 @@ const googleButtonContainer = document.getElementById('googleButton');
 const btnUserMenu = document.getElementById('btnUserMenu');
 const userConfigPanel = document.getElementById('userConfigPanel');
 const authUserShell = document.getElementById('authUserShell');
-const settingsLanguageSelect = document.getElementById('settingsLanguage');
-const settingsThemeRadios = Array.from(document.querySelectorAll('input[name="settingsTheme"]'));
-
-settingsState.controls.language = settingsLanguageSelect;
-settingsState.controls.themeRadios = settingsThemeRadios;
-refreshSettingsControls();
-
-settingsLanguageSelect?.addEventListener('change', (event)=>{
-  const value = event.target?.value ?? 'auto';
-  setLanguage(value);
-});
-
-settingsThemeRadios.forEach((radio)=>{
-  radio.addEventListener('change', (event)=>{
-    const target = event.target;
-    if(target && target.checked){
-      setTheme(target.value);
-    }
-  });
-});
 
 btnAuthOpen?.addEventListener('click', ()=>{
   showLanding('login');
