@@ -105,9 +105,6 @@
       --menu-hover-bg:color-mix(in srgb,var(--bg) 86%,var(--accent) 14%);
       --modal-bg:var(--card);
       --backdrop-bg:color-mix(in srgb,var(--text) 35%,transparent);
-      --chat-log-bg:var(--bg);
-      --ai-bubble-bg:color-mix(in srgb,var(--card) 88%,var(--bg));
-      --ai-bubble-border:color-mix(in srgb,var(--muted) 32%,transparent);
       --eye-bg:color-mix(in srgb,var(--card) 82%,var(--bg));
       --eye-border:color-mix(in srgb,var(--muted) 52%,transparent);
       --addserv-bg:color-mix(in srgb,var(--accent) 28%,var(--bg));
@@ -130,7 +127,6 @@
       --launcher-grad:linear-gradient(150deg,var(--card) 0%,color-mix(in srgb,var(--card) 82%,var(--accent) 18%) 100%);
       --sidebar-grad:linear-gradient(180deg,var(--card) 0%,color-mix(in srgb,var(--card) 80%,var(--bg)) 100%);
       --panel-grad:linear-gradient(180deg,var(--card) 0%,color-mix(in srgb,var(--card) 78%,var(--bg)) 100%);
-      --chat-grad:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 86%,var(--muted)) 100%);
       --tag-grad:linear-gradient(135deg,color-mix(in srgb,var(--bg) 92%,var(--muted) 8%) 0%,color-mix(in srgb,var(--bg) 82%,var(--muted) 18%) 100%);
       --table-hover-shadow:inset 0 0 0 999px color-mix(in srgb,var(--accent) 12%,transparent);
       --launcher-focus-outline:color-mix(in srgb,var(--accent) 35%,transparent);
@@ -141,9 +137,6 @@
       --menu-danger-bg:color-mix(in srgb,var(--bad) 12%,transparent);
       --menu-danger-border:color-mix(in srgb,var(--bad) 35%,transparent);
       --modal-grad:linear-gradient(180deg,var(--card) 0%,color-mix(in srgb,var(--card) 74%,var(--bg)) 100%);
-      --user-bubble-grad:linear-gradient(135deg,var(--primary) 0%,color-mix(in srgb,var(--primary) 80%,var(--warn)) 100%);
-      --user-bubble-shadow:0 8px 18px color-mix(in srgb,var(--primary) 28%,transparent);
-      --ai-bubble-shadow:0 8px 18px color-mix(in srgb,var(--text) 18%,transparent);
       --radial-accent:color-mix(in srgb,var(--accent) 24%,transparent);
       --radial-success:color-mix(in srgb,var(--success) 18%,transparent);
       --radial-primary:color-mix(in srgb,var(--primary) 18%,transparent);
@@ -471,14 +464,8 @@
     .modal header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)}
     .modal .body{padding:16px 18px;color:var(--ink)}
 
-    /* ===== Chat (Gemini) ===== */
+    /* ===== Encabezados de sección ===== */
     .section-head{font-weight:700;margin-bottom:8px;color:var(--ink);text-shadow:0 10px 24px color-mix(in srgb,var(--text) 45%,transparent)}
-    .chat-log{height:260px;overflow:auto;border:1px solid var(--border);border-radius:16px;padding:14px;background:var(--chat-grad);box-shadow:var(--surface-inner-shadow)}
-    .chat-msg{margin:8px 0;display:flex}
-    .chat-msg.user{justify-content:flex-end}
-    .chat-msg .bubble{max-width:85%;padding:10px 12px;border-radius:12px;white-space:pre-wrap}
-    .chat-msg.user .bubble{background:var(--user-bubble-grad);color:var(--btn-ink);border:1px solid var(--ghost-border);box-shadow:var(--user-bubble-shadow)}
-    .chat-msg.ai .bubble{background:var(--ai-bubble-bg);border:1px solid var(--ai-bubble-border);color:var(--ink);box-shadow:var(--ai-bubble-shadow)}
 
     /* ===== Tokens de tema ===== */
     .sidebar-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
@@ -662,9 +649,6 @@
           <li>
             <button class="btn ghost label" id="btnLinkedOpen">Correos enlazados</button>
           </li>
-          <li>
-            <button class="btn ghost label" id="btnChatOpen" title="Abrir chat con Gemini">Chat Gemini</button>
-          </li>
         </ul>
       </nav>
     </div>
@@ -792,27 +776,6 @@
       </div>
     </section>
     </main>
-  </div>
-
-  <!-- ===== Modal Chat Gemini ===== -->
-  <div id="chatModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-label="Chat Gemini">
-      <header>
-        <strong>Chat Gemini</strong>
-        <button class="btn ghost" id="btnChatClose">Cerrar</button>
-      </header>
-      <div class="body">
-        <div id="chatLog" class="chat-log"></div>
-        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px">
-          <input id="chatInput" placeholder="Escribe un mensaje…"/>
-          <button class="btn primary" id="btnSend">Enviar</button>
-        </div>
-        <div class="small" style="text-align:left;margin-top:6px">
-          <label><input type="checkbox" id="shareSecrets"> Compartir datos sensibles (PIN y notas)</label>
-        </div>
-        <div class="small">Conexión directa a Gemini desde el navegador (API key expuesta).</div>
-      </div>
-    </div>
   </div>
 
   <!-- ===== Modal Correos enlazados ===== -->
@@ -2542,145 +2505,6 @@ $('#btnEliminarServicio').onclick = async ()=>{
 /* Mostrar/Ocultar PIN (form) */
 document.getElementById('togglePin')?.addEventListener('click',()=>{ const el=f.pin; const isPass=el.type==='password'; el.type=isPass?'text':'password'; document.getElementById('togglePin').textContent=isPass?'🙈':'👁'; });
 
-/* ===== Chat (Gemini) ===== */
-const chatModal = document.getElementById('chatModal');
-const btnChatOpen = document.getElementById('btnChatOpen');
-const btnChatClose = document.getElementById('btnChatClose');
-const chatLogEl = document.getElementById('chatLog');
-const chatInputEl = document.getElementById('chatInput');
-let chatHistory = JSON.parse(localStorage.getItem('chat_v1')||'[]');
-
-function openChat(){ chatModal.classList.add('open'); chatModal.setAttribute('aria-hidden','false'); setTimeout(()=>chatInputEl?.focus(), 0); }
-function closeChat(){ chatModal.classList.remove('open'); chatModal.setAttribute('aria-hidden','true'); }
-btnChatOpen?.addEventListener('click', openChat);
-btnChatClose?.addEventListener('click', closeChat);
-chatModal?.addEventListener('click', (e)=>{ if(e.target===chatModal) closeChat(); });
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeChat(); });
-
-function renderChat(){
-  if(!chatLogEl) return;
-  chatLogEl.innerHTML = chatHistory.map(m=>`<div class="chat-msg ${m.role}"><div class="bubble">${esc(m.text)}</div></div>`).join('');
-  chatLogEl.scrollTop = chatLogEl.scrollHeight;
-}
-renderChat();
-
-function clientToSafe(rec, includeSecrets){
-  const d = (function(iso){ if(!iso) return null; const h=new Date();h.setHours(0,0,0,0); const dd=new Date(iso); dd.setHours(0,0,0,0); return Math.round((dd-h)/(1000*60*60*24)); })(rec.vence);
-  const est = rec.vence? (d<0?'vencida':(d<=7?'pronto':'vigente')) : '';
-  const out = { id:rec.id, nombre:rec.nombre||'', email:rec.email||'', telefono:rec.telefono||'', servicio:rec.servicio||'', inicio:rec.inicio||'', vence:rec.vence||'', categoria:rec.categoria||'', estado:est, dias:d };
-  if(includeSecrets){ if(rec.pin) out.pin = rec.pin; if(rec.notas) out.notas = rec.notas; }
-  return out;
-}
-function buildPrompt(userMsg){
-  const includeSecrets = document.getElementById('shareSecrets')?.checked || false;
-  const textNorm = normalize(userMsg);
-  const clientes = db.getAll();
-  const enriched = clientes.map(r=>clientToSafe(r, includeSecrets));
-  const matches = enriched.filter(r=>{
-    const n=normalize(r.nombre), e=normalize(r.email), s=normalize(r.servicio);
-    return (n && textNorm.includes(n)) || (e && textNorm.includes(e)) || (s && textNorm.includes(s));
-  });
-  const context = (matches.length? matches.slice(0,10) : enriched.slice(0,50));
-  const guidance = [
-    'Eres un asistente que habla español y ayuda a gestionar clientes.',
-    'Usa SOLO los datos proporcionados. Si algo no está en DATOS, di: "no está en mis registros".',
-    'Si el usuario pide PIN y no existe el campo "pin" en los DATOS, responde brevemente que por seguridad no lo compartes a menos que el usuario habilite Compartir datos sensibles.',
-    'Formatea las respuestas de ficha con etiquetas: Nombre, Email, Teléfono, Servicio, Inicio, Vence, Estado, Días, Categoría, Notas.'
-  ];
-  const prompt = [...guidance,'DATOS(JSON):',JSON.stringify(context),`PREGUNTA: ${userMsg}`].join('\n');
-  return prompt;
-}
-async function requestGemini(prompt){
-  const endpoint = (window.APP_CONFIG?.aiEndpoint) || '/api/ai/gemini';
-  const headers = { 'Content-Type': 'application/json' };
-  try{
-    const token = await currentUser?.getIdToken?.();
-    if(token){ headers.Authorization = `Bearer ${token}`; }
-  }catch{}
-  const response = await fetch(endpoint, {
-    method:'POST',
-    headers,
-    body: JSON.stringify({ prompt })
-  });
-  const text = await response.text();
-  if(!response.ok){
-    throw new Error(text || 'No se pudo procesar la solicitud de Gemini.');
-  }
-  return text ? JSON.parse(text) : null;
-}
-async function sendChat(){
-  const text = (chatInputEl?.value||'').trim(); if(!text) return;
-  chatHistory.push({ role:'user', text }); renderChat(); chatInputEl.value='';
-  try{
-    const response = await requestGemini(buildPrompt(text));
-    const replyText = response?.reply?.text ?? response?.reply ?? response?.text ?? '(sin respuesta)';
-    const safeReply = typeof replyText === 'string' ? replyText : JSON.stringify(replyText);
-    chatHistory.push({ role:'ai', text: safeReply });
-    tryApplyToolFrom(safeReply, text);
-  }
-  catch(err){
-    const message = err?.message || 'No se pudo obtener respuesta del asistente. Inténtalo nuevamente más tarde.';
-    chatHistory.push({ role:'ai', text: `Error del asistente: ${message}` });
-  }
-  localStorage.setItem('chat_v1', JSON.stringify(chatHistory));
-  renderChat();
-}
-document.getElementById('btnSend')?.addEventListener('click', sendChat);
-chatInputEl?.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }});
-
-/* ==== Herramientas locales desde chat ==== */
-function parseDateToISO(s){
-  if(!s) return s; s=String(s).trim();
-  if(s.indexOf('-')>0) return s;
-  if(s.indexOf('/')>0){ const p=s.split('/'); if(p.length===3){ const d=p[0].padStart(2,'0'); const m=p[1].padStart(2,'0'); const y=p[2]; return `${y}-${m}-${d}`; } }
-  return s;
-}
-function extractJson(text){
-  const i = text.indexOf('```json'); if(i>=0){ const j = text.indexOf('```', i+7); if(j>i){ return text.slice(i+7, j).trim(); } }
-  const a = text.indexOf('{'); const b = text.lastIndexOf('}');
-  if(a>=0 && b>a) return text.slice(a,b+1);
-  return null;
-}
-function tryApplyToolFrom(modelText,_userText){
-  const raw = extractJson(modelText); if(!raw) return false;
-  let cmd; try{ cmd = JSON.parse(raw); }catch{ return false; }
-  if(!cmd || cmd.action !== 'update_client' || !cmd.set) return false;
-  return applyUpdateCommand(cmd);
-}
-function findClientByMatch(match){
-  const arr = db.getAll(); const t = m=>normalize(m||'');
-  let filtered = arr.filter(c=>{
-    const okNombre = match?.nombre? t(c.nombre).includes(t(match.nombre)) : true;
-    const okEmail  = match?.email?  t(c.email) === t(match.email) || t(c.email).includes(t(match.email)) : true;
-    const okServ   = match?.servicio? t(c.servicio).includes(t(match.servicio)) : true;
-    return okNombre && okEmail && okServ;
-  });
-  return filtered;
-}
-async function applyUpdateCommand(cmd){
-  const matches = findClientByMatch(cmd.match||{});
-  if(matches.length !== 1){
-    const msg = matches.length===0? 'No encontré un cliente con esos datos. Especifica nombre o email.' : `Hay ${matches.length} clientes que coinciden. Especifica email para continuar.`;
-    chatHistory.push({role:'ai', text: msg}); renderChat(); return false;
-  }
-  const client = matches[0];
-  const allowed = {nombre:1,email:1,telefono:1,servicio:1,inicio:1,vence:1,categoria:1,notas:1,pin:1};
-  const set = Object.assign({}, cmd.set);
-  if(set.inicio) set.inicio = parseDateToISO(set.inicio);
-  if(set.vence)  set.vence  = parseDateToISO(set.vence);
-
-  const arr = db.getAll();
-  const idx = arr.findIndex(x=>x.id===client.id);
-  if(idx<0){ chatHistory.push({role:'ai', text:'Error interno: no se pudo ubicar el registro.'}); renderChat(); return false; }
-  const before = Object.assign({}, arr[idx]);
-  Object.keys(set).forEach(k=>{ if(allowed[k]) arr[idx][k] = set[k]; });
-  await db.saveAll(arr); await renderTabla();
-
-  const changed = Object.keys(set).map(k=>`${k}: "${before[k]||''}" → "${arr[idx][k]}"`).join('\n');
-  chatHistory.push({role:'ai', text:`Actualizado ✓\nCliente: ${arr[idx].nombre}\nCambios:\n${changed}`});
-  renderChat(); return true;
-}
-
 /* ===== Etiquetas ===== */
 function formatDM(iso){ if(!iso) return ''; const d=new Date(iso+'T00:00:00'); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'); }
 function buildEtiqueta(c){
@@ -2717,24 +2541,6 @@ function etiquetar(id){
 /* ===== Búsqueda / filtro ===== */
 q?.addEventListener('input', () => renderTabla());
 filterEstado?.addEventListener('change', () => renderTabla());
-
-/* ===== DEV TESTS (ligeros) ===== */
-(function(){
-  function runTests(){
-    const backupGet = db.getAll, backupSaveAll = db.saveAll;
-    let mem = [{id:'1',nombre:'Ana',servicio:'ChatGPT',vence:'2025-10-01',pin:'1234',notas:'vip',email:'ana@x.com'}];
-    db.getAll = () => JSON.parse(JSON.stringify(mem));
-    db.saveAll = (x) => { mem = JSON.parse(JSON.stringify(x)); };
-
-    console.assert(parseDateToISO('20/10/2025') === '2025-10-20','parseDateToISO convierte dd/mm/aaaa');
-    applyUpdateCommand({action:'update_client', match:{nombre:'Ana'}, set:{vence:'2025-11-01'}});
-    console.assert(mem[0].vence==='2025-11-01','applyUpdateCommand actualiza vence');
-
-    db.getAll = backupGet; db.saveAll = backupSaveAll;
-    console.log('[tests] OK');
-  }
-  try{ runTests(); }catch(e){ console.warn('[tests] fallo:', e); }
-})();
 
 </script>
 </body>
