@@ -1579,11 +1579,26 @@ let snapshotRenderQueue = Promise.resolve();
 let latestSnapshotVersion = 0;
 let activeSnapshotSession = 0;
 
+function focusUserMenuTriggerAfterPanelClose(shouldRestoreFocus){
+  if(!shouldRestoreFocus) return;
+  const panel = document.getElementById('userConfigPanel');
+  const trigger = document.getElementById('btnUserMenu');
+  if(!panel || !trigger) return;
+  if(document.activeElement === trigger) return;
+  if(typeof trigger.focus === 'function'){
+    trigger.focus({ preventScroll: true });
+  }
+}
+
 function setUserConfigPanelState(open){
   const panel = document.getElementById('userConfigPanel');
   const trigger = document.getElementById('btnUserMenu');
-  const shouldOpen = typeof open === 'boolean' ? open : panel?.classList.contains('hidden');
   if(!panel || !trigger) return;
+  const shouldOpen = typeof open === 'boolean' ? open : panel.classList.contains('hidden');
+  const activeElement = document.activeElement;
+  const isActiveInsidePanel = !shouldOpen
+    && activeElement instanceof Node
+    && panel.contains(activeElement);
   if(shouldOpen){
     panel.classList.remove('hidden');
     trigger.setAttribute('aria-expanded', 'true');
@@ -1593,6 +1608,7 @@ function setUserConfigPanelState(open){
   }
   panel.toggleAttribute('hidden', !shouldOpen);
   panel.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+  focusUserMenuTriggerAfterPanelClose(isActiveInsidePanel);
 }
 setUserConfigPanelState(false);
 function authUpdateUI(profileData){
@@ -1915,7 +1931,10 @@ settingsModal?.addEventListener('click', (event)=>{
 document.addEventListener('click', (event)=>{
   if(!userConfigPanel || isUserConfigPanelHidden()) return;
   if(authUserShell && authUserShell.contains(event.target)) return;
+  const shouldRestoreFocus = document.activeElement instanceof Node
+    && userConfigPanel.contains(document.activeElement);
   setUserConfigPanelState(false);
+  focusUserMenuTriggerAfterPanelClose(shouldRestoreFocus);
 });
 
 document.addEventListener('keydown', (event)=>{
@@ -1926,7 +1945,10 @@ document.addEventListener('keydown', (event)=>{
     return;
   }
   if(!isUserConfigPanelHidden()){
+    const shouldRestoreFocus = document.activeElement instanceof Node
+      && userConfigPanel?.contains(document.activeElement);
     setUserConfigPanelState(false);
+    focusUserMenuTriggerAfterPanelClose(shouldRestoreFocus);
   }
 });
 
