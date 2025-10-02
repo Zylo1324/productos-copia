@@ -645,14 +645,14 @@
           <li class="auth-controls">
             <button class="btn ghost label" id="btnAuthOpen">Acceder</button>
             <div class="auth-user" id="authUserShell" hidden aria-hidden="true">
-              <button type="button" class="auth-avatar-btn" id="btnUserMenu" aria-haspopup="true" aria-controls="userConfigPanel" aria-expanded="false">
+              <button type="button" class="auth-avatar-btn" id="btnUserMenu" role="button" aria-haspopup="menu" aria-controls="userConfigPanel" aria-expanded="false">
                 <span class="auth-avatar" id="userAvatar" aria-hidden="true">U</span>
                 <span class="auth-name" id="userDisplayName"></span>
                 <span class="sr-only">Abrir configuración</span>
               </button>
               <div class="auth-config-panel hidden" id="userConfigPanel" role="menu" aria-label="Configuración de usuario">
-                <button class="btn ghost label" id="btnUserSettings" type="button">Configuración</button>
-                <button class="btn ghost label" id="btnLogout" type="button">Cerrar</button>
+                <button class="btn ghost label" id="btnUserSettings" type="button" role="menuitem">Configuración</button>
+                <button class="btn ghost label" id="btnLogout" type="button" role="menuitem">Cerrar</button>
               </div>
             </div>
           </li>
