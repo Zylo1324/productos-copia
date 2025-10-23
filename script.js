@@ -41,6 +41,55 @@ initializeThemeMode();
 window.setThemeMode = setThemeMode;
 window.initializeThemeMode = initializeThemeMode;
 
+const SESSION_STORAGE_KEY = "zyl0:lastSession";
+
+function persistSession(email) {
+  if (!email) return;
+  const payload = {
+    email,
+    timestamp: Date.now()
+  };
+
+  try {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("No se pudo guardar la sesión local.", error);
+  }
+}
+
+function readPersistedSession() {
+  try {
+    const rawValue = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!rawValue) return null;
+    const parsed = JSON.parse(rawValue);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!parsed.email) return null;
+    return parsed;
+  } catch (error) {
+    console.warn("No se pudo leer la sesión almacenada.", error);
+    return null;
+  }
+}
+
+function clearPersistedSession() {
+  try {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch (error) {
+    console.warn("No se pudo limpiar la sesión local.", error);
+  }
+}
+
+function resumeSessionIfAvailable() {
+  const stored = readPersistedSession();
+  if (!stored?.email) return false;
+
+  state.email = stored.email;
+  state.isExistingUser = true;
+  updateEmailCopies(stored.email);
+  showDashboard();
+  return true;
+}
+
 const state = {
   currentStep: "email",
   email: "",
@@ -79,11 +128,23 @@ const selectors = {
 function showStep(stepName) {
   state.currentStep = stepName;
 
+  if (selectors.stepper) {
+    selectors.stepper.hidden = false;
+  }
+
+  if (selectors.dashboard) {
+    selectors.dashboard.hidden = true;
+  }
+
   selectors.steps.forEach((step) => {
     const isActive = step.dataset.step === stepName;
     step.classList.toggle("is-active", isActive);
     step.setAttribute("aria-hidden", String(!isActive));
   });
+
+  if (stepName === "email") {
+    clearPersistedSession();
+  }
 
   if (stepName === "password") {
     selectors.passwordInput.focus({ preventScroll: true });
@@ -106,6 +167,10 @@ function showDashboard() {
   if (selectors.dashboardFrame && !selectors.dashboardFrame.src) {
     selectors.dashboardFrame.src =
       "https://raw.githubusercontent.com/iamwrely/Admin-Clientes/refs/heads/main/index.html";
+  }
+
+  if (state.email) {
+    persistSession(state.email);
   }
 }
 
@@ -384,5 +449,9 @@ window.initializeGoogleSignIn = function initializeGoogleSignIn() {
     width: "100%"
   });
 };
+
+if (!resumeSessionIfAvailable()) {
+  showStep(state.currentStep);
+}
 
 registerEvents();
