@@ -1,457 +1,382 @@
-const existingEmails = new Set(["sofia@example.com", "usuario@productos.io", "cliente@correo.com"]);
+const categories = [
+  { label: "Wearables", icon: "⌚" },
+  { label: "Audio", icon: "🎧" },
+  { label: "Gaming", icon: "🎮" },
+  { label: "Accesorios", icon: "🧰" },
+  { label: "Smart Home", icon: "🏠" },
+  { label: "Oficina", icon: "💼" }
+];
 
-const THEME_STORAGE_KEY = "theme-mode";
-const VALID_THEME_MODES = new Set(["system", "light", "dark"]);
-
-function setThemeMode(mode) {
-  if (!VALID_THEME_MODES.has(mode)) {
-    console.warn(`Modo de tema desconocido: ${mode}`);
-    return;
-  }
-
-  const root = document.documentElement;
-
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, mode);
-  } catch (error) {
-    console.warn("No se pudo guardar el modo de tema en localStorage.", error);
-  }
-
-  if (mode === "system") {
-    delete root.dataset.theme;
-  } else {
-    root.dataset.theme = mode;
-  }
-}
-
-function initializeThemeMode() {
-  let storedMode = null;
-  try {
-    storedMode = localStorage.getItem(THEME_STORAGE_KEY);
-  } catch (error) {
-    console.warn("No se pudo leer el modo de tema almacenado.", error);
-  }
-
-  if (storedMode && VALID_THEME_MODES.has(storedMode)) {
-    setThemeMode(storedMode);
-  }
-}
-
-initializeThemeMode();
-window.setThemeMode = setThemeMode;
-window.initializeThemeMode = initializeThemeMode;
-
-const SESSION_STORAGE_KEY = "zyl0:lastSession";
-
-function persistSession(email) {
-  if (!email) return;
-  const payload = {
-    email,
-    timestamp: Date.now()
-  };
-
-  try {
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(payload));
-  } catch (error) {
-    console.warn("No se pudo guardar la sesión local.", error);
-  }
-}
-
-function readPersistedSession() {
-  try {
-    const rawValue = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!rawValue) return null;
-    const parsed = JSON.parse(rawValue);
-    if (!parsed || typeof parsed !== "object") return null;
-    if (!parsed.email) return null;
-    return parsed;
-  } catch (error) {
-    console.warn("No se pudo leer la sesión almacenada.", error);
-    return null;
-  }
-}
-
-function clearPersistedSession() {
-  try {
-    localStorage.removeItem(SESSION_STORAGE_KEY);
-  } catch (error) {
-    console.warn("No se pudo limpiar la sesión local.", error);
-  }
-}
-
-function resumeSessionIfAvailable() {
-  const stored = readPersistedSession();
-  if (!stored?.email) return false;
-
-  state.email = stored.email;
-  state.isExistingUser = true;
-  updateEmailCopies(stored.email);
-  showDashboard();
-  return true;
-}
-
-const state = {
-  currentStep: "email",
-  email: "",
-  password: "",
-  isExistingUser: false,
-  verificationCode: "",
-  resendTimer: null,
-  resendSeconds: 0
+const catalog = {
+  "hot-deals": [
+    {
+      name: "Smart Watch Pro",
+      category: "Wearables",
+      price: 199,
+      originalPrice: 259,
+      badge: "-25%",
+      image:
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
+      description: "Seguimiento de salud 24/7, carga inalámbrica y GPS de precisión.",
+      tags: ["watch", "wearable", "fitness"]
+    },
+    {
+      name: "Game Pad Elite",
+      category: "Gaming",
+      price: 149,
+      originalPrice: 199,
+      badge: "Hot",
+      image:
+        "https://images.unsplash.com/photo-1614680376739-414d95ff43df?auto=format&fit=crop&w=600&q=80",
+      description: "Mando inalámbrico con respuesta háptica y gatillos inteligentes.",
+      tags: ["gaming", "console", "controller"]
+    },
+    {
+      name: "Teclado Mecánico Aurora",
+      category: "Gaming",
+      price: 129,
+      originalPrice: 169,
+      badge: "Combo",
+      image:
+        "https://images.unsplash.com/photo-1595224525940-2056af85d0cc?auto=format&fit=crop&w=600&q=80",
+      description: "Switches ópticos, iluminación RGB dinámica y reposamuñecas magnético.",
+      tags: ["gaming", "keyboard", "pc"]
+    },
+    {
+      name: "Auriculares Studio X",
+      category: "Audio",
+      price: 179,
+      originalPrice: 229,
+      badge: "-22%",
+      image:
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+      description: "Cancelación activa de ruido y batería de 35h con carga rápida.",
+      tags: ["audio", "headphones", "music"]
+    }
+  ],
+  discounts: [
+    {
+      name: "Combo productividad",
+      description: "Monitor 4K + Dock USB-C + Lámpara inteligente",
+      highlight: "Ahorra 35%",
+      image:
+        "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=700&q=80",
+      tags: ["office", "workspace", "monitor"]
+    },
+    {
+      name: "Set creativo",
+      description: "iPad Pro + Pencil + Funda magnética",
+      highlight: "12 cuotas sin interés",
+      image:
+        "https://images.unsplash.com/photo-1593642532400-2682810df593?auto=format&fit=crop&w=700&q=80",
+      tags: ["tablet", "creative", "office"]
+    },
+    {
+      name: "Smart Home essentials",
+      description: "Parlante inteligente + Iluminación RGB + Sensor de clima",
+      highlight: "Instalación incluida",
+      image:
+        "https://images.unsplash.com/photo-1582719478248-4c01e3931b4d?auto=format&fit=crop&w=700&q=80",
+      tags: ["home", "smart", "assistant"]
+    }
+  ],
+  "new-arrivals": [
+    {
+      name: "Cargador MagSafe Air",
+      category: "Accesorios",
+      price: 59,
+      image:
+        "https://images.unsplash.com/photo-1622023539844-a266ebf66f6d?auto=format&fit=crop&w=500&q=80",
+      tags: ["accessory", "charging", "phone"]
+    },
+    {
+      name: "Speaker Mini Pixel",
+      category: "Audio",
+      price: 89,
+      image:
+        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=500&q=80",
+      tags: ["audio", "speaker", "home"]
+    },
+    {
+      name: "Anillo Fitness Orbit",
+      category: "Wearables",
+      price: 139,
+      image:
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80",
+      tags: ["wearable", "fitness", "health"]
+    },
+    {
+      name: "Soporte ergonómico Flux",
+      category: "Accesorios",
+      price: 74,
+      image:
+        "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=500&q=80",
+      tags: ["accessory", "office", "stand"]
+    },
+    {
+      name: "Control Smart Hue",
+      category: "Smart Home",
+      price: 49,
+      image:
+        "https://images.unsplash.com/photo-1582719478181-2cf4e2fe3f89?auto=format&fit=crop&w=500&q=80",
+      tags: ["smart", "home", "assistant"]
+    },
+    {
+      name: "Micrófono StreamCast",
+      category: "Audio",
+      price: 169,
+      image:
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=500&q=80",
+      tags: ["audio", "microphone", "stream"]
+    }
+  ],
+  reviews: [
+    {
+      name: "Gabriel",
+      rating: 5,
+      headline: "Totalmente worth it!",
+      copy:
+        "Las ofertas flash no fallan, llegó en 48 horas y el monitor vino impecable. La atención al cliente fue rapidísima.",
+      role: "Product designer"
+    },
+    {
+      name: "Anya",
+      rating: 5,
+      headline: "No me arrepiento",
+      copy:
+        "La instalación del set smart home fue sencilla y el equipo de soporte superó mis expectativas. Recomendado al 100%.",
+      role: "Fotógrafa freelance"
+    },
+    {
+      name: "Luke",
+      rating: 4,
+      headline: "Amando el setup",
+      copy:
+        "El teclado y la silla ergonómica hicieron la diferencia. Procesos de compra claros y seguimiento constante.",
+      role: "Frontend developer"
+    },
+    {
+      name: "Kim",
+      rating: 5,
+      headline: "Mi tienda de confianza",
+      copy:
+        "Siempre hay gadgets nuevos. El cashback es real y el programa de fidelidad suma bastante.",
+      role: "Streamer"
+    }
+  ]
 };
 
-const selectors = {
-  stepper: document.querySelector("[data-stepper]"),
-  steps: document.querySelectorAll("[data-step]"),
-  emailForm: document.getElementById("email-form"),
-  emailInput: document.getElementById("email"),
-  passwordForm: document.getElementById("password-form"),
-  passwordInput: document.getElementById("password"),
-  verificationForm: document.getElementById("verification-form"),
-  verificationInput: document.getElementById("verification-code"),
-  resendButton: document.querySelector('[data-action="resend"]'),
-  feedback: {
-    email: document.querySelector('[data-feedback="email"]'),
-    password: document.querySelector('[data-feedback="password"]'),
-    verification: document.querySelector('[data-feedback="verification"]'),
-    verificationSuccess: document.querySelector('[data-feedback="verification-success"]'),
-    google: document.querySelector('[data-google-feedback]')
-  },
-  passwordTitle: document.getElementById("password-title"),
-  passwordDescription: document.getElementById("password-description"),
-  currentEmail: document.querySelectorAll(".current-email"),
-  actionButtons: document.querySelectorAll('[data-action="back"]'),
-  dashboard: document.querySelector("[data-dashboard]"),
-  dashboardFrame: document.querySelector("[data-dashboard-frame]")
-};
+const searchInput = document.querySelector("[data-search]");
+const categoryStrip = document.querySelector("[data-category-strip]");
+const resetButtons = document.querySelectorAll('[data-action="reset"]');
 
-function showStep(stepName) {
-  state.currentStep = stepName;
+function createProductCard(product) {
+  const card = document.createElement("article");
+  card.className = "product-card";
+  card.dataset.productCard = "";
+  card.dataset.title = product.name.toLowerCase();
+  card.dataset.category = product.category?.toLowerCase() ?? "";
+  card.dataset.tags = (product.tags ?? []).join(" ").toLowerCase();
 
-  if (selectors.stepper) {
-    selectors.stepper.hidden = false;
+  const figure = document.createElement("figure");
+  const image = document.createElement("img");
+  image.src = product.image;
+  image.alt = product.name;
+  image.loading = "lazy";
+  figure.appendChild(image);
+
+  if (product.badge) {
+    const badge = document.createElement("span");
+    badge.className = "badge";
+    badge.textContent = product.badge;
+    figure.appendChild(badge);
   }
 
-  if (selectors.dashboard) {
-    selectors.dashboard.hidden = true;
-  }
+  const title = document.createElement("h3");
+  title.textContent = product.name;
 
-  selectors.steps.forEach((step) => {
-    const isActive = step.dataset.step === stepName;
-    step.classList.toggle("is-active", isActive);
-    step.setAttribute("aria-hidden", String(!isActive));
-  });
+  const description = document.createElement("p");
+  description.textContent = product.description ?? product.category;
+  description.className = "copy";
 
-  if (stepName === "email") {
-    clearPersistedSession();
-  }
+  const price = document.createElement("div");
+  price.className = "price";
+  price.innerHTML = `US$${product.price.toFixed(0)}${
+    product.originalPrice ? ` <del>US$${product.originalPrice.toFixed(0)}</del>` : ""
+  }`;
 
-  if (stepName === "password") {
-    selectors.passwordInput.focus({ preventScroll: true });
-  }
-  if (stepName === "verification") {
-    selectors.verificationInput.focus({ preventScroll: true });
-  }
+  const footer = document.createElement("footer");
+  const category = document.createElement("span");
+  category.textContent = product.category;
+  const cta = document.createElement("button");
+  cta.type = "button";
+  cta.textContent = "Añadir";
+  footer.append(category, cta);
+
+  card.append(figure, title, description, price, footer);
+  return card;
 }
 
-function showDashboard() {
-  const stepper = document.querySelector("[data-stepper]");
-  if (stepper) {
-    stepper.hidden = true;
-  }
+function createDiscountCard(bundle) {
+  const card = document.createElement("article");
+  card.className = "discount-card";
+  card.dataset.productCard = "";
+  card.dataset.title = bundle.name.toLowerCase();
+  card.dataset.tags = (bundle.tags ?? []).join(" ").toLowerCase();
 
-  if (selectors.dashboard) {
-    selectors.dashboard.hidden = false;
-  }
+  const copyWrapper = document.createElement("div");
+  const title = document.createElement("h3");
+  title.textContent = bundle.name;
+  const highlight = document.createElement("p");
+  highlight.textContent = bundle.highlight;
+  const details = document.createElement("span");
+  details.className = "details";
+  details.textContent = bundle.description;
 
-  if (selectors.dashboardFrame && !selectors.dashboardFrame.src) {
-    selectors.dashboardFrame.src =
-      "https://raw.githubusercontent.com/iamwrely/Admin-Clientes/refs/heads/main/index.html";
-  }
+  copyWrapper.append(title, highlight, details);
 
-  if (state.email) {
-    persistSession(state.email);
-  }
+  const image = document.createElement("img");
+  image.src = bundle.image;
+  image.alt = bundle.name;
+  image.loading = "lazy";
+
+  card.append(copyWrapper, image);
+  return card;
 }
 
-function updateEmailCopies(email) {
-  selectors.currentEmail.forEach((node) => {
-    node.textContent = email;
-  });
+function createArrivalCard(arrival) {
+  const card = document.createElement("article");
+  card.className = "arrival-card";
+  card.dataset.productCard = "";
+  card.dataset.title = arrival.name.toLowerCase();
+  card.dataset.category = arrival.category.toLowerCase();
+  card.dataset.tags = (arrival.tags ?? []).join(" ").toLowerCase();
+
+  const badge = document.createElement("span");
+  badge.textContent = "Nuevo";
+
+  const image = document.createElement("img");
+  image.src = arrival.image;
+  image.alt = arrival.name;
+  image.loading = "lazy";
+
+  const title = document.createElement("strong");
+  title.textContent = arrival.name;
+
+  const footer = document.createElement("footer");
+  footer.innerHTML = `<span>${arrival.category}</span><strong>US$${arrival.price.toFixed(0)}</strong>`;
+
+  card.append(badge, image, title, footer);
+  return card;
 }
 
-function setFeedback(element, message = "", type = "info") {
-  if (!element) return;
-  element.textContent = message;
-  element.classList.remove("is-error");
-  if (type === "error") {
-    element.classList.add("is-error");
-  }
-  if (type === "success" && element.classList.contains("feedback--success")) {
-    element.textContent = message;
-  }
+function createReviewCard(review) {
+  const card = document.createElement("article");
+  card.className = "review-card";
+
+  const stars = document.createElement("div");
+  stars.className = "stars";
+  stars.textContent = "★".repeat(review.rating).padEnd(5, "☆");
+
+  const headline = document.createElement("strong");
+  headline.textContent = review.headline;
+
+  const copy = document.createElement("p");
+  copy.textContent = review.copy;
+
+  const author = document.createElement("span");
+  author.textContent = `${review.name} • ${review.role}`;
+
+  card.append(stars, headline, copy, author);
+  return card;
 }
 
-function maskEmail(email) {
-  const [local, domain] = email.split("@");
-  if (!domain) return email;
-  const visible = local.slice(0, 2);
-  return `${visible}${"*".repeat(Math.max(local.length - 2, 0))}@${domain}`;
-}
-
-async function checkEmailExists(email) {
-  const config = window.APP_CONFIG || {};
-  if (config.checkEmailEndpoint) {
-    try {
-      const response = await fetch(`${config.checkEmailEndpoint}?email=${encodeURIComponent(email)}`);
-      if (!response.ok) throw new Error("Error consultando el correo");
-      const payload = await response.json();
-      return Boolean(payload.exists);
-    } catch (error) {
-      console.error(error);
-      setFeedback(selectors.feedback.email, "No pudimos validar el correo en este momento. Intenta más tarde.", "error");
-      throw error;
-    }
-  }
-  return existingEmails.has(email.toLowerCase());
-}
-
-async function handleEmailSubmit(event) {
-  event.preventDefault();
-  const email = selectors.emailInput.value.trim().toLowerCase();
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setFeedback(selectors.feedback.email, "Ingresa un correo válido.", "error");
-    selectors.emailInput.focus();
-    return;
-  }
-
-  setFeedback(selectors.feedback.email);
-
-  let exists = false;
-  try {
-    exists = await checkEmailExists(email);
-  } catch (error) {
-    return;
-  }
-
-  state.email = email;
-  state.isExistingUser = exists;
-  updateEmailCopies(email);
-
-  selectors.passwordTitle.textContent = exists
-    ? "Introduce tu contraseña"
-    : "Crea una contraseña segura";
-  selectors.passwordDescription.textContent = exists
-    ? `Introduce tu contraseña para continuar con ${email}`
-    : `Estás creando una cuenta nueva para ${email}. Elige una contraseña única.`;
-
-  selectors.passwordInput.value = "";
-  setFeedback(selectors.feedback.password, "");
-  showStep("password");
-}
-
-async function handlePasswordSubmit(event) {
-  event.preventDefault();
-  const password = selectors.passwordInput.value.trim();
-
-  if (password.length < 8) {
-    setFeedback(selectors.feedback.password, "La contraseña debe tener al menos 8 caracteres.", "error");
-    return;
-  }
-
-  setFeedback(selectors.feedback.password, "");
-  state.password = password;
-
-  const sent = await sendVerificationCode(state.email, state.isExistingUser ? "login" : "register");
-  if (sent) {
-    selectors.verificationInput.value = "";
-    setFeedback(selectors.feedback.verification, "");
-    setFeedback(selectors.feedback.verificationSuccess, "");
-    showStep("verification");
-    startResendCountdown(60);
-  }
-}
-
-function generateVerificationCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-async function sendVerificationCode(email, reason = "register") {
-  const config = window.APP_CONFIG || {};
-  const masked = maskEmail(email);
-
-  if (config.mailEndpoint) {
-    try {
-      const response = await fetch(config.mailEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, reason })
-      });
-
-      if (!response.ok) throw new Error("Fallo el envío del código");
-      const payload = await response.json();
-      state.verificationCode = payload.code || "";
-      if (!state.verificationCode) {
-        console.warn("El endpoint no devolvió un código. Usaremos uno temporal para completar la verificación en esta demo.");
-        state.verificationCode = generateVerificationCode();
-      }
-      setFeedback(
-        selectors.feedback.verificationSuccess,
-        `Código enviado correctamente a ${masked}.`,
-        "success"
-      );
-      return true;
-    } catch (error) {
-      console.error(error);
-      setFeedback(
-        selectors.feedback.verification,
-        "No pudimos enviar el código de verificación. Reintenta en unos minutos.",
-        "error"
-      );
-      return false;
-    }
-  }
-
-  state.verificationCode = generateVerificationCode();
-  setFeedback(
-    selectors.feedback.verificationSuccess,
-    `Código temporal ${state.verificationCode} enviado a ${masked} (simulado).`,
-    "success"
-  );
-  return true;
-}
-
-function startResendCountdown(seconds) {
-  clearInterval(state.resendTimer);
-  state.resendSeconds = seconds;
-  updateResendButton();
-  selectors.resendButton.disabled = true;
-
-  state.resendTimer = setInterval(() => {
-    state.resendSeconds -= 1;
-    updateResendButton();
-    if (state.resendSeconds <= 0) {
-      clearInterval(state.resendTimer);
-      selectors.resendButton.disabled = false;
-      selectors.resendButton.textContent = "Reenviar código";
-    }
-  }, 1000);
-}
-
-function updateResendButton() {
-  selectors.resendButton.textContent = `Reenviar código (${state.resendSeconds}s)`;
-}
-
-async function handleVerificationSubmit(event) {
-  event.preventDefault();
-  const code = selectors.verificationInput.value.trim();
-
-  if (!/^[0-9]{6}$/.test(code)) {
-    setFeedback(selectors.feedback.verification, "Introduce un código de 6 dígitos.", "error");
-    return;
-  }
-
-  if (!state.verificationCode) {
-    setFeedback(selectors.feedback.verification, "Aún no hemos enviado un código. Usa el botón de reenvío.", "error");
-    return;
-  }
-
-  if (code !== state.verificationCode) {
-    setFeedback(selectors.feedback.verification, "El código no coincide. Verifica tu bandeja de entrada.", "error");
-    return;
-  }
-
-  setFeedback(selectors.feedback.verification, "");
-  setFeedback(selectors.feedback.verificationSuccess, "¡Listo! Tu identidad ha sido verificada.", "success");
-  showDashboard();
-  selectors.verificationForm.querySelector("button[type='submit']").disabled = true;
-  selectors.resendButton.disabled = true;
-  clearInterval(state.resendTimer);
-}
-
-async function handleResendClick() {
-  if (selectors.resendButton.disabled) return;
-  const sent = await sendVerificationCode(state.email, state.isExistingUser ? "login" : "register");
-  if (sent) {
-    startResendCountdown(60);
-  }
-}
-
-function registerEvents() {
-  selectors.emailForm?.addEventListener("submit", handleEmailSubmit);
-  selectors.passwordForm?.addEventListener("submit", handlePasswordSubmit);
-  selectors.verificationForm?.addEventListener("submit", handleVerificationSubmit);
-  selectors.resendButton?.addEventListener("click", handleResendClick);
-  selectors.actionButtons.forEach((button) => {
+function renderCategories() {
+  if (!categoryStrip) return;
+  categories.forEach((category) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "category-pill";
+    button.dataset.categoryFilter = category.label.toLowerCase();
+    button.innerHTML = `<span class="icon">${category.icon}</span><span>${category.label}</span>`;
     button.addEventListener("click", () => {
-      const target = button.dataset.target;
-      if (target === "email") {
-        state.email = "";
-        selectors.emailInput.focus({ preventScroll: true });
-      }
-      showStep(target);
+      setActiveCategory(button);
+      searchInput.value = category.label;
+      filterProducts();
     });
+    categoryStrip.appendChild(button);
   });
 }
 
-async function forwardGoogleCredential(credential) {
-  const config = window.APP_CONFIG || {};
-  if (!config.googleCallbackEndpoint) {
-    console.info("Token de Google recibido. Configura 'googleCallbackEndpoint' para enviarlo al backend.");
-    return;
-  }
-
-  try {
-    const response = await fetch(config.googleCallbackEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ credential })
-    });
-    if (!response.ok) throw new Error("Error enviando el token de Google");
-  } catch (error) {
-    console.error(error);
-    setFeedback(selectors.feedback.google, "No pudimos validar el inicio de sesión con Google.", "error");
-  }
-}
-
-function handleGoogleCredentialResponse(response) {
-  setFeedback(selectors.feedback.google, "Sesión con Google lista para continuar en tu backend.");
-  forwardGoogleCredential(response.credential);
-}
-
-window.initializeGoogleSignIn = function initializeGoogleSignIn() {
-  const config = window.APP_CONFIG || {};
-  const clientId = config.googleClientId;
-  const googleContainer = document.getElementById("googleButton");
-
-  if (!googleContainer) return;
-
-  if (!clientId) {
-    setFeedback(selectors.feedback.google, "Añade tu Client ID para mostrar el botón de Google.", "error");
-    return;
-  }
-
-  setFeedback(selectors.feedback.google, "");
-
-  google.accounts.id.initialize({
-    client_id: clientId,
-    callback: handleGoogleCredentialResponse
+function setActiveCategory(activeButton) {
+  document.querySelectorAll(".category-pill").forEach((pill) => {
+    pill.classList.toggle("is-active", pill === activeButton);
   });
-  google.accounts.id.renderButton(googleContainer, {
-    theme: "outline",
-    size: "large",
-    shape: "pill",
-    width: "100%"
-  });
-};
-
-if (!resumeSessionIfAvailable()) {
-  showStep(state.currentStep);
 }
 
-registerEvents();
+function renderSection(sectionKey, renderer) {
+  const grid = document.querySelector(`[data-grid="${sectionKey}"]`);
+  if (!grid) return;
+  const items = catalog[sectionKey];
+  grid.innerHTML = "";
+  items.forEach((item) => {
+    grid.appendChild(renderer(item));
+  });
+}
+
+function renderReviews() {
+  const grid = document.querySelector('[data-grid="reviews"]');
+  if (!grid) return;
+  grid.innerHTML = "";
+  catalog.reviews.forEach((review) => grid.appendChild(createReviewCard(review)));
+}
+
+function filterProducts() {
+  const query = searchInput?.value.trim().toLowerCase() ?? "";
+  const cards = document.querySelectorAll("[data-product-card]");
+
+  cards.forEach((card) => {
+    const haystack = [card.dataset.title, card.dataset.category, card.dataset.tags]
+      .filter(Boolean)
+      .join(" ");
+    card.hidden = Boolean(query) && !haystack.includes(query);
+  });
+
+  document.querySelectorAll("[data-section-wrapper]").forEach((section) => {
+    const visible = Array.from(section.querySelectorAll("[data-product-card]"))
+      .filter((card) => !card.hidden).length;
+    const emptyMessage = section.querySelector("[data-empty-message]");
+    section.classList.toggle("is-empty", Boolean(query) && visible === 0);
+    if (emptyMessage) {
+      emptyMessage.hidden = !(Boolean(query) && visible === 0);
+    }
+  });
+}
+
+function resetFilters() {
+  searchInput.value = "";
+  document.querySelectorAll(".category-pill").forEach((pill) => pill.classList.remove("is-active"));
+  filterProducts();
+}
+
+function initialize() {
+  renderCategories();
+  renderSection("hot-deals", createProductCard);
+  renderSection("discounts", createDiscountCard);
+  renderSection("new-arrivals", createArrivalCard);
+  renderReviews();
+  filterProducts();
+
+  searchInput?.addEventListener("input", () => {
+    document
+      .querySelectorAll(".category-pill")
+      .forEach((pill) => pill.classList.remove("is-active"));
+    filterProducts();
+  });
+
+  resetButtons.forEach((button) => {
+    button.addEventListener("click", resetFilters);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initialize);
