@@ -169,6 +169,7 @@ const catalog = {
 const searchInput = document.querySelector("[data-search]");
 const categoryStrip = document.querySelector("[data-category-strip]");
 const resetButtons = document.querySelectorAll('[data-action="reset"]');
+let animationObserver;
 
 function createProductCard(product) {
   const card = document.createElement("article");
@@ -177,6 +178,7 @@ function createProductCard(product) {
   card.dataset.title = product.name.toLowerCase();
   card.dataset.category = product.category?.toLowerCase() ?? "";
   card.dataset.tags = (product.tags ?? []).join(" ").toLowerCase();
+  card.dataset.animate = "fade-up";
 
   const figure = document.createElement("figure");
   const image = document.createElement("img");
@@ -223,6 +225,7 @@ function createDiscountCard(bundle) {
   card.dataset.productCard = "";
   card.dataset.title = bundle.name.toLowerCase();
   card.dataset.tags = (bundle.tags ?? []).join(" ").toLowerCase();
+  card.dataset.animate = "fade-up";
 
   const copyWrapper = document.createElement("div");
   const title = document.createElement("h3");
@@ -251,6 +254,7 @@ function createArrivalCard(arrival) {
   card.dataset.title = arrival.name.toLowerCase();
   card.dataset.category = arrival.category.toLowerCase();
   card.dataset.tags = (arrival.tags ?? []).join(" ").toLowerCase();
+  card.dataset.animate = "fade-up";
 
   const badge = document.createElement("span");
   badge.textContent = "Nuevo";
@@ -273,6 +277,7 @@ function createArrivalCard(arrival) {
 function createReviewCard(review) {
   const card = document.createElement("article");
   card.className = "review-card";
+  card.dataset.animate = "fade-up";
 
   const stars = document.createElement("div");
   stars.className = "stars";
@@ -293,11 +298,13 @@ function createReviewCard(review) {
 
 function renderCategories() {
   if (!categoryStrip) return;
-  categories.forEach((category) => {
+  categories.forEach((category, index) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "category-pill";
     button.dataset.categoryFilter = category.label.toLowerCase();
+    button.dataset.animate = "fade-up";
+    button.style.setProperty("--stagger", index + 1);
     button.innerHTML = `<span class="icon">${category.icon}</span><span>${category.label}</span>`;
     button.addEventListener("click", () => {
       setActiveCategory(button);
@@ -319,8 +326,11 @@ function renderSection(sectionKey, renderer) {
   if (!grid) return;
   const items = catalog[sectionKey];
   grid.innerHTML = "";
-  items.forEach((item) => {
-    grid.appendChild(renderer(item));
+  items.forEach((item, index) => {
+    const element = renderer(item, index);
+    if (!element) return;
+    element.style.setProperty("--stagger", index + 1);
+    grid.appendChild(element);
   });
 }
 
@@ -328,7 +338,46 @@ function renderReviews() {
   const grid = document.querySelector('[data-grid="reviews"]');
   if (!grid) return;
   grid.innerHTML = "";
-  catalog.reviews.forEach((review) => grid.appendChild(createReviewCard(review)));
+  catalog.reviews.forEach((review, index) => {
+    const card = createReviewCard(review, index);
+    card.style.setProperty("--stagger", index + 1);
+    grid.appendChild(card);
+  });
+}
+
+function setupAnimations() {
+  const animatedItems = document.querySelectorAll("[data-animate]");
+  if (!animatedItems.length) return;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion) {
+    animatedItems.forEach((element) => {
+      element.classList.add("is-visible");
+    });
+    return;
+  }
+
+  animationObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.2,
+      rootMargin: "0px 0px -10% 0px"
+    }
+  );
+
+  animatedItems.forEach((element, index) => {
+    if (!element.style.getPropertyValue("--stagger")) {
+      element.style.setProperty("--stagger", index % 8);
+    }
+    animationObserver.observe(element);
+  });
 }
 
 function filterProducts() {
@@ -377,6 +426,8 @@ function initialize() {
   resetButtons.forEach((button) => {
     button.addEventListener("click", resetFilters);
   });
+
+  setupAnimations();
 }
 
 document.addEventListener("DOMContentLoaded", initialize);
