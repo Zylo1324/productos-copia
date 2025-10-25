@@ -1,166 +1,271 @@
 const categories = [
-  { label: "Wearables", icon: "⌚" },
-  { label: "Audio", icon: "🎧" },
-  { label: "Gaming", icon: "🎮" },
-  { label: "Accesorios", icon: "🧰" },
-  { label: "Smart Home", icon: "🏠" },
-  { label: "Oficina", icon: "💼" }
+  { label: "IA", icon: "🤖" },
+  { label: "Diseño", icon: "🎨" },
+  { label: "Streaming", icon: "📺" },
+  { label: "Lectura", icon: "📚" },
+  { label: "Educación", icon: "🎓" },
+  { label: "Productividad", icon: "⚡" }
 ];
 
 const catalog = {
   "hot-deals": [
     {
-      name: "Smart Watch Pro",
-      category: "Wearables",
-      price: 199,
-      originalPrice: 259,
+      name: "ChatGPT 5 Plus",
+      category: "IA",
+      price: 65,
+      originalPrice: 85,
+      currencySymbol: "S/",
+      badge: "Top",
+      image:
+        "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?auto=format&fit=crop&w=600&q=80",
+      description: "Acceso prioritario al modelo GPT-5 con respuestas más rápidas y plugins ilimitados.",
+      billingCycle: "Plan mensual",
+      tags: ["chatgpt", "ia", "productividad"]
+    },
+    {
+      name: "Canva Pro",
+      category: "Diseño",
+      price: 40,
+      originalPrice: 55,
+      currencySymbol: "S/",
+      badge: "-27%",
+      image:
+        "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=600&q=80",
+      description: "Biblioteca premium, fondos transparentes y colaboraciones en tiempo real.",
+      billingCycle: "Plan mensual",
+      tags: ["canva", "diseño", "creatividad"]
+    },
+    {
+      name: "Scribd Premium",
+      category: "Lectura",
+      price: 30,
+      originalPrice: 40,
+      currencySymbol: "S/",
       badge: "-25%",
       image:
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
-      description: "Seguimiento de salud 24/7, carga inalámbrica y GPS de precisión.",
-      tags: ["watch", "wearable", "fitness"]
+        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&q=80",
+      description: "Acceso ilimitado a libros, audiolibros y documentos profesionales.",
+      billingCycle: "Plan mensual",
+      tags: ["lectura", "libros", "suscripción"]
     },
     {
-      name: "Game Pad Elite",
-      category: "Gaming",
-      price: 149,
-      originalPrice: 199,
-      badge: "Hot",
+      name: "DIRECTV GO",
+      category: "Streaming",
+      price: 45,
+      originalPrice: 60,
+      currencySymbol: "S/",
+      badge: "TV en vivo",
       image:
-        "https://images.unsplash.com/photo-1614680376739-414d95ff43df?auto=format&fit=crop&w=600&q=80",
-      description: "Mando inalámbrico con respuesta háptica y gatillos inteligentes.",
-      tags: ["gaming", "console", "controller"]
+        "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=600&q=80",
+      description: "Canales en vivo, deportes y contenido on demand sin decos adicionales.",
+      billingCycle: "Plan mensual",
+      tags: ["streaming", "televisión", "series"]
     },
     {
-      name: "Teclado Mecánico Aurora",
-      category: "Gaming",
-      price: 129,
-      originalPrice: 169,
-      badge: "Combo",
+      name: "Turnitin Feedback Studio",
+      category: "Educación",
+      price: 90,
+      originalPrice: 120,
+      currencySymbol: "S/",
+      badge: "-30%",
       image:
-        "https://images.unsplash.com/photo-1595224525940-2056af85d0cc?auto=format&fit=crop&w=600&q=80",
-      description: "Switches ópticos, iluminación RGB dinámica y reposamuñecas magnético.",
-      tags: ["gaming", "keyboard", "pc"]
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
+      description: "Detección de similitud y reportes detallados para entregas académicas.",
+      billingCycle: "Licencia anual",
+      tags: ["academia", "originalidad", "educación"]
     },
     {
-      name: "Auriculares Studio X",
-      category: "Audio",
-      price: 179,
-      originalPrice: 229,
+      name: "Sora Creative Suite",
+      category: "IA",
+      price: 120,
+      originalPrice: 160,
+      currencySymbol: "S/",
+      badge: "Video IA",
+      image:
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80",
+      description: "Generación de video narrativa con plantillas y estilos cinematográficos.",
+      billingCycle: "Plan mensual",
+      tags: ["sora", "video", "ia"]
+    },
+    {
+      name: "Gemini + Veo 3",
+      category: "IA",
+      price: 110,
+      originalPrice: 150,
+      currencySymbol: "S/",
+      badge: "Bundle IA",
+      image:
+        "https://images.unsplash.com/photo-1523475472560-6c16f0c8884f?auto=format&fit=crop&w=600&q=80",
+      description: "Modelos multimodales para crear imágenes y videos con prompts avanzados.",
+      billingCycle: "Plan mensual",
+      tags: ["gemini", "veo", "bundle"]
+    },
+    {
+      name: "Perplexity Pro",
+      category: "Productividad",
+      price: 35,
+      originalPrice: 45,
+      currencySymbol: "S/",
+      badge: "IA citada",
+      image:
+        "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80",
+      description: "Respuestas en tiempo real con citaciones y análisis de investigación.",
+      billingCycle: "Plan mensual",
+      tags: ["perplexity", "ia", "investigación"]
+    },
+    {
+      name: "CapCut Pro",
+      category: "Diseño",
+      price: 28,
+      originalPrice: 36,
+      currencySymbol: "S/",
       badge: "-22%",
       image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-      description: "Cancelación activa de ruido y batería de 35h con carga rápida.",
-      tags: ["audio", "headphones", "music"]
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+      description: "Efectos premium, recorte automático y exportaciones 4K sin marca de agua.",
+      billingCycle: "Plan mensual",
+      tags: ["capcut", "edición", "video"]
+    },
+    {
+      name: "YouTube Premium",
+      category: "Streaming",
+      price: 32,
+      originalPrice: 40,
+      currencySymbol: "S/",
+      badge: "Sin anuncios",
+      image:
+        "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=600&q=80",
+      description: "Videos sin anuncios, descargas offline y acceso a YouTube Music.",
+      billingCycle: "Plan familiar",
+      tags: ["youtube", "streaming", "música"]
+    },
+    {
+      name: "Disney+",
+      category: "Streaming",
+      price: 29,
+      originalPrice: 38,
+      currencySymbol: "S/",
+      badge: "Combo Star",
+      image:
+        "https://images.unsplash.com/photo-1517602302552-471fe67acf66?auto=format&fit=crop&w=600&q=80",
+      description: "Películas y series exclusivas de Disney, Pixar, Marvel y Star Wars.",
+      billingCycle: "Plan anual",
+      tags: ["disney", "streaming", "series"]
     }
   ],
   discounts: [
     {
-      name: "Combo productividad",
-      description: "Monitor 4K + Dock USB-C + Lámpara inteligente",
-      highlight: "Ahorra 35%",
+      name: "Pack IA Total",
+      description: "ChatGPT Plus + Gemini Advanced + Perplexity Pro",
+      highlight: "Ahorra 25%",
+      image:
+        "https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?auto=format&fit=crop&w=700&q=80",
+      tags: ["ia", "bundle", "productividad"]
+    },
+    {
+      name: "Kit Diseño Pro",
+      description: "Canva Pro + CapCut Pro + Biblioteca de mockups",
+      highlight: "12 meses a precio especial",
       image:
         "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=700&q=80",
-      tags: ["office", "workspace", "monitor"]
+      tags: ["diseño", "creatividad", "video"]
     },
     {
-      name: "Set creativo",
-      description: "iPad Pro + Pencil + Funda magnética",
-      highlight: "12 cuotas sin interés",
+      name: "Streaming Total",
+      description: "Disney+ + DIRECTV GO + YouTube Premium",
+      highlight: "Incluye perfiles familiares",
       image:
-        "https://images.unsplash.com/photo-1593642532400-2682810df593?auto=format&fit=crop&w=700&q=80",
-      tags: ["tablet", "creative", "office"]
-    },
-    {
-      name: "Smart Home essentials",
-      description: "Parlante inteligente + Iluminación RGB + Sensor de clima",
-      highlight: "Instalación incluida",
-      image:
-        "https://images.unsplash.com/photo-1582719478248-4c01e3931b4d?auto=format&fit=crop&w=700&q=80",
-      tags: ["home", "smart", "assistant"]
+        "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=700&q=80",
+      tags: ["streaming", "entretenimiento", "series"]
     }
   ],
   "new-arrivals": [
     {
-      name: "Cargador MagSafe Air",
-      category: "Accesorios",
-      price: 59,
+      name: "Sora Story Pack",
+      category: "IA",
+      price: 140,
+      currencySymbol: "S/",
       image:
-        "https://images.unsplash.com/photo-1622023539844-a266ebf66f6d?auto=format&fit=crop&w=500&q=80",
-      tags: ["accessory", "charging", "phone"]
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80",
+      tags: ["sora", "video", "story"]
     },
     {
-      name: "Speaker Mini Pixel",
-      category: "Audio",
-      price: 89,
+      name: "Gemini Workspace",
+      category: "Productividad",
+      price: 95,
+      currencySymbol: "S/",
       image:
-        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=500&q=80",
-      tags: ["audio", "speaker", "home"]
+        "https://images.unsplash.com/photo-1523475472560-6c16f0c8884f?auto=format&fit=crop&w=500&q=80",
+      tags: ["gemini", "productividad", "workspace"]
     },
     {
-      name: "Anillo Fitness Orbit",
-      category: "Wearables",
-      price: 139,
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80",
-      tags: ["wearable", "fitness", "health"]
-    },
-    {
-      name: "Soporte ergonómico Flux",
-      category: "Accesorios",
-      price: 74,
-      image:
-        "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=500&q=80",
-      tags: ["accessory", "office", "stand"]
-    },
-    {
-      name: "Control Smart Hue",
-      category: "Smart Home",
-      price: 49,
-      image:
-        "https://images.unsplash.com/photo-1582719478181-2cf4e2fe3f89?auto=format&fit=crop&w=500&q=80",
-      tags: ["smart", "home", "assistant"]
-    },
-    {
-      name: "Micrófono StreamCast",
-      category: "Audio",
-      price: 169,
+      name: "Turnitin Classroom",
+      category: "Educación",
+      price: 180,
+      currencySymbol: "S/",
       image:
         "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=500&q=80",
-      tags: ["audio", "microphone", "stream"]
+      tags: ["turnitin", "educación", "clase"]
+    },
+    {
+      name: "Perplexity Research Kit",
+      category: "IA",
+      price: 52,
+      currencySymbol: "S/",
+      image:
+        "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=500&q=80",
+      tags: ["perplexity", "ia", "research"]
+    },
+    {
+      name: "CapCut Motion FX",
+      category: "Diseño",
+      price: 34,
+      currencySymbol: "S/",
+      image:
+        "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=500&q=80",
+      tags: ["capcut", "motion", "efectos"]
+    },
+    {
+      name: "DIRECTV Deportes Max",
+      category: "Streaming",
+      price: 58,
+      currencySymbol: "S/",
+      image:
+        "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&q=80",
+      tags: ["directv", "deportes", "streaming"]
     }
   ],
   reviews: [
     {
       name: "Gabriel",
       rating: 5,
-      headline: "Totalmente worth it!",
+      headline: "Accesos al instante",
       copy:
-        "Las ofertas flash no fallan, llegó en 48 horas y el monitor vino impecable. La atención al cliente fue rapidísima.",
+        "Activaron mi plan de YouTube Premium en minutos y el soporte me ayudó a vincular Disney+ con toda la familia.",
       role: "Product designer"
     },
     {
       name: "Anya",
       rating: 5,
-      headline: "No me arrepiento",
+      headline: "Creatividad desbloqueada",
       copy:
-        "La instalación del set smart home fue sencilla y el equipo de soporte superó mis expectativas. Recomendado al 100%.",
+        "El combo Canva + CapCut viene con recursos exclusivos y workshops. Perfecto para mis entregas de diseño.",
       role: "Fotógrafa freelance"
     },
     {
       name: "Luke",
       rating: 4,
-      headline: "Amando el setup",
+      headline: "IA con soporte real",
       copy:
-        "El teclado y la silla ergonómica hicieron la diferencia. Procesos de compra claros y seguimiento constante.",
+        "Compré el pack IA Total y recibí onboarding guiado. Las respuestas de Perplexity con citas son una locura.",
       role: "Frontend developer"
     },
     {
       name: "Kim",
       rating: 5,
-      headline: "Mi tienda de confianza",
+      headline: "Streaming sin estrés",
       copy:
-        "Siempre hay gadgets nuevos. El cashback es real y el programa de fidelidad suma bastante.",
+        "Gestionaron mis cuentas de Disney+ y DIRECTV GO. Todo sincronizado con recordatorios de renovación.",
       role: "Streamer"
     }
   ]
@@ -170,6 +275,15 @@ const searchInput = document.querySelector("[data-search]");
 const categoryStrip = document.querySelector("[data-category-strip]");
 const resetButtons = document.querySelectorAll('[data-action="reset"]');
 let animationObserver;
+
+function formatCurrency(amount, currencySymbol = "US$") {
+  if (typeof amount !== "number") return "";
+  const formatter = new Intl.NumberFormat("es-PE", {
+    minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: amount % 1 === 0 ? 0 : 2
+  });
+  return `${currencySymbol}${formatter.format(amount)}`;
+}
 
 function createProductCard(product) {
   const card = document.createElement("article");
@@ -203,9 +317,22 @@ function createProductCard(product) {
 
   const price = document.createElement("div");
   price.className = "price";
-  price.innerHTML = `US$${product.price.toFixed(0)}${
-    product.originalPrice ? ` <del>US$${product.originalPrice.toFixed(0)}</del>` : ""
+  const currencySymbol = product.currencySymbol ?? "US$";
+  const formattedPrice = formatCurrency(product.price, currencySymbol);
+  const formattedOriginal = formatCurrency(
+    product.originalPrice,
+    product.originalCurrencySymbol ?? currencySymbol
+  );
+  price.innerHTML = `${formattedPrice || ""}${
+    formattedOriginal ? ` <del>${formattedOriginal}</del>` : ""
   }`;
+
+  if (product.billingCycle) {
+    const billing = document.createElement("span");
+    billing.className = "billing";
+    billing.textContent = product.billingCycle;
+    price.appendChild(billing);
+  }
 
   const footer = document.createElement("footer");
   const category = document.createElement("span");
@@ -268,7 +395,11 @@ function createArrivalCard(arrival) {
   title.textContent = arrival.name;
 
   const footer = document.createElement("footer");
-  footer.innerHTML = `<span>${arrival.category}</span><strong>US$${arrival.price.toFixed(0)}</strong>`;
+  const currencySymbol = arrival.currencySymbol ?? "US$";
+  footer.innerHTML = `<span>${arrival.category}</span><strong>${formatCurrency(
+    arrival.price,
+    currencySymbol
+  )}</strong>`;
 
   card.append(badge, image, title, footer);
   return card;
