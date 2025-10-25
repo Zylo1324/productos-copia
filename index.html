@@ -659,13 +659,13 @@
           </li>
           <li class="auth-controls">
             <button class="btn ghost label" id="btnAuthOpen">Acceder</button>
-            <div class="auth-user" id="authUserShell" hidden aria-hidden="true">
-              <button type="button" class="auth-avatar-btn" id="btnUserMenu" role="button" aria-haspopup="menu" aria-controls="userConfigPanel" aria-expanded="false">
+            <div class="auth-user" id="auth-user" hidden aria-hidden="true">
+              <button type="button" class="auth-avatar-btn" id="userTrigger" role="button" aria-haspopup="menu" aria-controls="userMenu" aria-expanded="false">
                 <span class="auth-avatar" id="userAvatar" aria-hidden="true">U</span>
                 <span class="auth-name" id="userDisplayName"></span>
                 <span class="sr-only">Abrir configuración</span>
               </button>
-              <div class="auth-config-panel hidden" id="userConfigPanel" role="menu" aria-label="Configuración de usuario">
+              <div class="auth-config-panel hidden" id="userMenu" role="menu" aria-label="Configuración de usuario">
                 <button class="btn ghost label" id="btnUserSettings" type="button" role="menuitem">Configuración</button>
                 <button class="btn ghost label" id="btnLogout" type="button" role="menuitem">Cerrar</button>
               </div>
@@ -1594,8 +1594,8 @@ let activeSnapshotSession = 0;
 
 function focusUserMenuTriggerAfterPanelClose(shouldRestoreFocus){
   if(!shouldRestoreFocus) return;
-  const panel = document.getElementById('userConfigPanel');
-  const trigger = document.getElementById('btnUserMenu');
+  const panel = document.getElementById('userMenu');
+  const trigger = document.getElementById('userTrigger');
   if(!panel || !trigger) return;
   if(document.activeElement === trigger) return;
   if(typeof trigger.focus === 'function'){
@@ -1604,8 +1604,8 @@ function focusUserMenuTriggerAfterPanelClose(shouldRestoreFocus){
 }
 
 function setUserConfigPanelState(open){
-  const panel = document.getElementById('userConfigPanel');
-  const trigger = document.getElementById('btnUserMenu');
+  const panel = document.getElementById('userMenu');
+  const trigger = document.getElementById('userTrigger');
   if(!panel || !trigger) return;
   const shouldOpen = typeof open === 'boolean' ? open : panel.classList.contains('hidden');
   const activeElement = document.activeElement;
@@ -1626,8 +1626,8 @@ function setUserConfigPanelState(open){
 setUserConfigPanelState(false);
 function authUpdateUI(profileData){
   const btnAuthOpen = document.getElementById('btnAuthOpen');
-  const authUserShell = document.getElementById('authUserShell');
-  const btnUserMenu = document.getElementById('btnUserMenu');
+  const authUserShell = document.getElementById('auth-user');
+  const btnUserMenu = document.getElementById('userTrigger');
   const userAvatar = document.getElementById('userAvatar');
   const userDisplayNameEl = document.getElementById('userDisplayName');
   const btnLogout = document.getElementById('btnLogout');
@@ -1681,7 +1681,7 @@ function authUpdateUI(profileData){
     const truncated = truncateDisplayName(data.displayName || data.email || 'Usuario');
     btnUserMenu.disabled = false;
     btnUserMenu.setAttribute('aria-label', `Abrir configuración de ${truncated}`);
-    const panel = document.getElementById('userConfigPanel');
+    const panel = document.getElementById('userMenu');
     btnUserMenu.setAttribute('aria-expanded', String(Boolean(panel && !panel.classList.contains('hidden'))));
     if(userDisplayNameEl){
       userDisplayNameEl.textContent = truncated;
@@ -1874,11 +1874,11 @@ const authErrorEl  = document.getElementById('authError');
 const toggleAuthPass = document.getElementById('toggleAuthPass');
 const btnForgot    = document.getElementById('btnForgot');
 const googleButtonContainer = document.getElementById('googleButton');
-const btnUserMenu = document.getElementById('btnUserMenu');
+const btnUserMenu = document.getElementById('userTrigger');
 const btnUserSettings = document.getElementById('btnUserSettings');
-const userConfigPanel = document.getElementById('userConfigPanel');
+const userConfigPanel = document.getElementById('userMenu');
 const isUserConfigPanelHidden = () => userConfigPanel?.classList.contains('hidden') ?? true;
-const authUserShell = document.getElementById('authUserShell');
+const authUserShell = document.getElementById('auth-user');
 const settingsModal = document.getElementById('settingsModal');
 const btnSettingsClose = document.getElementById('btnSettingsClose');
 settingsThemeOptions = Array.from(document.querySelectorAll('input[name="settingsTheme"]'));
