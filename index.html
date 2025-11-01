@@ -1,265 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zyl0 • Productos tecnológicos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body class="landing">
-  <div class="deals-ticker" aria-label="Ofertas relámpago" data-animate="slide-left">
-    <div class="ticker-track">
-      <span>🔥 Black Friday deals</span>
-      <span>💥 70% cashback guarantee</span>
-      <span>⚡ Envío gratuito 48h</span>
-      <span>🎧 Estrena los últimos gadgets</span>
-      <span>🔥 Black Friday deals</span>
-      <span>💥 70% cashback guarantee</span>
-      <span>⚡ Envío gratuito 48h</span>
-      <span>🎧 Estrena los últimos gadgets</span>
-    </div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zyl0 • Hub de aplicaciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="app-landing">
+    <main class="viewport" aria-labelledby="main-heading">
+      <section class="phone-area" aria-label="Dispositivo con aplicaciones destacadas">
+        <div class="phone-wrapper">
+          <div class="phone-frame">
+            <div class="phone-notch" aria-hidden="true">
+              <span class="notch-camera"></span>
+              <span class="notch-speaker"></span>
+            </div>
+            <div class="phone-screen">
+              <div class="screen-background" aria-hidden="true"></div>
+              <ul class="app-grid" id="appGrid" aria-label="Aplicaciones"></ul>
+            </div>
+            <span class="home-indicator" aria-hidden="true"></span>
+          </div>
+          <p class="phone-caption">Super Zyl0</p>
+        </div>
+      </section>
 
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="logo" href="#" aria-label="Inicio Zyl0">
-        <span class="logo-mark">⦿</span>
-        <span class="logo-text">Zyl0</span>
-      </a>
-
-      <div class="search">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.71.71l.27.28v.79l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"
-          ></path>
-        </svg>
-        <input
-          type="search"
-          placeholder="Buscar gadgets, dispositivos"
-          aria-label="Buscar productos"
-          data-search
-        />
-      </div>
-
-      <nav class="main-nav" aria-label="Principal">
-        <a href="#servicios">Servicios</a>
-        <a href="#categorias">Categorías</a>
-        <a href="#destacados">Destacados</a>
-        <a href="#opiniones">Opiniones</a>
-        <a href="#faq">FAQ</a>
-      </nav>
-
-      <div class="header-actions">
-        <button class="ghost-btn" type="button">Iniciar sesión</button>
-        <button class="primary-btn" type="button">Registrarme</button>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero" id="destacados">
-      <div class="hero-copy" data-animate="fade-up">
-        <p class="hero-pill">Endorsed by <strong>Phanter</strong> 🛡️</p>
-        <h1>Todos tus gadgets favoritos en un solo lugar.</h1>
-        <p class="hero-description">
-          Compra la tecnología que impulsa tu productividad diaria.
-          Seleccionamos dispositivos premium con garantía de devolución del 70% si no te enamoras.
+      <section class="panel" aria-live="polite">
+        <h1 id="main-heading" class="panel-heading">Tu universo digital, en un solo toque.</h1>
+        <p class="panel-subheading">
+          Elige cualquier app del dispositivo para conocer cómo potenciar tus proyectos creativos y
+          académicos.
         </p>
-        <div class="hero-actions">
-          <button class="primary-btn" type="button">Explorar ofertas</button>
-          <button class="ghost-btn" type="button">Ver lanzamientos</button>
-        </div>
-        <div class="hero-stats">
-          <div>
-            <strong>320K+</strong>
-            <span>Clientes felices</span>
-          </div>
-          <div>
-            <strong>4.9/5</strong>
-            <span>Promedio de reseñas</span>
-          </div>
-          <div>
-            <strong>120</strong>
-            <span>Marcas aliadas</span>
-          </div>
-        </div>
-      </div>
-      <div class="hero-media" role="presentation" aria-hidden="true" data-animate="zoom-in">
-        <div class="hero-glow"></div>
-        <img
-          src="https://images.unsplash.com/photo-1591129011383-78cbb68df041?auto=format&fit=crop&w=900&q=80"
-          alt="Colección de gadgets sobre fondo oscuro"
-          loading="lazy"
-        />
-      </div>
-    </section>
 
-    <section
-      class="section services"
-      id="servicios"
-      aria-labelledby="services-title"
-      data-animate="fade-up"
-    >
-      <div class="section-header">
-        <div>
-          <h2 id="services-title">Servicios digitales</h2>
+        <article class="panel-card" id="panelCard" hidden>
+          <span class="panel-tag" id="panelTag"></span>
+          <h2 class="panel-title" id="panelTitle"></h2>
+          <p class="panel-copy" id="panelCopy"></p>
+          <ul class="panel-highlights" id="panelHighlights"></ul>
+          <a class="panel-link" id="panelLink" href="#" target="_blank" rel="noopener">Abrir app</a>
+        </article>
+
+        <article class="panel-placeholder" id="panelPlaceholder">
+          <span class="placeholder-icon" aria-hidden="true">✨</span>
+          <h2>Descubre la magia</h2>
           <p>
-            Accesos premium a plataformas creativas, entretenimiento y herramientas de IA que
-            impulsan tu productividad.
+            Las apps instaladas están listas para inspirarte. Toca cualquiera de los íconos del teléfono
+            y obtén detalles instantáneos sin salir de la página.
           </p>
-        </div>
-      </div>
-      <div class="services-grid">
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">GPT</div>
-          <h3>ChatGPT 5</h3>
-          <p>Consultas ilimitadas con el modelo GPT-5 para investigación y soporte inteligente.</p>
         </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">C</div>
-          <h3>Canva Pro</h3>
-          <p>Herramientas de diseño colaborativo con plantillas premium y exportaciones sin límites.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">S</div>
-          <h3>Scribd</h3>
-          <p>Biblioteca digital con acceso a libros, audiolibros y documentos exclusivos.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">TV</div>
-          <h3>DIRECTV GO</h3>
-          <p>Televisión en vivo y on demand para disfrutar de tus canales favoritos en cualquier lugar.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">T</div>
-          <h3>Turnitin</h3>
-          <p>Verificación de originalidad y retroalimentación académica con reportes detallados.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">So</div>
-          <h3>Sora</h3>
-          <p>Generación de video con IA para presentar ideas e historias de forma impactante.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">G+</div>
-          <h3>Gemini + Veo 3</h3>
-          <p>Suite de modelos Gemini y Veo para crear contenido visual y asistido por IA.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">Px</div>
-          <h3>Perplexity</h3>
-          <p>Respuestas en tiempo real con IA que cita fuentes confiables para cada consulta.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">Cap</div>
-          <h3>CapCut</h3>
-          <p>Edición de video profesional con plantillas dinámicas y exportaciones 4K.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">YT</div>
-          <h3>YouTube Premium</h3>
-          <p>Streaming sin anuncios, descargas offline y YouTube Music incluido.</p>
-        </article>
-        <article class="service-card" data-animate="fade-up">
-          <div class="service-icon" aria-hidden="true">D+</div>
-          <h3>Disney+</h3>
-          <p>Películas y series exclusivas de Disney, Pixar, Marvel y Star Wars en alta definición.</p>
-        </article>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    <section class="category-strip" id="categorias" data-animate="fade-up">
-      <header>
-        <h2>Descubre por categoría</h2>
-        <p>Explora colecciones seleccionadas de acuerdo con tu estilo de vida.</p>
-      </header>
-      <div class="category-pills" data-category-strip></div>
-    </section>
-
-    <section class="section" data-section-wrapper id="hot-deals" data-animate="fade-up">
-      <div class="section-header">
-        <div>
-          <h2>Hot Deals</h2>
-          <p>Ofertas limitadas con stock exclusivo.</p>
-        </div>
-        <button class="text-btn" data-action="reset">Ver todo</button>
-      </div>
-      <div class="product-grid" data-grid="hot-deals"></div>
-      <p class="empty-copy" data-empty-message hidden>No encontramos productos para tu búsqueda.</p>
-    </section>
-
-    <section class="section" data-section-wrapper id="discounts" data-animate="fade-up">
-      <div class="section-header">
-        <div>
-          <h2>Descuentos especiales</h2>
-          <p>Bundles y combos pensados para fanáticos de la tecnología.</p>
-        </div>
-        <button class="text-btn" data-action="reset">Ver todo</button>
-      </div>
-      <div class="discount-grid" data-grid="discounts"></div>
-      <p class="empty-copy" data-empty-message hidden>No encontramos productos para tu búsqueda.</p>
-    </section>
-
-    <section class="section" data-section-wrapper id="new-arrivals" data-animate="fade-up">
-      <div class="section-header">
-        <div>
-          <h2>Nuevos lanzamientos</h2>
-          <p>Lo más reciente en audio, wearables y accesorios.</p>
-        </div>
-        <button class="text-btn" data-action="reset">Ver todo</button>
-      </div>
-      <div class="arrival-grid" data-grid="new-arrivals"></div>
-      <p class="empty-copy" data-empty-message hidden>No encontramos productos para tu búsqueda.</p>
-    </section>
-
-    <section class="section reviews" id="opiniones" data-animate="fade-up">
-      <div class="section-header">
-        <div>
-          <h2>Opiniones de clientes</h2>
-          <p>Historias reales de nuestra comunidad tech.</p>
-        </div>
-      </div>
-      <div class="review-grid" data-grid="reviews"></div>
-    </section>
-  </main>
-
-  <footer class="site-footer" id="faq" data-animate="fade-up">
-    <div class="footer-columns">
+    <aside class="floating-note" aria-label="Información de soporte">
       <div>
-        <h3>¿Necesitas ayuda?</h3>
-        <p>Estamos disponibles 24/7 para asesorarte en tu próxima compra tecnológica.</p>
+        <h3>Soporte Premium</h3>
+        <p>
+          Planes con activación inmediata, acceso a tutoriales exclusivos y acompañamiento humano 24/7
+          vía Discord, Telegram o Meet.
+        </p>
       </div>
-      <div>
-        <ul>
-          <li><a href="#">Política de envíos</a></li>
-          <li><a href="#">Garantía extendida</a></li>
-          <li><a href="#">Soporte técnico</a></li>
-          <li><a href="#">Programa de afiliados</a></li>
-        </ul>
-      </div>
-      <div>
-        <ul>
-          <li><a href="#">Blog &amp; recursos</a></li>
-          <li><a href="#">Trabaja con nosotros</a></li>
-          <li><a href="#">Prensa</a></li>
-          <li><a href="#">Contáctanos</a></li>
-        </ul>
-      </div>
-    </div>
-    <p class="footer-bottom">© 2024 Zyl0. Todos los derechos reservados.</p>
-  </footer>
+      <button type="button" class="note-button">Hablar con el equipo</button>
+    </aside>
 
-  <div class="floating-actions" aria-label="Atajos de contacto" data-animate="fade-up">
-    <button type="button" class="support-btn">💬 Habla con un experto</button>
-    <button type="button" class="whatsapp-btn">WhatsApp</button>
-  </div>
-
-  <script src="script.js" type="module"></script>
-</body>
+    <script src="script.js" type="module"></script>
+  </body>
 </html>
