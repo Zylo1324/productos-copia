@@ -1,564 +1,261 @@
-const categories = [
-  { label: "IA", icon: "🤖" },
-  { label: "Diseño", icon: "🎨" },
-  { label: "Streaming", icon: "📺" },
-  { label: "Lectura", icon: "📚" },
-  { label: "Educación", icon: "🎓" },
-  { label: "Productividad", icon: "⚡" }
+const apps = [
+  {
+    id: "chatgpt",
+    name: "ChatGPT",
+    category: "IA conversacional",
+    tagline: "Asistente cognitivo",
+    description:
+      "Consulta ideas, genera contenidos y automatiza reportes con un asistente entrenado para responder en segundos.",
+    highlights: [
+      "Plugins y navegación avanzada",
+      "Memoria compartida con tu equipo",
+      "Plantillas para investigación y soporte"
+    ],
+    link: "https://chat.openai.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+    iconBackground: "linear-gradient(135deg, #0ea879, #041f16)",
+    iconColor: "#f8fafc"
+  },
+  {
+    id: "sora",
+    name: "Sora",
+    category: "Video con IA",
+    tagline: "Historias en movimiento",
+    description:
+      "Convierte guiones en videos hiperrealistas con control de cámara, escenas y estilos cinematográficos.",
+    highlights: [
+      "Edición por instrucciones en texto",
+      "Planos multi escena en un solo render",
+      "Previsualizaciones en 4K listos para uso comercial"
+    ],
+    link: "https://openai.com/sora",
+    initials: "So",
+    iconBackground: "linear-gradient(135deg, #6366f1, #a855f7)",
+    iconColor: "#fdf4ff"
+  },
+  {
+    id: "gemini",
+    name: "Gemini",
+    category: "Suite Google",
+    tagline: "Análisis multimodal",
+    description:
+      "Explora investigaciones, diseña prompts complejos y colabora en tiempo real con la inteligencia de Gemini Advanced.",
+    highlights: [
+      "Integración con Docs, Sheets y Slides",
+      "Modelos de texto e imagen en un mismo flujo",
+      "Protección de datos empresariales"
+    ],
+    link: "https://gemini.google.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/7/70/Google_Gemini_logo.svg",
+    iconBackground: "linear-gradient(135deg, #0ea5e9, #22d3ee)",
+    iconColor: "#051224"
+  },
+  {
+    id: "veo3",
+    name: "Veo 3",
+    category: "Generación de video",
+    tagline: "Prompts cinematográficos",
+    description:
+      "Crea secuencias impactantes con control de ritmo, transiciones automáticas y adaptación a formatos sociales.",
+    highlights: [
+      "Prompts visuales y de audio combinados",
+      "Restauración de escenas con IA",
+      "Exportación optimizada para redes sociales"
+    ],
+    link: "https://deepmind.google/technologies/veo/",
+    initials: "V3",
+    iconBackground: "linear-gradient(135deg, #f97316, #fb7185)",
+    iconColor: "#fff8f6"
+  },
+  {
+    id: "turnitin",
+    name: "Turnitin",
+    category: "Integridad académica",
+    tagline: "Originalidad garantizada",
+    description:
+      "Evalúa trabajos académicos con reportes detallados, detección de IA y retroalimentación personalizada.",
+    highlights: [
+      "Comparación con bases globales",
+      "Indicadores de escritura asistida",
+      "Paneles colaborativos para docentes"
+    ],
+    link: "https://www.turnitin.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Turnitin_logo.svg",
+    iconBackground: "linear-gradient(135deg, #ef4444, #f97316)",
+    iconColor: "#fff5f5"
+  },
+  {
+    id: "quillbot",
+    name: "QuillBot",
+    category: "Escritura asistida",
+    tagline: "Paráfrasis inteligente",
+    description:
+      "Refina ensayos, resume artículos extensos y crea citas en segundos con modos creativos y formales.",
+    highlights: [
+      "Extensiones para Word y Chrome",
+      "Detector gramatical contextual",
+      "Resumen automático por puntos clave"
+    ],
+    link: "https://quillbot.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/7/7e/QuillBot_logo.svg",
+    iconBackground: "linear-gradient(135deg, #10b981, #059669)",
+    iconColor: "#ecfdf5"
+  },
+  {
+    id: "gamma",
+    name: "Gamma",
+    category: "Presentaciones",
+    tagline: "Narrativas interactivas",
+    description:
+      "Construye presentaciones, micrositios y guiones con plantillas generativas listas para compartir.",
+    highlights: [
+      "Slides automáticos a partir de prompts",
+      "Embeds interactivos y video integrado",
+      "Colaboración en tiempo real"
+    ],
+    link: "https://gamma.app/",
+    initials: "Ga",
+    iconBackground: "linear-gradient(135deg, #f472b6, #c084fc)",
+    iconColor: "#fff1ff"
+  },
+  {
+    id: "capcut",
+    name: "CapCut",
+    category: "Edición de video",
+    tagline: "Contenido viral",
+    description:
+      "Optimiza clips para redes sociales con plantillas dinámicas, efectos IA y exportación en 4K.",
+    highlights: [
+      "Sincronización inteligente con música",
+      "Remoción de fondo con un clic",
+      "Biblioteca de efectos premium"
+    ],
+    link: "https://www.capcut.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/d/d7/CapCut_Logo.svg",
+    iconBackground: "linear-gradient(135deg, #111827, #0f172a)",
+    iconColor: "#f1f5f9"
+  },
+  {
+    id: "ytmusic",
+    name: "YT Music",
+    category: "Streaming",
+    tagline: "Sonido ilimitado",
+    description:
+      "Escucha álbumes, podcasts y playlists personalizadas sin anuncios, incluso sin conexión.",
+    highlights: [
+      "Modo audio y video en una sola app",
+      "Descargas automáticas por gustos",
+      "Audio mejorado con ecualizador adaptativo"
+    ],
+    link: "https://music.youtube.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/0/0b/YouTube_Music_icon.svg",
+    iconBackground: "linear-gradient(135deg, #ef4444, #b91c1c)",
+    iconColor: "#fff5f5"
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    category: "Contenido infinito",
+    tagline: "Aprende sin límites",
+    description:
+      "Explora tutoriales, documentales y cursos completos con recomendaciones impulsadas por IA.",
+    highlights: [
+      "Listas colaborativas con tu equipo",
+      "Modo picture-in-picture en escritorio",
+      "Compatibilidad con subtítulos multilínea"
+    ],
+    link: "https://www.youtube.com/",
+    iconImage: "https://upload.wikimedia.org/wikipedia/commons/9/9f/YouTube_Icon_%282013-2017%29.svg",
+    iconBackground: "linear-gradient(135deg, #ef4444, #dc2626)",
+    iconColor: "#fff5f5"
+  }
 ];
 
-const catalog = {
-  "hot-deals": [
-    {
-      name: "ChatGPT 5 Plus",
-      category: "IA",
-      price: 65,
-      originalPrice: 85,
-      currencySymbol: "S/",
-      badge: "Top",
-      image:
-        "https://images.unsplash.com/photo-1526378722484-bd91ca387e72?auto=format&fit=crop&w=600&q=80",
-      description: "Acceso prioritario al modelo GPT-5 con respuestas más rápidas y plugins ilimitados.",
-      billingCycle: "Plan mensual",
-      tags: ["chatgpt", "ia", "productividad"]
-    },
-    {
-      name: "Canva Pro",
-      category: "Diseño",
-      price: 40,
-      originalPrice: 55,
-      currencySymbol: "S/",
-      badge: "-27%",
-      image:
-        "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=600&q=80",
-      description: "Biblioteca premium, fondos transparentes y colaboraciones en tiempo real.",
-      billingCycle: "Plan mensual",
-      tags: ["canva", "diseño", "creatividad"]
-    },
-    {
-      name: "Scribd Premium",
-      category: "Lectura",
-      price: 30,
-      originalPrice: 40,
-      currencySymbol: "S/",
-      badge: "-25%",
-      image:
-        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&q=80",
-      description: "Acceso ilimitado a libros, audiolibros y documentos profesionales.",
-      billingCycle: "Plan mensual",
-      tags: ["lectura", "libros", "suscripción"]
-    },
-    {
-      name: "DIRECTV GO",
-      category: "Streaming",
-      price: 45,
-      originalPrice: 60,
-      currencySymbol: "S/",
-      badge: "TV en vivo",
-      image:
-        "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=600&q=80",
-      description: "Canales en vivo, deportes y contenido on demand sin decos adicionales.",
-      billingCycle: "Plan mensual",
-      tags: ["streaming", "televisión", "series"]
-    },
-    {
-      name: "Turnitin Feedback Studio",
-      category: "Educación",
-      price: 90,
-      originalPrice: 120,
-      currencySymbol: "S/",
-      badge: "-30%",
-      image:
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
-      description: "Detección de similitud y reportes detallados para entregas académicas.",
-      billingCycle: "Licencia anual",
-      tags: ["academia", "originalidad", "educación"]
-    },
-    {
-      name: "Sora Creative Suite",
-      category: "IA",
-      price: 120,
-      originalPrice: 160,
-      currencySymbol: "S/",
-      badge: "Video IA",
-      image:
-        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80",
-      description: "Generación de video narrativa con plantillas y estilos cinematográficos.",
-      billingCycle: "Plan mensual",
-      tags: ["sora", "video", "ia"]
-    },
-    {
-      name: "Gemini + Veo 3",
-      category: "IA",
-      price: 110,
-      originalPrice: 150,
-      currencySymbol: "S/",
-      badge: "Bundle IA",
-      image:
-        "https://images.unsplash.com/photo-1523475472560-6c16f0c8884f?auto=format&fit=crop&w=600&q=80",
-      description: "Modelos multimodales para crear imágenes y videos con prompts avanzados.",
-      billingCycle: "Plan mensual",
-      tags: ["gemini", "veo", "bundle"]
-    },
-    {
-      name: "Perplexity Pro",
-      category: "Productividad",
-      price: 35,
-      originalPrice: 45,
-      currencySymbol: "S/",
-      badge: "IA citada",
-      image:
-        "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80",
-      description: "Respuestas en tiempo real con citaciones y análisis de investigación.",
-      billingCycle: "Plan mensual",
-      tags: ["perplexity", "ia", "investigación"]
-    },
-    {
-      name: "CapCut Pro",
-      category: "Diseño",
-      price: 28,
-      originalPrice: 36,
-      currencySymbol: "S/",
-      badge: "-22%",
-      image:
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-      description: "Efectos premium, recorte automático y exportaciones 4K sin marca de agua.",
-      billingCycle: "Plan mensual",
-      tags: ["capcut", "edición", "video"]
-    },
-    {
-      name: "YouTube Premium",
-      category: "Streaming",
-      price: 32,
-      originalPrice: 40,
-      currencySymbol: "S/",
-      badge: "Sin anuncios",
-      image:
-        "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=600&q=80",
-      description: "Videos sin anuncios, descargas offline y acceso a YouTube Music.",
-      billingCycle: "Plan familiar",
-      tags: ["youtube", "streaming", "música"]
-    },
-    {
-      name: "Disney+",
-      category: "Streaming",
-      price: 29,
-      originalPrice: 38,
-      currencySymbol: "S/",
-      badge: "Combo Star",
-      image:
-        "https://images.unsplash.com/photo-1517602302552-471fe67acf66?auto=format&fit=crop&w=600&q=80",
-      description: "Películas y series exclusivas de Disney, Pixar, Marvel y Star Wars.",
-      billingCycle: "Plan anual",
-      tags: ["disney", "streaming", "series"]
-    }
-  ],
-  discounts: [
-    {
-      name: "Pack IA Total",
-      description: "ChatGPT Plus + Gemini Advanced + Perplexity Pro",
-      highlight: "Ahorra 25%",
-      image:
-        "https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?auto=format&fit=crop&w=700&q=80",
-      tags: ["ia", "bundle", "productividad"]
-    },
-    {
-      name: "Kit Diseño Pro",
-      description: "Canva Pro + CapCut Pro + Biblioteca de mockups",
-      highlight: "12 meses a precio especial",
-      image:
-        "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=700&q=80",
-      tags: ["diseño", "creatividad", "video"]
-    },
-    {
-      name: "Streaming Total",
-      description: "Disney+ + DIRECTV GO + YouTube Premium",
-      highlight: "Incluye perfiles familiares",
-      image:
-        "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=700&q=80",
-      tags: ["streaming", "entretenimiento", "series"]
-    }
-  ],
-  "new-arrivals": [
-    {
-      name: "Sora Story Pack",
-      category: "IA",
-      price: 140,
-      currencySymbol: "S/",
-      image:
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80",
-      tags: ["sora", "video", "story"]
-    },
-    {
-      name: "Gemini Workspace",
-      category: "Productividad",
-      price: 95,
-      currencySymbol: "S/",
-      image:
-        "https://images.unsplash.com/photo-1523475472560-6c16f0c8884f?auto=format&fit=crop&w=500&q=80",
-      tags: ["gemini", "productividad", "workspace"]
-    },
-    {
-      name: "Turnitin Classroom",
-      category: "Educación",
-      price: 180,
-      currencySymbol: "S/",
-      image:
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=500&q=80",
-      tags: ["turnitin", "educación", "clase"]
-    },
-    {
-      name: "Perplexity Research Kit",
-      category: "IA",
-      price: 52,
-      currencySymbol: "S/",
-      image:
-        "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=500&q=80",
-      tags: ["perplexity", "ia", "research"]
-    },
-    {
-      name: "CapCut Motion FX",
-      category: "Diseño",
-      price: 34,
-      currencySymbol: "S/",
-      image:
-        "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=500&q=80",
-      tags: ["capcut", "motion", "efectos"]
-    },
-    {
-      name: "DIRECTV Deportes Max",
-      category: "Streaming",
-      price: 58,
-      currencySymbol: "S/",
-      image:
-        "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&q=80",
-      tags: ["directv", "deportes", "streaming"]
-    }
-  ],
-  reviews: [
-    {
-      name: "Gabriel",
-      rating: 5,
-      headline: "Accesos al instante",
-      copy:
-        "Activaron mi plan de YouTube Premium en minutos y el soporte me ayudó a vincular Disney+ con toda la familia.",
-      role: "Product designer"
-    },
-    {
-      name: "Anya",
-      rating: 5,
-      headline: "Creatividad desbloqueada",
-      copy:
-        "El combo Canva + CapCut viene con recursos exclusivos y workshops. Perfecto para mis entregas de diseño.",
-      role: "Fotógrafa freelance"
-    },
-    {
-      name: "Luke",
-      rating: 4,
-      headline: "IA con soporte real",
-      copy:
-        "Compré el pack IA Total y recibí onboarding guiado. Las respuestas de Perplexity con citas son una locura.",
-      role: "Frontend developer"
-    },
-    {
-      name: "Kim",
-      rating: 5,
-      headline: "Streaming sin estrés",
-      copy:
-        "Gestionaron mis cuentas de Disney+ y DIRECTV GO. Todo sincronizado con recordatorios de renovación.",
-      role: "Streamer"
-    }
-  ]
-};
+const appGrid = document.getElementById("appGrid");
+const panelCard = document.getElementById("panelCard");
+const panelPlaceholder = document.getElementById("panelPlaceholder");
+const panelTitle = document.getElementById("panelTitle");
+const panelCopy = document.getElementById("panelCopy");
+const panelHighlights = document.getElementById("panelHighlights");
+const panelLink = document.getElementById("panelLink");
+const panelTag = document.getElementById("panelTag");
 
-const searchInput = document.querySelector("[data-search]");
-const categoryStrip = document.querySelector("[data-category-strip]");
-const resetButtons = document.querySelectorAll('[data-action="reset"]');
-let animationObserver;
+let activeButton;
 
-function formatCurrency(amount, currencySymbol = "US$") {
-  if (typeof amount !== "number") return "";
-  const formatter = new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
-    maximumFractionDigits: amount % 1 === 0 ? 0 : 2
-  });
-  return `${currencySymbol}${formatter.format(amount)}`;
-}
+function createAppItem(app) {
+  const item = document.createElement("li");
+  item.className = "app-item";
 
-function createProductCard(product) {
-  const card = document.createElement("article");
-  card.className = "product-card";
-  card.dataset.productCard = "";
-  card.dataset.title = product.name.toLowerCase();
-  card.dataset.category = product.category?.toLowerCase() ?? "";
-  card.dataset.tags = (product.tags ?? []).join(" ").toLowerCase();
-  card.dataset.animate = "fade-up";
+  const button = document.createElement("button");
+  button.type = "button";
+  button.dataset.app = app.id;
 
-  const figure = document.createElement("figure");
-  const image = document.createElement("img");
-  image.src = product.image;
-  image.alt = product.name;
-  image.loading = "lazy";
-  figure.appendChild(image);
-
-  if (product.badge) {
-    const badge = document.createElement("span");
-    badge.className = "badge";
-    badge.textContent = product.badge;
-    figure.appendChild(badge);
+  const iconWrapper = document.createElement("div");
+  iconWrapper.className = "app-icon";
+  iconWrapper.style.setProperty("--icon-bg", app.iconBackground);
+  if (app.iconColor) {
+    iconWrapper.style.setProperty("--icon-color", app.iconColor);
   }
 
-  const title = document.createElement("h3");
-  title.textContent = product.name;
-
-  const description = document.createElement("p");
-  description.textContent = product.description ?? product.category;
-  description.className = "copy";
-
-  const price = document.createElement("div");
-  price.className = "price";
-  const currencySymbol = product.currencySymbol ?? "US$";
-  const formattedPrice = formatCurrency(product.price, currencySymbol);
-  const formattedOriginal = formatCurrency(
-    product.originalPrice,
-    product.originalCurrencySymbol ?? currencySymbol
-  );
-  price.innerHTML = `${formattedPrice || ""}${
-    formattedOriginal ? ` <del>${formattedOriginal}</del>` : ""
-  }`;
-
-  if (product.billingCycle) {
-    const billing = document.createElement("span");
-    billing.className = "billing";
-    billing.textContent = product.billingCycle;
-    price.appendChild(billing);
+  if (app.iconImage) {
+    const image = document.createElement("img");
+    image.src = app.iconImage;
+    image.alt = "";
+    image.loading = "lazy";
+    iconWrapper.appendChild(image);
+  } else if (app.initials) {
+    const initials = document.createElement("span");
+    initials.textContent = app.initials;
+    iconWrapper.appendChild(initials);
   }
 
-  const footer = document.createElement("footer");
-  const category = document.createElement("span");
-  category.textContent = product.category;
-  const cta = document.createElement("button");
-  cta.type = "button";
-  cta.textContent = "Añadir";
-  footer.append(category, cta);
+  const name = document.createElement("span");
+  name.className = "app-name";
+  name.textContent = app.name;
 
-  card.append(figure, title, description, price, footer);
-  return card;
+  button.append(iconWrapper, name);
+  item.append(button);
+
+  button.addEventListener("click", () => selectApp(app, button));
+
+  return item;
 }
 
-function createDiscountCard(bundle) {
-  const card = document.createElement("article");
-  card.className = "discount-card";
-  card.dataset.productCard = "";
-  card.dataset.title = bundle.name.toLowerCase();
-  card.dataset.tags = (bundle.tags ?? []).join(" ").toLowerCase();
-  card.dataset.animate = "fade-up";
-
-  const copyWrapper = document.createElement("div");
-  const title = document.createElement("h3");
-  title.textContent = bundle.name;
-  const highlight = document.createElement("p");
-  highlight.textContent = bundle.highlight;
-  const details = document.createElement("span");
-  details.className = "details";
-  details.textContent = bundle.description;
-
-  copyWrapper.append(title, highlight, details);
-
-  const image = document.createElement("img");
-  image.src = bundle.image;
-  image.alt = bundle.name;
-  image.loading = "lazy";
-
-  card.append(copyWrapper, image);
-  return card;
-}
-
-function createArrivalCard(arrival) {
-  const card = document.createElement("article");
-  card.className = "arrival-card";
-  card.dataset.productCard = "";
-  card.dataset.title = arrival.name.toLowerCase();
-  card.dataset.category = arrival.category.toLowerCase();
-  card.dataset.tags = (arrival.tags ?? []).join(" ").toLowerCase();
-  card.dataset.animate = "fade-up";
-
-  const badge = document.createElement("span");
-  badge.textContent = "Nuevo";
-
-  const image = document.createElement("img");
-  image.src = arrival.image;
-  image.alt = arrival.name;
-  image.loading = "lazy";
-
-  const title = document.createElement("strong");
-  title.textContent = arrival.name;
-
-  const footer = document.createElement("footer");
-  const currencySymbol = arrival.currencySymbol ?? "US$";
-  footer.innerHTML = `<span>${arrival.category}</span><strong>${formatCurrency(
-    arrival.price,
-    currencySymbol
-  )}</strong>`;
-
-  card.append(badge, image, title, footer);
-  return card;
-}
-
-function createReviewCard(review) {
-  const card = document.createElement("article");
-  card.className = "review-card";
-  card.dataset.animate = "fade-up";
-
-  const stars = document.createElement("div");
-  stars.className = "stars";
-  stars.textContent = "★".repeat(review.rating).padEnd(5, "☆");
-
-  const headline = document.createElement("strong");
-  headline.textContent = review.headline;
-
-  const copy = document.createElement("p");
-  copy.textContent = review.copy;
-
-  const author = document.createElement("span");
-  author.textContent = `${review.name} • ${review.role}`;
-
-  card.append(stars, headline, copy, author);
-  return card;
-}
-
-function renderCategories() {
-  if (!categoryStrip) return;
-  categories.forEach((category, index) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "category-pill";
-    button.dataset.categoryFilter = category.label.toLowerCase();
-    button.dataset.animate = "fade-up";
-    button.style.setProperty("--stagger", index + 1);
-    button.innerHTML = `<span class="icon">${category.icon}</span><span>${category.label}</span>`;
-    button.addEventListener("click", () => {
-      setActiveCategory(button);
-      searchInput.value = category.label;
-      filterProducts();
-    });
-    categoryStrip.appendChild(button);
-  });
-}
-
-function setActiveCategory(activeButton) {
-  document.querySelectorAll(".category-pill").forEach((pill) => {
-    pill.classList.toggle("is-active", pill === activeButton);
-  });
-}
-
-function renderSection(sectionKey, renderer) {
-  const grid = document.querySelector(`[data-grid="${sectionKey}"]`);
-  if (!grid) return;
-  const items = catalog[sectionKey];
-  grid.innerHTML = "";
-  items.forEach((item, index) => {
-    const element = renderer(item, index);
-    if (!element) return;
-    element.style.setProperty("--stagger", index + 1);
-    grid.appendChild(element);
-  });
-}
-
-function renderReviews() {
-  const grid = document.querySelector('[data-grid="reviews"]');
-  if (!grid) return;
-  grid.innerHTML = "";
-  catalog.reviews.forEach((review, index) => {
-    const card = createReviewCard(review, index);
-    card.style.setProperty("--stagger", index + 1);
-    grid.appendChild(card);
-  });
-}
-
-function setupAnimations() {
-  const animatedItems = document.querySelectorAll("[data-animate]");
-  if (!animatedItems.length) return;
-
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (prefersReducedMotion) {
-    animatedItems.forEach((element) => {
-      element.classList.add("is-visible");
-    });
-    return;
+function selectApp(app, button) {
+  if (activeButton) {
+    activeButton.classList.remove("is-active");
   }
+  activeButton = button;
+  activeButton.classList.add("is-active");
 
-  animationObserver = new IntersectionObserver(
-    (entries, observer) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    {
-      threshold: 0.2,
-      rootMargin: "0px 0px -10% 0px"
-    }
-  );
+  panelPlaceholder.hidden = true;
+  panelCard.hidden = false;
 
-  animatedItems.forEach((element, index) => {
-    if (!element.style.getPropertyValue("--stagger")) {
-      element.style.setProperty("--stagger", index % 8);
-    }
-    animationObserver.observe(element);
+  panelTag.textContent = app.tagline;
+  panelTitle.textContent = app.name;
+  panelCopy.textContent = app.description;
+  panelLink.href = app.link;
+
+  panelHighlights.innerHTML = "";
+  app.highlights.forEach((highlight) => {
+    const li = document.createElement("li");
+    li.textContent = highlight;
+    panelHighlights.appendChild(li);
   });
+
+  panelTag.style.background = `${app.iconBackground}`;
+  panelTag.style.color = app.iconColor || "#0f172a";
 }
 
-function filterProducts() {
-  const query = searchInput?.value.trim().toLowerCase() ?? "";
-  const cards = document.querySelectorAll("[data-product-card]");
+apps.forEach((app) => {
+  const item = createAppItem(app);
+  appGrid.appendChild(item);
+});
 
-  cards.forEach((card) => {
-    const haystack = [card.dataset.title, card.dataset.category, card.dataset.tags]
-      .filter(Boolean)
-      .join(" ");
-    card.hidden = Boolean(query) && !haystack.includes(query);
-  });
-
-  document.querySelectorAll("[data-section-wrapper]").forEach((section) => {
-    const visible = Array.from(section.querySelectorAll("[data-product-card]"))
-      .filter((card) => !card.hidden).length;
-    const emptyMessage = section.querySelector("[data-empty-message]");
-    section.classList.toggle("is-empty", Boolean(query) && visible === 0);
-    if (emptyMessage) {
-      emptyMessage.hidden = !(Boolean(query) && visible === 0);
-    }
-  });
+// Selecciona la primera app por defecto para mostrar contenido inicial.
+if (apps.length > 0) {
+  const firstButton = appGrid.querySelector("button");
+  if (firstButton) {
+    firstButton.click();
+  }
 }
-
-function resetFilters() {
-  searchInput.value = "";
-  document.querySelectorAll(".category-pill").forEach((pill) => pill.classList.remove("is-active"));
-  filterProducts();
-}
-
-function initialize() {
-  renderCategories();
-  renderSection("hot-deals", createProductCard);
-  renderSection("discounts", createDiscountCard);
-  renderSection("new-arrivals", createArrivalCard);
-  renderReviews();
-  filterProducts();
-
-  searchInput?.addEventListener("input", () => {
-    document
-      .querySelectorAll(".category-pill")
-      .forEach((pill) => pill.classList.remove("is-active"));
-    filterProducts();
-  });
-
-  resetButtons.forEach((button) => {
-    button.addEventListener("click", resetFilters);
-  });
-
-  setupAnimations();
-}
-
-document.addEventListener("DOMContentLoaded", initialize);
