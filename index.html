@@ -46,30 +46,6 @@
       text-shadow:0 4px 24px rgba(120,160,255,.25);
     }
 
-    /* Tarjeta de info estilo glass */
-    .info-card{
-      background:rgba(20,15,45,.55);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:18px;
-      box-shadow:0 22px 45px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
-      backdrop-filter:blur(14px) saturate(1.1);
-      -webkit-backdrop-filter:blur(14px) saturate(1.1);
-    }
-    .info-card .btn{
-      background:#7cc5ff;
-      color:#0b1220;
-      border-radius:12px;
-      font-weight:600;
-      text-decoration:none;
-      padding:.55rem .9rem;
-      box-shadow:0 10px 18px rgba(0,0,0,.25);
-      transition:transform .08s ease, box-shadow .08s ease;
-      margin-top:0.8rem;
-    }
-    .info-card .btn:active{
-      transform:translateY(1px) scale(.99);
-      box-shadow:0 6px 12px rgba(0,0,0,.25);
-    }
     body{
       margin:0; padding:24px; background:#0b1220; color:#e6e6e6;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -170,141 +146,87 @@
       background:linear-gradient(135deg, rgba(0,0,0,.55), rgba(255,255,255,.25));
       z-index:1;
     }
+    @media (max-width: 480px){
+      :root{ --phone-width:92vw; --icon-size:58px; }
+    }
+
+    /* Tarjeta de información glassmorphism */
     .info-card{
-      opacity: 1;
-      transform: translateY(0);
+      margin: 40px auto 0;
+      max-width: 480px;
+      padding: 22px 26px;
+      background: rgba(20, 15, 50, 0.55);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+      color: #eaeaea;
+      text-align: left;
+      display: grid;
+      gap: 12px;
       transition: opacity 180ms ease, transform 180ms ease;
     }
     .info-card.is-hidden{
       opacity: 0;
       transform: translateY(6px);
     }
-    @media (max-width: 480px){
-      :root{ --phone-width:92vw; --icon-size:58px; }
-    }
-
-    /* Corrige alineación del texto dentro del panel */
-    .info-card ul {
-      list-style:none;
-      margin:0;
-      padding:0;
-    }
-
-    .info-card li {
-      position:relative;
-      padding-left:1.2rem;
-      line-height:1.6;
-      color:#e6e6e6;
-    }
-
-    .info-card li::before {
-      content:"•";
-      position:absolute;
-      left:0;
-      top:0;
-      color:#7cc5ff;
-      font-weight:bold;
-    }
-
-    /* ===== Tarjeta "glass" ordenada y responsive ===== */
-    .info-card{
-      /* layout */
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-auto-rows: auto;
-      gap: 12px;
-      max-width: 680px;
-      padding: 18px 22px;
-
-      /* look glass premium */
-      background: rgba(16, 14, 40, 0.55);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 16px;
-      box-shadow:
-        0 22px 45px rgba(0,0,0,.35),
-        inset 0 1px 0 rgba(255,255,255,.08);
-      backdrop-filter: blur(14px) saturate(1.06);
-      -webkit-backdrop-filter: blur(14px) saturate(1.06);
-
-      /* que nada se desborde */
-      overflow: hidden;
-      color: #e8e8f0;
-      line-height: 1.5;
-    }
-
-    /* cabecera: icono + título */
-    .info-head{
-      display: inline-grid;
-      grid-auto-flow: column;
+    .info-header{
+      display: flex;
       align-items: center;
       gap: 10px;
     }
     .info-icon{
-      border-radius: 8px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
     }
-    .info-title{
+    .info-header h2{
       margin: 0;
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      letter-spacing: .2px;
+      letter-spacing: 0.02em;
     }
-
-    /* descripción */
     .info-desc{
       margin: 0;
-      opacity: .95;
-      overflow-wrap: anywhere;
+      font-size: 0.95rem;
+      opacity: 0.95;
     }
-
-    /* lista con viñetas alineadas (sin • despegados) */
     .info-list{
       list-style: none;
-      margin: 6px 0 0;
       padding: 0;
+      margin: 10px 0 18px;
       display: grid;
-      gap: 6px;
+      gap: 8px;
     }
     .info-list li{
       position: relative;
-      padding-left: 1.1rem;
+      padding-left: 1.2rem;
     }
     .info-list li::before{
-      content: "";
+      content: '';
       position: absolute;
       left: 0;
-      top: 0.9em;           /* centra el punto verticalmente */
+      top: 0.6rem;
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #7cc5ff; /* mismo tono del botón */
-      box-shadow: 0 0 0 3px rgba(124,197,255,.15);
-      transform: translateY(-50%);
+      background: #7cc5ff;
+      box-shadow: 0 0 6px rgba(124, 197, 255, 0.6);
     }
-
-    /* botón dentro del recuadro */
-    .info-cta{
-      justify-self: start;
-      margin-top: 6px;
-      padding: .55rem .95rem;
-      border-radius: 12px;
-      font-weight: 700;
+    .info-btn{
+      display: inline-block;
+      padding: 10px 18px;
       background: #7cc5ff;
       color: #0b1220;
+      border-radius: 10px;
+      font-weight: 700;
       text-decoration: none;
-      box-shadow: 0 10px 18px rgba(0,0,0,.25);
-      transition: transform .08s ease, box-shadow .08s ease, filter .08s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
-    .info-cta:active{
-      transform: translateY(1px) scale(.99);
-      box-shadow: 0 6px 12px rgba(0,0,0,.24);
-      filter: brightness(.98);
-    }
-
-    /* micro-ajustes visuales opcionales */
-    @media (min-width: 860px){
-      .info-card{ padding: 20px 24px; }
-      .info-title{ font-size: 1.25rem; }
+    .info-btn:active{
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
     }
   </style>
 </head>
@@ -335,22 +257,17 @@
     <h1 class="title title-gradient">R1VER by SUPERZYLO</h1>
     <p class="subtitle">Tu universo digital, en un solo toque.</p>
     <section class="info-card" id="info-card" aria-live="polite">
-      <div class="info-head">
-        <img class="info-icon" src="assets/icon-chatgpt.png" alt="" width="28" height="28">
-        <h2 class="info-title">ChatGPT</h2>
+      <div class="info-header">
+        <img src="assets/icon-chatgpt.png" alt="ChatGPT" class="info-icon" id="info-icon" width="28" height="28">
+        <h2 id="info-title">ChatGPT</h2>
       </div>
-
-      <p class="info-desc">
-        Asistente cognitivo para ideas, contenidos y automatizaciones.
-      </p>
-
-      <ul class="info-list">
+      <p class="info-desc" id="info-desc">Asistente cognitivo para ideas, contenidos y automatizaciones.</p>
+      <ul class="info-list" id="info-bullets">
         <li>Plugins y navegación</li>
         <li>Memoria compartida</li>
         <li>Plantillas y soporte</li>
       </ul>
-
-      <a class="info-cta" href="#" target="_blank" rel="noopener">Abrir app</a>
+      <a href="#" class="info-btn" id="info-cta" target="_blank" rel="noopener">Abrir app</a>
     </section>
   </div>
   <script src="apps.js" defer></script>
