@@ -16,6 +16,59 @@
       --icon-size: 64px;
       --grid-gap: 16px;
     }
+    /* Fondo degradado escarchado */
+    .bg-sparkle{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      background:
+        radial-gradient(60rem 60rem at 75% 15%, rgba(255,132,220,.18), transparent 60%),
+        radial-gradient(40rem 40rem at 25% 75%, rgba(120,200,255,.16), transparent 60%),
+        linear-gradient(135deg,#0f1b44 0%,#3b1fa1 45%,#aa2ad8 75%,#ff4d84 100%);
+      filter:saturate(1.07) contrast(1.02);
+    }
+    .bg-sparkle::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.06;
+      mix-blend-mode:soft-light;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:160px 160px;
+    }
+
+    /* Título brillante */
+    .title-gradient{
+      background:linear-gradient(90deg,#bfe3ff 0%,#9ec1ff 35%,#c6a6ff 60%,#ffb3e0 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow:0 4px 24px rgba(120,160,255,.25);
+    }
+
+    /* Tarjeta de info estilo glass */
+    .info-card{
+      background:rgba(12,10,30,.55);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;
+      box-shadow:0 22px 45px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+      backdrop-filter:blur(14px) saturate(1.1);
+      -webkit-backdrop-filter:blur(14px) saturate(1.1);
+    }
+    .info-card .btn{
+      background:#7cc5ff;
+      color:#0b1220;
+      border-radius:12px;
+      font-weight:600;
+      text-decoration:none;
+      padding:.55rem .9rem;
+      box-shadow:0 10px 18px rgba(0,0,0,.25);
+      transition:transform .08s ease, box-shadow .08s ease;
+    }
+    .info-card .btn:active{
+      transform:translateY(1px) scale(.99);
+      box-shadow:0 6px 12px rgba(0,0,0,.25);
+    }
     body{
       margin:0; padding:24px; background:#0b1220; color:#e6e6e6;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -131,6 +184,7 @@
   </style>
 </head>
 <body>
+  <div class="bg-sparkle" aria-hidden="true"></div>
   <div class="phone">
     <div class="screen">
       <div class="icons">
@@ -153,7 +207,7 @@
   </div>
 
   <div class="info">
-    <h1 class="title">R1VER by SUPERZYLO</h1>
+    <h1 class="title title-gradient">R1VER by SUPERZYLO</h1>
     <p class="subtitle">Tu universo digital, en un solo toque.</p>
     <section class="info-card" id="info-card">
       <header style="display:flex;align-items:center;gap:12px;">
