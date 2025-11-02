@@ -6,11 +6,12 @@
   <title>Mi Celular</title>
   <style>
     :root{
-      --phone-width: 360px;
-      --screen-left: 8.5%;
-      --screen-top: 6.8%;
-      --screen-right: 8.5%;
-      --screen-bottom: 7.5%;
+      --phone-width: 360px;   /* tamaño del teléfono en pantalla */
+      /* offsets de la pantalla dentro del marco: ajustados para que NO quede borde */
+      --screen-left: 7.3%;
+      --screen-top: 6.2%;
+      --screen-right: 7.3%;
+      --screen-bottom: 6.4%;
       --icon-radius: 22%;
       --icon-size: 64px;
       --grid-gap: 16px;
@@ -23,7 +24,7 @@
     .phone{
       width:var(--phone-width);
       position:relative;
-      aspect-ratio: 2087 / 4186;
+      aspect-ratio: 2087 / 4186; /* cambia si tu PNG tiene otra proporción */
       background:center/cover no-repeat url("assets/phone-frame.png");
     }
     .screen{
@@ -34,12 +35,13 @@
       bottom:var(--screen-bottom);
       border-radius:24px;
       overflow:hidden;
-      background:center/cover no-repeat url("assets/wallpaper.png");
+      /* Fondo SIEMPRE cubre todo */
+      background: url("assets/wallpaper.png") center / cover no-repeat;
     }
     .icons{
       position:absolute; inset:0;
       display:grid;
-      grid-template-columns:repeat(4, minmax(0,1fr));
+      grid-template-columns:repeat(4, minmax(0,1fr)); /* 4 por fila */
       justify-items:center; align-content:start;
       gap:var(--grid-gap);
       padding:28px 18px;
@@ -51,7 +53,11 @@
       box-shadow:0 8px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
       background:#1b1b1b;
     }
-    .label{ font-size:12px; margin-top:6px; color:#f2f2f2; text-shadow:0 1px 2px rgba(0,0,0,.6);}
+    .label{
+      font-size:12px; margin-top:6px; color:#f2f2f2;
+      text-shadow:0 1px 2px rgba(0,0,0,.6);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
     .pill{
       position:absolute; left:50%; transform:translateX(-50%);
       bottom:18px; width:140px; height:12px; border-radius:999px;
@@ -66,17 +72,19 @@
   <div class="phone">
     <div class="screen">
       <div class="icons">
+        <!-- Fila 1 (4) -->
         <div class="app"><img src="assets/icon-chatgpt.png" alt="ChatGPT"><div class="label">ChatGPT</div></div>
         <div class="app"><img src="assets/icon-sora.png" alt="Sora"><div class="label">Sora</div></div>
         <div class="app"><img src="assets/icon-gemini.png" alt="Gemini"><div class="label">Gemini</div></div>
         <div class="app"><img src="assets/icon-capcut.png" alt="CapCut"><div class="label">CapCut</div></div>
-        <div class="app"><img src="assets/icon-turnitin.png" alt="Turnitin"><div class="label">Turnitin</div></div>
-        <div class="app"><img src="assets/icon-quillbot.png" alt="QuillBot"><div class="label">QuillBot</div></div>
-        <div class="app"><img src="assets/icon-hbo.png" alt="HBO"><div class="label">HBO</div></div>
-        <div class="app"><img src="assets/icon-prime.png" alt="Prime"><div class="label">Prime</div></div>
-        <div class="app"><img src="assets/icon-scribd.png" alt="Scribd"><div class="label">Scribd</div></div>
+        <!-- Fila 2 (4) -->
+        <div class="app"><img src="assets/icon-hbo.png" alt="HBO Max"><div class="label">HBO Max</div></div>
+        <div class="app"><img src="assets/icon-prime.png" alt="Prime Video"><div class="label">Prime</div></div>
         <div class="app"><img src="assets/icon-youtube.png" alt="YouTube"><div class="label">YouTube</div></div>
         <div class="app"><img src="assets/icon-canva.png" alt="Canva"><div class="label">Canva</div></div>
+        <!-- Fila 3 (2) -->
+        <div class="app"><img src="assets/icon-turnitin.png" alt="Turnitin"><div class="label">Turnitin</div></div>
+        <div class="app"><img src="assets/icon-scribd.png" alt="Scribd"><div class="label">Scribd</div></div>
       </div>
       <div class="pill" aria-hidden="true"></div>
     </div>
