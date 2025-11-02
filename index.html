@@ -314,6 +314,58 @@
         margin: 16px auto 24px;
       }
     }
+
+    /* Pantalla completa, sin scroll */
+    body{ margin:0; height:100vh; overflow:hidden; }
+
+    /* 2 columnas: tel a la izq (auto), título ocupa el resto (1fr) */
+    .hero{
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;                 /* centra vertical */
+      height: 100vh;
+      gap: clamp(24px, 6vw, 80px);
+      padding: 0 clamp(16px, 4vw, 48px);
+      overflow: hidden;
+    }
+
+    /* Teléfono a la izquierda (no tocamos sus animaciones ni offsets) */
+    .left{
+      justify-self: start;
+      margin-left: clamp(8px, 2vw, 24px);
+    }
+    .phone{
+      width: clamp(280px, 32vw, 400px);
+      height: auto;
+    }
+
+    /* Columna derecha: centramos el título en su propio espacio */
+    .right{
+      display: flex;
+      align-items: center;     /* centro vertical dentro de la columna derecha */
+      justify-content: center; /* centro horizontal dentro de la columna derecha */
+    }
+    .hero-title{
+      width: min(60vw, 560px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* En móvil: pila y todo centrado */
+    @media (max-width: 900px){
+      .hero{
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 20px;
+        padding: 12px 16px;
+      }
+      .left{ margin-left: 0; }
+      .phone{ width: clamp(240px, 60vw, 360px); }
+      .hero-title{ width: min(78vw, 520px); }
+    }
   </style>
 </head>
 <body>
