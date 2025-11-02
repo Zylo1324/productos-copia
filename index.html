@@ -79,13 +79,31 @@
       justify-items:center; align-content:start;
       gap:var(--grid-gap);
       padding:28px 18px;
+      background: transparent !important;
     }
-    .app{ width:var(--icon-size); text-align:center; }
+    .app{ 
+      width: var(--icon-size); 
+      text-align: center; 
+    }
     .app img{
-      display:block; width:100%; height:var(--icon-size); object-fit:cover;
-      border-radius:var(--icon-radius);
-      box-shadow:0 8px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+      display:block;
+      width: var(--icon-size);
+      height: var(--icon-size);
+      object-fit: cover;
+      border-radius: var(--icon-radius);
       background:#1b1b1b;
+      box-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+      transition: transform 90ms ease, box-shadow 90ms ease, filter 90ms ease;
+    }
+    .app:active img,
+    .app.is-pressed img{
+      transform: scale(0.96);
+      box-shadow: 0 4px 10px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+      filter: brightness(0.98);
+    }
+    .app:focus-visible img{
+      outline: 2px solid #7cc5ff;
+      outline-offset: 2px;
     }
     .label{
       font-size:12px; margin-top:6px; color:#f2f2f2;
@@ -98,6 +116,15 @@
       background:linear-gradient(135deg, rgba(0,0,0,.55), rgba(255,255,255,.25));
       z-index:1;
     }
+    .info-card{
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .info-card.is-hidden{
+      opacity: 0;
+      transform: translateY(6px);
+    }
     @media (max-width: 480px){
       :root{ --phone-width:92vw; --icon-size:58px; }
     }
@@ -108,26 +135,40 @@
     <div class="screen">
       <div class="icons">
         <!-- Fila 1 (4) -->
-        <div class="app"><img src="assets/icon-chatgpt.png" alt="ChatGPT"><div class="label">ChatGPT</div></div>
-        <div class="app"><img src="assets/icon-sora.png" alt="Sora"><div class="label">Sora</div></div>
-        <div class="app"><img src="assets/icon-gemini.png" alt="Gemini"><div class="label">Gemini</div></div>
-        <div class="app"><img src="assets/icon-capcut.png" alt="CapCut"><div class="label">CapCut</div></div>
+        <div class="app" data-app="chatgpt" role="button" tabindex="0"><img src="assets/icon-chatgpt.png" alt="ChatGPT"><div class="label">ChatGPT</div></div>
+        <div class="app" data-app="sora" role="button" tabindex="0"><img src="assets/icon-sora.png" alt="Sora"><div class="label">Sora</div></div>
+        <div class="app" data-app="gemini" role="button" tabindex="0"><img src="assets/icon-gemini.png" alt="Gemini"><div class="label">Gemini</div></div>
+        <div class="app" data-app="capcut" role="button" tabindex="0"><img src="assets/icon-capcut.png" alt="CapCut"><div class="label">CapCut</div></div>
         <!-- Fila 2 (4) -->
-        <div class="app"><img src="assets/icon-hbo.png" alt="HBO Max"><div class="label">HBO Max</div></div>
-        <div class="app"><img src="assets/icon-prime.png" alt="Prime Video"><div class="label">Prime</div></div>
-        <div class="app"><img src="assets/icon-youtube.png" alt="YouTube"><div class="label">YouTube</div></div>
-        <div class="app"><img src="assets/icon-canva.png" alt="Canva"><div class="label">Canva</div></div>
+        <div class="app" data-app="hbo" role="button" tabindex="0"><img src="assets/icon-hbo.png" alt="HBO Max"><div class="label">HBO Max</div></div>
+        <div class="app" data-app="prime" role="button" tabindex="0"><img src="assets/icon-prime.png" alt="Prime Video"><div class="label">Prime</div></div>
+        <div class="app" data-app="youtube" role="button" tabindex="0"><img src="assets/icon-youtube.png" alt="YouTube"><div class="label">YouTube</div></div>
+        <div class="app" data-app="canva" role="button" tabindex="0"><img src="assets/icon-canva.png" alt="Canva"><div class="label">Canva</div></div>
         <!-- Fila 3 (2) -->
-        <div class="app"><img src="assets/icon-turnitin.png" alt="Turnitin"><div class="label">Turnitin</div></div>
-        <div class="app"><img src="assets/icon-scribd.png" alt="Scribd"><div class="label">Scribd</div></div>
+        <div class="app" data-app="turnitin" role="button" tabindex="0"><img src="assets/icon-turnitin.png" alt="Turnitin"><div class="label">Turnitin</div></div>
+        <div class="app" data-app="scribd" role="button" tabindex="0"><img src="assets/icon-scribd.png" alt="Scribd"><div class="label">Scribd</div></div>
       </div>
       <div class="pill" aria-hidden="true"></div>
     </div>
   </div>
 
   <div class="info">
-    <h1 class="title">SUPERZYLO</h1>
+    <h1 class="title">R1VER by SUPERZYLO</h1>
     <p class="subtitle">Tu universo digital, en un solo toque.</p>
+    <section class="info-card" id="info-card">
+      <header style="display:flex;align-items:center;gap:12px;">
+        <img id="info-icon" src="assets/icon-chatgpt.png" alt="" width="28" height="28" style="border-radius:8px;">
+        <h2 id="info-title" style="margin:0;">ChatGPT</h2>
+      </header>
+      <p id="info-desc">Asistente cognitivo para ideas, contenidos y automatizaciones.</p>
+      <ul id="info-bullets">
+        <li>Plugins y navegación</li>
+        <li>Memoria compartida</li>
+        <li>Plantillas y soporte</li>
+      </ul>
+      <a id="info-cta" class="btn" href="#" target="_blank" rel="noopener">Abrir app</a>
+    </section>
   </div>
+  <script src="apps.js" defer></script>
 </body>
 </html>
