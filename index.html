@@ -343,15 +343,17 @@
     .right{
       display: flex;
       align-items: center;     /* centro vertical dentro de la columna derecha */
-      justify-content: center; /* centro horizontal dentro de la columna derecha */
+      justify-content: flex-start; /* movemos el título ligeramente hacia la izquierda */
+      width: 100%;
     }
     .hero-title{
-      width: min(60vw, 560px);
+      width: min(68vw, 640px);
       height: auto;
       object-fit: contain;
       filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
       user-select: none;
       pointer-events: none;
+      margin-left: clamp(-18px, -4vw, -32px);
     }
 
     /* En móvil: pila y todo centrado */
@@ -364,7 +366,8 @@
       }
       .left{ margin-left: 0; }
       .phone{ width: clamp(240px, 60vw, 360px); }
-      .hero-title{ width: min(78vw, 520px); }
+      .right{ justify-content: center; width: auto; }
+      .hero-title{ width: min(82vw, 560px); margin-left: 0; }
     }
   </style>
 </head>
