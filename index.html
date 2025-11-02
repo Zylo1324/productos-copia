@@ -1,73 +1,90 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zyl0 • Hub de aplicaciones</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body class="app-landing">
-    <main class="viewport" aria-labelledby="main-heading">
-      <section class="phone-area" aria-label="Dispositivo con aplicaciones destacadas">
-        <div class="phone-wrapper">
-          <div class="phone-frame">
-            <div class="phone-notch" aria-hidden="true">
-              <span class="notch-camera"></span>
-              <span class="notch-speaker"></span>
-            </div>
-            <div class="phone-screen">
-              <div class="screen-background" aria-hidden="true"></div>
-              <ul class="app-grid" id="appGrid" aria-label="Aplicaciones"></ul>
-            </div>
-            <span class="home-indicator" aria-hidden="true"></span>
-          </div>
-          <p class="phone-caption">Super Zyl0</p>
-        </div>
-      </section>
-
-      <section class="panel" aria-live="polite">
-        <h1 id="main-heading" class="panel-heading">Tu universo digital, en un solo toque.</h1>
-        <p class="panel-subheading">
-          Elige cualquier app del dispositivo para conocer cómo potenciar tus proyectos creativos y
-          académicos.
-        </p>
-
-        <article class="panel-card" id="panelCard" hidden>
-          <span class="panel-tag" id="panelTag"></span>
-          <h2 class="panel-title" id="panelTitle"></h2>
-          <p class="panel-copy" id="panelCopy"></p>
-          <ul class="panel-highlights" id="panelHighlights"></ul>
-          <a class="panel-link" id="panelLink" href="#" target="_blank" rel="noopener">Abrir app</a>
-        </article>
-
-        <article class="panel-placeholder" id="panelPlaceholder">
-          <span class="placeholder-icon" aria-hidden="true">✨</span>
-          <h2>Descubre la magia</h2>
-          <p>
-            Las apps instaladas están listas para inspirarte. Toca cualquiera de los íconos del teléfono
-            y obtén detalles instantáneos sin salir de la página.
-          </p>
-        </article>
-      </section>
-    </main>
-
-    <aside class="floating-note" aria-label="Información de soporte">
-      <div>
-        <h3>Soporte Premium</h3>
-        <p>
-          Planes con activación inmediata, acceso a tutoriales exclusivos y acompañamiento humano 24/7
-          vía Discord, Telegram o Meet.
-        </p>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mi Celular</title>
+  <style>
+    :root{
+      --phone-width: 360px;
+      --screen-left: 8.5%;
+      --screen-top: 6.8%;
+      --screen-right: 8.5%;
+      --screen-bottom: 7.5%;
+      --icon-radius: 22%;
+      --icon-size: 64px;
+      --grid-gap: 16px;
+    }
+    body{
+      margin:0; padding:24px; background:#0b1220; color:#e6e6e6;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap;
+    }
+    .phone{
+      width:var(--phone-width);
+      position:relative;
+      aspect-ratio: 2087 / 4186;
+      background:center/cover no-repeat url("assets/phone-frame.png");
+    }
+    .screen{
+      position:absolute;
+      left:var(--screen-left);
+      top:var(--screen-top);
+      right:var(--screen-right);
+      bottom:var(--screen-bottom);
+      border-radius:24px;
+      overflow:hidden;
+      background:center/cover no-repeat url("assets/wallpaper.png");
+    }
+    .icons{
+      position:absolute; inset:0;
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      justify-items:center; align-content:start;
+      gap:var(--grid-gap);
+      padding:28px 18px;
+    }
+    .app{ width:var(--icon-size); text-align:center; }
+    .app img{
+      display:block; width:100%; height:var(--icon-size); object-fit:cover;
+      border-radius:var(--icon-radius);
+      box-shadow:0 8px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+      background:#1b1b1b;
+    }
+    .label{ font-size:12px; margin-top:6px; color:#f2f2f2; text-shadow:0 1px 2px rgba(0,0,0,.6);}
+    .pill{
+      position:absolute; left:50%; transform:translateX(-50%);
+      bottom:18px; width:140px; height:12px; border-radius:999px;
+      background:linear-gradient(135deg, rgba(0,0,0,.55), rgba(255,255,255,.25));
+    }
+    @media (max-width: 480px){
+      :root{ --phone-width:92vw; --icon-size:58px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="icons">
+        <div class="app"><img src="assets/icon-chatgpt.png" alt="ChatGPT"><div class="label">ChatGPT</div></div>
+        <div class="app"><img src="assets/icon-sora.png" alt="Sora"><div class="label">Sora</div></div>
+        <div class="app"><img src="assets/icon-gemini.png" alt="Gemini"><div class="label">Gemini</div></div>
+        <div class="app"><img src="assets/icon-capcut.png" alt="CapCut"><div class="label">CapCut</div></div>
+        <div class="app"><img src="assets/icon-turnitin.png" alt="Turnitin"><div class="label">Turnitin</div></div>
+        <div class="app"><img src="assets/icon-quillbot.png" alt="QuillBot"><div class="label">QuillBot</div></div>
+        <div class="app"><img src="assets/icon-hbo.png" alt="HBO"><div class="label">HBO</div></div>
+        <div class="app"><img src="assets/icon-prime.png" alt="Prime"><div class="label">Prime</div></div>
+        <div class="app"><img src="assets/icon-scribd.png" alt="Scribd"><div class="label">Scribd</div></div>
+        <div class="app"><img src="assets/icon-youtube.png" alt="YouTube"><div class="label">YouTube</div></div>
+        <div class="app"><img src="assets/icon-canva.png" alt="Canva"><div class="label">Canva</div></div>
       </div>
-      <button type="button" class="note-button">Hablar con el equipo</button>
-    </aside>
+      <div class="pill" aria-hidden="true"></div>
+    </div>
+  </div>
 
-    <script src="script.js" type="module"></script>
-  </body>
+  <div style="max-width:560px">
+    <h1>Tu universo digital, en un solo toque.</h1>
+    <p>Hecho con tu celular real y tus apps reales.</p>
+  </div>
+</body>
 </html>
