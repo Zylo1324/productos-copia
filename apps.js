@@ -130,6 +130,7 @@ if (titleImage && titleSlider && titleValue) {
   const updateTitlePosition = (value) => {
     const shift = `${value}%`;
     titleImage.style.setProperty("--title-shift", shift);
+    titleImage.style.transform = `translateX(${shift})`;
     titleValue.textContent = shift;
   };
 
