@@ -125,7 +125,8 @@ showApp("chatgpt");
 const controls = document.getElementById("title-controls");
 
 if (controls) {
-  const rootStyle = document.documentElement.style;
+  const root = document.documentElement;
+  const rootStyle = root.style;
   const mq = window.matchMedia("(max-width: 900px)");
   const inputX = controls.querySelector("#title-control-x");
   const inputY = controls.querySelector("#title-control-y");
@@ -135,33 +136,67 @@ if (controls) {
   const outputY = controls.querySelector("#title-control-y-value");
   const outputScale = controls.querySelector("#title-control-scale-value");
 
+  const computedRoot = getComputedStyle(root);
+  const parseOr = (value, fallback) => {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+
+  const defaultTitle = {
+    x: parseOr(computedRoot.getPropertyValue("--title-mobile-x"), -13),
+    y: parseOr(computedRoot.getPropertyValue("--title-mobile-y"), -74),
+    scale: parseOr(computedRoot.getPropertyValue("--title-mobile-scale"), 0.89)
+  };
+
+  inputX.value = String(defaultTitle.x);
+  inputY.value = String(defaultTitle.y);
+  inputScale.value = String(defaultTitle.scale);
+
   const formatOutputs = () => {
     if (outputX) {
-      outputX.textContent = `${inputX.value}px`;
+      const value = Number.parseFloat(inputX.value);
+      outputX.textContent = `${Number.isFinite(value) ? value : defaultTitle.x}px`;
     }
     if (outputY) {
-      outputY.textContent = `${inputY.value}px`;
+      const value = Number.parseFloat(inputY.value);
+      outputY.textContent = `${Number.isFinite(value) ? value : defaultTitle.y}px`;
     }
     if (outputScale) {
-      const percentage = Math.round(parseFloat(inputScale.value) * 100);
+      const value = Number.parseFloat(inputScale.value);
+      const percentage = Number.isFinite(value)
+        ? Math.round(value * 100)
+        : Math.round(defaultTitle.scale * 100);
       outputScale.textContent = `${percentage}%`;
     }
   };
 
   const applyValues = () => {
-    rootStyle.setProperty("--title-mobile-x", `${inputX.value}px`);
-    rootStyle.setProperty("--title-mobile-y", `${inputY.value}px`);
-    rootStyle.setProperty("--title-mobile-scale", inputScale.value);
+    const x = Number.parseFloat(inputX.value);
+    const y = Number.parseFloat(inputY.value);
+    const scale = Number.parseFloat(inputScale.value);
+
+    rootStyle.setProperty(
+      "--title-mobile-x",
+      `${Number.isFinite(x) ? x : defaultTitle.x}px`
+    );
+    rootStyle.setProperty(
+      "--title-mobile-y",
+      `${Number.isFinite(y) ? y : defaultTitle.y}px`
+    );
+    rootStyle.setProperty(
+      "--title-mobile-scale",
+      `${Number.isFinite(scale) ? scale : defaultTitle.scale}`
+    );
     formatOutputs();
   };
 
   const resetValues = () => {
-    rootStyle.setProperty("--title-mobile-x", "0px");
-    rootStyle.setProperty("--title-mobile-y", "0px");
-    rootStyle.setProperty("--title-mobile-scale", "1");
-    inputX.value = "0";
-    inputY.value = "0";
-    inputScale.value = "1";
+    rootStyle.setProperty("--title-mobile-x", `${defaultTitle.x}px`);
+    rootStyle.setProperty("--title-mobile-y", `${defaultTitle.y}px`);
+    rootStyle.setProperty("--title-mobile-scale", `${defaultTitle.scale}`);
+    inputX.value = String(defaultTitle.x);
+    inputY.value = String(defaultTitle.y);
+    inputScale.value = String(defaultTitle.scale);
     formatOutputs();
   };
 
@@ -186,7 +221,7 @@ if (controls) {
   });
 
   mq.addEventListener("change", syncVisibility);
-  formatOutputs();
+  resetValues();
   syncVisibility();
 }
 
