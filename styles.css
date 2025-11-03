@@ -125,7 +125,8 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px 12px;
-  justify-items: center;
+  justify-items: start;
+  align-items: start;
 }
 
 .app-item button {
