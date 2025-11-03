@@ -16,6 +16,9 @@
       --icon-size: 64px;
       --grid-gap: 16px;
       --phone-shift: calc(44% - 50%);
+      --title-mobile-x: 0px;
+      --title-mobile-y: 0px;
+      --title-mobile-scale: 1;
     }
     /* Fondo degradado escarchado */
     .bg-sparkle{
@@ -274,6 +277,42 @@
       user-select:none;
       pointer-events:none;
       filter: drop-shadow(0 10px 25px rgba(0,0,0,.35));
+      transform: translateX(-10%);
+    }
+
+    .mobile-controls{
+      display: none;
+      margin: 12px auto 0;
+      width: min(92vw, 560px);
+      padding: 18px;
+      border-radius: 14px;
+      background: rgba(16, 14, 40, 0.55);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.28);
+      backdrop-filter: blur(12px) saturate(1.05);
+      -webkit-backdrop-filter: blur(12px) saturate(1.05);
+      color: #e8ecff;
+      gap: 14px;
+    }
+
+    .mobile-controls__headline{
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .mobile-controls__field{
+      display: grid;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: #cfd9ff;
+    }
+
+    .mobile-controls input[type="range"]{
+      width: 100%;
+      accent-color: #7cc5ff;
     }
 
     /* Teléfono: solo tamaño responsivo (NO tocar offsets/animaciones internas) */
@@ -346,7 +385,7 @@
 
       .hero-title{
         margin: 0 auto;
-        transform: none;
+        transform: translate(var(--title-mobile-x, 0px), var(--title-mobile-y, 0px)) scale(var(--title-mobile-scale, 1));
       }
 
       .right{ order: 1; }
@@ -355,6 +394,10 @@
         position: static;
         width: min(92vw, 560px);
         margin: 16px auto 24px;
+      }
+
+      .mobile-controls{
+        display: grid;
       }
     }
 
@@ -437,7 +480,7 @@
       .hero-title{
         width: min(90vw, 620px);
         margin: 0 auto;
-        transform: none;
+        transform: translate(var(--title-mobile-x, 0px), var(--title-mobile-y, 0px)) scale(var(--title-mobile-scale, 1));
         text-align: center;
       }
     }
@@ -472,6 +515,22 @@
       <img class="hero-title" src="assets/titulo.png" alt="R1VER by SUPERZYLO">
     </div>
   </main>
+
+  <section class="mobile-controls" id="title-controls" hidden>
+    <p class="mobile-controls__headline">Ajusta el título en tu pantalla</p>
+    <label class="mobile-controls__field" for="title-control-x">
+      <span>Posición horizontal</span>
+      <input type="range" id="title-control-x" min="-80" max="80" value="0" step="1">
+    </label>
+    <label class="mobile-controls__field" for="title-control-y">
+      <span>Posición vertical</span>
+      <input type="range" id="title-control-y" min="-80" max="80" value="0" step="1">
+    </label>
+    <label class="mobile-controls__field" for="title-control-scale">
+      <span>Tamaño</span>
+      <input type="range" id="title-control-scale" min="0.85" max="1.3" value="1" step="0.01">
+    </label>
+  </section>
 
   <section class="info-card" id="info-card" aria-live="polite">
     <div class="info-header">
