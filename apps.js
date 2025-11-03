@@ -121,11 +121,48 @@ document.querySelectorAll(".app[data-app]").forEach(el => {
 // Estado inicial
 showApp("chatgpt");
 
-// Posiciona el título de manera fija sin controles interactivos
-const titleImage = document.querySelector(".hero-title");
+// Controles móviles para ajustar el título
+const controls = document.getElementById("title-controls");
 
-if (titleImage) {
-  titleImage.style.transform = "translateX(-10%)";
+if (controls) {
+  const rootStyle = document.documentElement.style;
+  const mq = window.matchMedia("(max-width: 900px)");
+  const inputX = controls.querySelector("#title-control-x");
+  const inputY = controls.querySelector("#title-control-y");
+  const inputScale = controls.querySelector("#title-control-scale");
+
+  const applyValues = () => {
+    rootStyle.setProperty("--title-mobile-x", `${inputX.value}px`);
+    rootStyle.setProperty("--title-mobile-y", `${inputY.value}px`);
+    rootStyle.setProperty("--title-mobile-scale", inputScale.value);
+  };
+
+  const resetValues = () => {
+    rootStyle.setProperty("--title-mobile-x", "0px");
+    rootStyle.setProperty("--title-mobile-y", "0px");
+    rootStyle.setProperty("--title-mobile-scale", "1");
+  };
+
+  const syncVisibility = () => {
+    if (mq.matches) {
+      controls.hidden = false;
+      applyValues();
+    } else {
+      controls.hidden = true;
+      resetValues();
+    }
+  };
+
+  [inputX, inputY, inputScale].forEach((input) => {
+    input.addEventListener("input", () => {
+      if (mq.matches) {
+        applyValues();
+      }
+    });
+  });
+
+  mq.addEventListener("change", syncVisibility);
+  syncVisibility();
 }
 
 // La posición del teléfono se mantiene fija mediante la variable CSS `--phone-shift`.
