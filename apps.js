@@ -128,18 +128,4 @@ if (titleImage) {
   titleImage.style.transform = "translateX(-10%)";
 }
 
-// Ajusta la última fila de íconos para que quede equilibrada visualmente
-const iconsGrid = document.querySelector(".icons");
-
-if (iconsGrid) {
-  const iconItems = iconsGrid.querySelectorAll(".app");
-  const remainder = iconItems.length % 4;
-
-  if (remainder === 0) {
-    iconsGrid.removeAttribute("data-last-row");
-  } else {
-    iconsGrid.setAttribute("data-last-row", String(remainder));
-  }
-}
-
 // La posición del teléfono se mantiene fija mediante la variable CSS `--phone-shift`.
