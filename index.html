@@ -13,7 +13,10 @@
       --screen-right: 7.3%;
       --screen-bottom: 6.4%;
       --icon-radius: 22%;
-      --icon-size: 64px;
+      /* Tamaños base (escritorio) */
+      --app-size: clamp(68px, 8.2vw, 92px);
+      --label-size: clamp(11px, 1.6vw, 14px);
+      --icon-size: var(--app-size);
       --grid-gap: 16px;
       --phone-shift: calc(44% - 50%);
     }
@@ -104,21 +107,24 @@
       position:absolute; inset:0;
       z-index:1;
       display:grid;
-      grid-template-columns:repeat(4, minmax(0,1fr)); /* 4 por fila */
-      justify-items:center; align-content:start;
-      gap:var(--grid-gap);
+      grid-template-columns:repeat(4, var(--app-size)); /* 4 por fila */
+      justify-content:center;
+      align-content:start;
+      gap:18px 22px;
       padding:28px 18px;
       background: transparent !important;
     }
-    .app{ 
-      width: var(--icon-size); 
-      text-align: center; 
+    .app{
+      width: var(--app-size);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
     }
     .app img{
       display:block;
-      width: var(--icon-size);
-      height: var(--icon-size);
-      object-fit: cover;
+      width: var(--app-size);
+      height: var(--app-size);
+      object-fit: contain;
       border-radius: var(--icon-radius);
       background:#1b1b1b;
       box-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
@@ -135,9 +141,16 @@
       outline-offset: 2px;
     }
     .label{
-      font-size:12px; margin-top:6px; color:#f2f2f2;
+      font-size:var(--label-size);
+      line-height:1.1;
+      margin-top:6px;
+      color:#f2f2f2;
       text-shadow:0 1px 2px rgba(0,0,0,.6);
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width:var(--app-size);
+      text-align:center;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .pill{
       position:absolute; left:50%; transform:translateX(-50%);
@@ -145,8 +158,15 @@
       background:linear-gradient(135deg, rgba(0,0,0,.55), rgba(255,255,255,.25));
       z-index:1;
     }
+    @media (max-width: 900px){
+      :root{
+        --app-size: clamp(64px, 18vw, 96px);
+        --label-size: clamp(11px, 3.4vw, 14px);
+      }
+    }
+
     @media (max-width: 480px){
-      :root{ --phone-width:92vw; --icon-size:58px; }
+      :root{ --phone-width:92vw; }
     }
 
     /* Tarjeta de información glassmorphism */
