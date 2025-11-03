@@ -298,17 +298,42 @@
 
     /* ====== RESPONSIVE (móvil / tablets pequeñas) ====== */
     @media (max-width: 900px){
+      :root{
+        --phone-width: clamp(240px, 60vw, 320px);
+        --icon-size: calc(var(--phone-width) * 0.18);
+        --grid-gap: clamp(12px, calc(var(--phone-width) * 0.05), 20px);
+      }
+
       .hero{
         flex-direction: column;
         justify-content: center;
-        gap: 20px;
+        gap: clamp(18px, 4vw, 28px);
       }
-      .right{ order: 1; }
-      .left{ order: 0; }
+
+      .left{
+        order: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
 
       .phone{
-        width: clamp(240px, 60vw, 360px);
+        width: var(--phone-width);
+        margin: 0 auto;
       }
+
+      .icons{
+        gap: var(--grid-gap);
+        padding: clamp(20px, calc(var(--phone-width) * 0.1), 32px)
+          clamp(16px, calc(var(--phone-width) * 0.07), 22px);
+      }
+
+      .hero-title{
+        margin: 0 auto;
+        transform: none;
+      }
+
+      .right{ order: 1; }
 
       .info-card{
         position: static;
@@ -366,13 +391,38 @@
       .hero{
         grid-template-columns: 1fr;
         justify-items: center;
-        gap: 20px;
+        gap: clamp(18px, 4vw, 28px);
         padding: 12px 16px;
       }
-      .left{ margin-left: 0; }
-      .phone{ width: clamp(240px, 60vw, 360px); }
-      .right{ justify-content: center; width: auto; }
-      .hero-title{ width: min(90vw, 620px); margin: 0 auto; }
+
+      .left{
+        margin-left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .phone{
+        width: var(--phone-width);
+      }
+
+      .icons{
+        gap: var(--grid-gap);
+        padding: clamp(20px, calc(var(--phone-width) * 0.1), 32px)
+          clamp(16px, calc(var(--phone-width) * 0.07), 22px);
+      }
+
+      .right{
+        justify-content: center;
+        width: auto;
+      }
+
+      .hero-title{
+        width: min(90vw, 620px);
+        margin: 0 auto;
+        transform: none;
+        text-align: center;
+      }
     }
   </style>
 </head>
