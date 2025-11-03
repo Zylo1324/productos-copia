@@ -358,36 +358,7 @@
       user-select: none;
       pointer-events: none;
       margin: 0 auto;
-      --title-shift: -4%;
-      transform: translateX(var(--title-shift));
-    }
-
-    .title-control-panel{
-      width: min(82vw, 760px);
-      display: grid;
-      gap: 10px;
-      padding: 14px 18px;
-      border-radius: 14px;
-      background: rgba(16, 22, 55, 0.55);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.32);
-      backdrop-filter: blur(16px) saturate(1.05);
-      -webkit-backdrop-filter: blur(16px) saturate(1.05);
-    }
-
-    .title-control-panel label{
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .title-control-panel input[type="range"]{
-      width: 100%;
-      accent-color: #7cc5ff;
+      transform: translateX(-10%);
     }
 
     /* En móvil: pila y todo centrado */
@@ -402,7 +373,6 @@
       .phone{ width: clamp(240px, 60vw, 360px); }
       .right{ justify-content: center; width: auto; }
       .hero-title{ width: min(90vw, 620px); margin: 0 auto; }
-      .title-control-panel{ width: min(92vw, 620px); }
     }
   </style>
 </head>
@@ -433,10 +403,6 @@
     </div>
     <div class="right">
       <img class="hero-title" src="assets/titulo.png" alt="R1VER by SUPERZYLO">
-      <div class="title-control-panel">
-        <label for="title-offset">Posición del título: <span id="title-offset-value">-4%</span></label>
-        <input type="range" id="title-offset" min="-50" max="50" value="-4" step="1">
-      </div>
     </div>
   </main>
 
