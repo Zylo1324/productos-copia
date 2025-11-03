@@ -455,4 +455,8 @@ body {
     width: 36px;
     height: 36px;
   }
+
+  .app-name {
+    font-size: 0.68rem;
+  }
 }
