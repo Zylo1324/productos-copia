@@ -146,15 +146,19 @@ if (iconsGrid) {
 const phoneElement = document.querySelector(".phone");
 const phoneSlider = document.getElementById("phone-shift");
 const phoneSliderValue = document.getElementById("phone-shift-value");
+const DEFAULT_PHONE_POSITION = 44;
 const MOBILE_QUERY = window.matchMedia("(max-width: 900px)");
 
 if (phoneElement && phoneSlider) {
   const updateShift = (value) => {
-    const numericValue = Number(value) || 0;
-    const offset = numericValue - 50; // -50% (izquierda) a +50% (derecha)
+    const numericValue = Number(value ?? DEFAULT_PHONE_POSITION);
+    const effectiveValue = Number.isFinite(numericValue)
+      ? numericValue
+      : DEFAULT_PHONE_POSITION;
+    const offset = effectiveValue - 50; // -50% (izquierda) a +50% (derecha)
     phoneElement.style.setProperty("--phone-shift", `${offset}%`);
     if (phoneSliderValue) {
-      phoneSliderValue.textContent = `${numericValue}%`;
+      phoneSliderValue.textContent = `${effectiveValue}%`;
     }
   };
 
@@ -162,16 +166,20 @@ if (phoneElement && phoneSlider) {
     if (!MOBILE_QUERY.matches) {
       // En escritorio, reseteamos al centro y ocultamos desplazamiento
       phoneElement.style.setProperty("--phone-shift", "0%");
-      phoneSlider.value = "50";
+      phoneSlider.value = String(DEFAULT_PHONE_POSITION);
       if (phoneSliderValue) {
-        phoneSliderValue.textContent = "50%";
+        phoneSliderValue.textContent = `${DEFAULT_PHONE_POSITION}%`;
       }
     } else {
       updateShift(phoneSlider.value);
     }
   };
 
-  updateShift(phoneSlider.value);
+  const initialValue = phoneSlider.value || String(DEFAULT_PHONE_POSITION);
+  if (!phoneSlider.value) {
+    phoneSlider.value = initialValue;
+  }
+  updateShift(initialValue);
   phoneSlider.addEventListener("input", (event) => {
     updateShift(event.target.value);
   });
