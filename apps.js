@@ -127,3 +127,41 @@ const titleImage = document.querySelector(".hero-title");
 if (titleImage) {
   titleImage.style.transform = "translateX(-10%)";
 }
+
+// Control deslizante para mover el teléfono en vista móvil
+const phoneElement = document.querySelector(".phone");
+const phoneSlider = document.getElementById("phone-shift");
+const phoneSliderValue = document.getElementById("phone-shift-value");
+const MOBILE_QUERY = window.matchMedia("(max-width: 900px)");
+
+if (phoneElement && phoneSlider) {
+  const updateShift = (value) => {
+    const numericValue = Number(value) || 0;
+    const offset = numericValue - 50; // -50% (izquierda) a +50% (derecha)
+    phoneElement.style.setProperty("--phone-shift", `${offset}%`);
+    if (phoneSliderValue) {
+      phoneSliderValue.textContent = `${numericValue}%`;
+    }
+  };
+
+  const handleViewportChange = () => {
+    if (!MOBILE_QUERY.matches) {
+      // En escritorio, reseteamos al centro y ocultamos desplazamiento
+      phoneElement.style.setProperty("--phone-shift", "0%");
+      phoneSlider.value = "50";
+      if (phoneSliderValue) {
+        phoneSliderValue.textContent = "50%";
+      }
+    } else {
+      updateShift(phoneSlider.value);
+    }
+  };
+
+  updateShift(phoneSlider.value);
+  phoneSlider.addEventListener("input", (event) => {
+    updateShift(event.target.value);
+  });
+
+  MOBILE_QUERY.addEventListener("change", handleViewportChange);
+  handleViewportChange();
+}

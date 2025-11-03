@@ -15,6 +15,7 @@
       --icon-radius: 22%;
       --icon-size: 64px;
       --grid-gap: 16px;
+      --phone-shift: 0%;
     }
     /* Fondo degradado escarchado */
     .bg-sparkle{
@@ -79,6 +80,8 @@
       position:relative;
       aspect-ratio: 2087 / 4186; /* cambia si tu PNG tiene otra proporción */
       background:center/cover no-repeat url("assets/phone-frame.png");
+      transform: translateX(var(--phone-shift));
+      transition: transform 180ms ease;
     }
     .screen{
       position:absolute;
@@ -238,8 +241,10 @@
     }
     .left{
       display:flex;
+      flex-direction:column;
       align-items:center;
       justify-content:center;
+      gap:16px;
     }
     .right{
       display:flex;
@@ -296,6 +301,36 @@
       transition:transform .08s, box-shadow .08s; }
     .info-btn:active{ transform:translateY(1px) scale(.99); box-shadow:0 6px 12px rgba(0,0,0,.24); }
 
+    .phone-control{
+      display:none;
+      width:min(92vw, 360px);
+      color:#e6e6e6;
+      font-size:0.95rem;
+      background:rgba(16,14,40,0.45);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:12px;
+      padding:12px 16px;
+      box-shadow:0 12px 28px rgba(0,0,0,0.28);
+      backdrop-filter:blur(12px) saturate(1.1);
+      -webkit-backdrop-filter:blur(12px) saturate(1.1);
+    }
+    .phone-control label{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      font-weight:600;
+      letter-spacing:0.02em;
+      margin-bottom:10px;
+    }
+    .phone-control input[type="range"]{
+      width:100%;
+      accent-color:#7cc5ff;
+    }
+    .phone-control__value{
+      font-variant-numeric:tabular-nums;
+    }
+
     /* ====== RESPONSIVE (móvil / tablets pequeñas) ====== */
     @media (max-width: 900px){
       :root{
@@ -315,6 +350,7 @@
         width: 100%;
         display: flex;
         justify-content: center;
+        align-items:center;
       }
 
       .phone{
@@ -326,6 +362,12 @@
         gap: var(--grid-gap);
         padding: clamp(20px, calc(var(--phone-width) * 0.1), 32px)
           clamp(16px, calc(var(--phone-width) * 0.07), 22px);
+      }
+
+      .phone-control{
+        display:flex;
+        flex-direction:column;
+        align-items:stretch;
       }
 
       .hero-title{
@@ -400,6 +442,7 @@
         width: 100%;
         display: flex;
         justify-content: center;
+        align-items:center;
       }
 
       .phone{
@@ -449,6 +492,12 @@
           </div>
           <div class="pill" aria-hidden="true"></div>
         </div>
+      </div>
+      <div class="phone-control" id="phone-control">
+        <label for="phone-shift">Posición horizontal
+          <span class="phone-control__value" id="phone-shift-value">50%</span>
+        </label>
+        <input type="range" id="phone-shift" name="phone-shift" min="0" max="100" value="50" step="1" aria-label="Posición horizontal del teléfono">
       </div>
     </div>
     <div class="right">
