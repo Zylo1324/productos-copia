@@ -120,3 +120,22 @@ document.querySelectorAll(".app[data-app]").forEach(el => {
 
 // Estado inicial
 showApp("chatgpt");
+
+// Control del desplazamiento del título mediante la barra de porcentaje
+const titleImage = document.querySelector(".hero-title");
+const titleSlider = document.getElementById("title-offset");
+const titleValue = document.getElementById("title-offset-value");
+
+if (titleImage && titleSlider && titleValue) {
+  const updateTitlePosition = (value) => {
+    const shift = `${value}%`;
+    titleImage.style.setProperty("--title-shift", shift);
+    titleValue.textContent = shift;
+  };
+
+  updateTitlePosition(titleSlider.value);
+
+  titleSlider.addEventListener("input", (event) => {
+    updateTitlePosition(event.target.value);
+  });
+}
