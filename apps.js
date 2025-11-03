@@ -128,6 +128,20 @@ if (titleImage) {
   titleImage.style.transform = "translateX(-10%)";
 }
 
+// Ajusta la última fila de íconos para que quede equilibrada visualmente
+const iconsGrid = document.querySelector(".icons");
+
+if (iconsGrid) {
+  const iconItems = iconsGrid.querySelectorAll(".app");
+  const remainder = iconItems.length % 4;
+
+  if (remainder === 0) {
+    iconsGrid.removeAttribute("data-last-row");
+  } else {
+    iconsGrid.setAttribute("data-last-row", String(remainder));
+  }
+}
+
 // Control deslizante para mover el teléfono en vista móvil
 const phoneElement = document.querySelector(".phone");
 const phoneSlider = document.getElementById("phone-shift");
