@@ -352,6 +352,14 @@
 
     /* ====== RESPONSIVE (móvil / tablets pequeñas) ====== */
     @media (max-width: 900px){
+      body{
+        height:auto;
+        min-height:100vh;
+        overflow-x:hidden;
+        overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
+      }
+
       :root{
         --phone-width: clamp(240px, 60vw, 320px);
         --icon-size: calc(var(--phone-width) * 0.18);
