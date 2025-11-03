@@ -131,16 +131,38 @@ if (controls) {
   const inputY = controls.querySelector("#title-control-y");
   const inputScale = controls.querySelector("#title-control-scale");
 
+  const outputX = controls.querySelector("#title-control-x-value");
+  const outputY = controls.querySelector("#title-control-y-value");
+  const outputScale = controls.querySelector("#title-control-scale-value");
+
+  const formatOutputs = () => {
+    if (outputX) {
+      outputX.textContent = `${inputX.value}px`;
+    }
+    if (outputY) {
+      outputY.textContent = `${inputY.value}px`;
+    }
+    if (outputScale) {
+      const percentage = Math.round(parseFloat(inputScale.value) * 100);
+      outputScale.textContent = `${percentage}%`;
+    }
+  };
+
   const applyValues = () => {
     rootStyle.setProperty("--title-mobile-x", `${inputX.value}px`);
     rootStyle.setProperty("--title-mobile-y", `${inputY.value}px`);
     rootStyle.setProperty("--title-mobile-scale", inputScale.value);
+    formatOutputs();
   };
 
   const resetValues = () => {
     rootStyle.setProperty("--title-mobile-x", "0px");
     rootStyle.setProperty("--title-mobile-y", "0px");
     rootStyle.setProperty("--title-mobile-scale", "1");
+    inputX.value = "0";
+    inputY.value = "0";
+    inputScale.value = "1";
+    formatOutputs();
   };
 
   const syncVisibility = () => {
@@ -157,11 +179,14 @@ if (controls) {
     input.addEventListener("input", () => {
       if (mq.matches) {
         applyValues();
+      } else {
+        formatOutputs();
       }
     });
   });
 
   mq.addEventListener("change", syncVisibility);
+  formatOutputs();
   syncVisibility();
 }
 
