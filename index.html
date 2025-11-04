@@ -284,55 +284,6 @@
       transform: translateX(-10%);
     }
 
-    .mobile-controls{
-      display: none;
-      margin: 12px auto 0;
-      width: min(92vw, 560px);
-      padding: 18px;
-      border-radius: 14px;
-      background: rgba(16, 14, 40, 0.55);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 16px 30px rgba(0,0,0,0.28);
-      backdrop-filter: blur(12px) saturate(1.05);
-      -webkit-backdrop-filter: blur(12px) saturate(1.05);
-      color: #e8ecff;
-      gap: 14px;
-    }
-
-    .mobile-controls__headline{
-      margin: 0;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-
-    .mobile-controls__field{
-      display: grid;
-      gap: 6px;
-      font-size: 0.9rem;
-      color: #cfd9ff;
-    }
-
-    .mobile-controls__field-label{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .mobile-controls__value{
-      font-weight: 600;
-      color: #9dd6ff;
-      font-variant-numeric: tabular-nums;
-      text-transform: none;
-    }
-
-    .mobile-controls input[type="range"]{
-      width: 100%;
-      accent-color: #7cc5ff;
-    }
-
     /* Teléfono: solo tamaño responsivo (NO tocar offsets/animaciones internas) */
     .phone{
       width: clamp(280px, 32vw, 400px);
@@ -414,9 +365,6 @@
         margin: 16px auto 24px;
       }
 
-      .mobile-controls{
-        display: grid;
-      }
     }
 
     /* Pantalla completa, sin scroll */
@@ -534,28 +482,6 @@
       <img class="hero-title" src="assets/titulo.png" alt="R1VER by SUPERZYLO">
     </div>
   </main>
-
-  <section class="mobile-controls" id="title-controls">
-    <p class="mobile-controls__headline">Ajusta el título en tu pantalla</p>
-    <div class="mobile-controls__field">
-      <span class="mobile-controls__field-label">
-        <span>Posición horizontal</span>
-        <span class="mobile-controls__value">-16px</span>
-      </span>
-    </div>
-    <div class="mobile-controls__field">
-      <span class="mobile-controls__field-label">
-        <span>Posición vertical</span>
-        <span class="mobile-controls__value">-738px</span>
-      </span>
-    </div>
-    <div class="mobile-controls__field">
-      <span class="mobile-controls__field-label">
-        <span>Tamaño</span>
-        <span class="mobile-controls__value">59%</span>
-      </span>
-    </div>
-  </section>
 
   <section class="info-card" id="info-card" aria-live="polite">
     <div class="info-header">
