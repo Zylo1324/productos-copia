@@ -357,12 +357,26 @@
         transform: translate(var(--title-mobile-x, 0px), var(--title-mobile-y, 0px)) scale(var(--title-mobile-scale, 1));
       }
 
-      .right{ order: 1; }
+      .right{
+        /* Mantiene la columna derecha después del teléfono en el flujo móvil */
+        order: 1;
+        /* Permite que el contenido use todo el ancho disponible del viewport */
+        width: 100%;
+        /* Conserva el layout en columna para apilar teléfono y panel */
+        display: flex;
+        /* Asegura que los elementos se apilen verticalmente */
+        flex-direction: column;
+        /* Centra horizontalmente los elementos dentro de la columna */
+        align-items: center;
+      }
 
       .info-card{
+        /* Reintegra el panel al flujo normal para situarlo bajo el teléfono */
         position: static;
-        width: min(92vw, 560px);
-        margin: 16px auto 24px;
+        /* Limita el ancho para que se adapte al viewport sin deformar el diseño */
+        width: min(90vw, 420px);
+        /* Añade separación superior y centra el panel con márgenes automáticos */
+        margin: clamp(16px, 4vw, 28px) auto 24px;
       }
 
     }
