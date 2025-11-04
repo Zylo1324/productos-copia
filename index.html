@@ -371,12 +371,15 @@
       }
 
       .info-card{
-        /* Reintegra el panel al flujo normal para situarlo bajo el teléfono */
+        /* Mantén el panel en el flujo, justo bajo el teléfono */
         position: static;
-        /* Limita el ancho para que se adapte al viewport sin deformar el diseño */
-        width: min(90vw, 420px);
-        /* Añade separación superior y centra el panel con márgenes automáticos */
-        margin: clamp(16px, 4vw, 28px) auto 24px;
+        /* Acompaña el ancho del teléfono sin desbordar la pantalla */
+        width: min(92vw, 420px);
+        max-width: calc(var(--phone-width, 360px) + 16px);
+        /* Centrado con respiro superior e inferior seguro */
+        margin: clamp(8px, 3vw, 16px) auto env(safe-area-inset-bottom, 12px);
+        /* Relleno adaptable para mantener la legibilidad */
+        padding: clamp(14px, 4vw, 22px);
       }
 
     }
