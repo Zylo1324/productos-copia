@@ -131,6 +131,12 @@ if (controls) {
   const inputY = controls.querySelector("#title-control-y");
   const inputScale = controls.querySelector("#title-control-scale");
 
+  const DEFAULT_TITLE_STATE = {
+    x: -16,
+    y: -738,
+    scale: 0.59,
+  };
+
   const outputX = controls.querySelector("#title-control-x-value");
   const outputY = controls.querySelector("#title-control-y-value");
   const outputScale = controls.querySelector("#title-control-scale-value");
@@ -148,20 +154,26 @@ if (controls) {
     }
   };
 
+  const setRootVariables = ({ x, y, scale }) => {
+    rootStyle.setProperty("--title-mobile-x", `${x}px`);
+    rootStyle.setProperty("--title-mobile-y", `${y}px`);
+    rootStyle.setProperty("--title-mobile-scale", scale);
+  };
+
   const applyValues = () => {
-    rootStyle.setProperty("--title-mobile-x", `${inputX.value}px`);
-    rootStyle.setProperty("--title-mobile-y", `${inputY.value}px`);
-    rootStyle.setProperty("--title-mobile-scale", inputScale.value);
+    setRootVariables({
+      x: Number(inputX.value),
+      y: Number(inputY.value),
+      scale: inputScale.value,
+    });
     formatOutputs();
   };
 
   const resetValues = () => {
-    rootStyle.setProperty("--title-mobile-x", "0px");
-    rootStyle.setProperty("--title-mobile-y", "0px");
-    rootStyle.setProperty("--title-mobile-scale", "1");
-    inputX.value = "0";
-    inputY.value = "0";
-    inputScale.value = "1";
+    inputX.value = `${DEFAULT_TITLE_STATE.x}`;
+    inputY.value = `${DEFAULT_TITLE_STATE.y}`;
+    inputScale.value = `${DEFAULT_TITLE_STATE.scale}`;
+    setRootVariables(DEFAULT_TITLE_STATE);
     formatOutputs();
   };
 
@@ -186,7 +198,7 @@ if (controls) {
   });
 
   mq.addEventListener("change", syncVisibility);
-  formatOutputs();
+  resetValues();
   syncVisibility();
 }
 
