@@ -374,9 +374,11 @@
         /* Reintegra el panel al flujo normal para situarlo bajo el teléfono */
         position: static;
         /* Limita el ancho para que se adapte al viewport sin deformar el diseño */
-        width: min(90vw, 420px);
+        width: min(var(--phone-width), 92vw);
+        max-width: 420px;
         /* Añade separación superior y centra el panel con márgenes automáticos */
-        margin: clamp(16px, 4vw, 28px) auto 24px;
+        margin: clamp(10px, 2.5vw, 20px) auto clamp(28px, 8vw, 40px);
+        padding: clamp(18px, 5vw, 24px) clamp(16px, 6vw, 22px);
       }
 
     }
@@ -432,7 +434,8 @@
         grid-template-columns: 1fr;
         justify-items: center;
         gap: clamp(18px, 4vw, 28px);
-        padding: 12px 16px;
+        padding: 12px 16px clamp(24px, 7vw, 48px);
+        min-height: auto;
       }
 
       .left{
