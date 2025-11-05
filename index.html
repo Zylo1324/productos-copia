@@ -371,20 +371,15 @@
       }
 
       .info-card{
-        /* Sitúa el panel en el flujo para que quede inmediatamente bajo el teléfono */
-        position: relative;
-        /* Ajusta el ancho para seguir la referencia del teléfono sin superarlo */
-        width: min(90vw, var(--phone-width, 360px));
-        max-width: 100%;
-        /* Centra el panel y define una separación base flexible respecto al teléfono */
-        margin: clamp(6px, 2.5vw, 14px) auto env(safe-area-inset-bottom, 12px);
-        /* Mantiene el relleno proporcional para conservar la jerarquía visual */
+        /* Mantén el panel en el flujo, justo bajo el teléfono */
+        position: static;
+        /* Acompaña el ancho del teléfono sin desbordar la pantalla */
+        width: min(92vw, 420px);
+        max-width: calc(var(--phone-width, 360px) + 16px);
+        /* Centrado con respiro superior e inferior seguro */
+        margin: clamp(8px, 3vw, 16px) auto env(safe-area-inset-bottom, 12px);
+        /* Relleno adaptable para mantener la legibilidad */
         padding: clamp(14px, 4vw, 22px);
-      }
-
-      .hero .info-card{
-        /* Ajusta el margen superior para aproximar visualmente el panel al borde del teléfono */
-        margin-top: clamp(-14px, -2.5vw, -6px);
       }
 
     }
