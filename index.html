@@ -371,15 +371,16 @@
       }
 
       .info-card{
-        /* Mantén el panel en el flujo, justo bajo el teléfono */
+        /* Mantén el panel en el flujo normal, justo bajo el teléfono */
         position: static;
-        /* Acompaña el ancho del teléfono sin desbordar la pantalla */
-        width: min(92vw, 420px);
-        max-width: calc(var(--phone-width, 360px) + 16px);
-        /* Centrado con respiro superior e inferior seguro */
-        margin: clamp(8px, 3vw, 16px) auto env(safe-area-inset-bottom, 12px);
-        /* Relleno adaptable para mantener la legibilidad */
+        /* Asegura que nunca sea más ancho que el teléfono ni el viewport */
+        width: min(90vw, var(--phone-width, 360px));
+        /* Mantiene un ligero margen interior con el teléfono */
+        margin: clamp(-12px, -2vw, -4px) auto env(safe-area-inset-bottom, 12px);
+        /* Ajusta el relleno para conservar legibilidad en cualquier ancho */
         padding: clamp(14px, 4vw, 22px);
+        /* Suaviza las esquinas para mantener la estética original */
+        border-radius: 16px;
       }
 
     }
